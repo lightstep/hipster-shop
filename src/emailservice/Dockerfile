@@ -10,12 +10,16 @@ RUN apt-get -qq update \
 # get packages
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+RUN pip install ls-trace
 
 FROM base as final
 # Enable unbuffered logging
 ENV PYTHONUNBUFFERED=1
 # Enable Profiler
 ENV ENABLE_PROFILER=1
+
+ENV DD_TRACE_AGENT_URL=https://ingest.lightstep.com:443
+ENV DD_TRACE_GLOBAL_TAGS="lightstep.service_name:emailservice,lightstep.access_token:Wfhecs+qnaOncJb5L8PHCuo98pnddVhtayxCtQ0lV7vZuzz7EptplEe/yTeO5E4ZBGBSg3oOcstlbeZ/nlZ2lc8lNd3z3/+35ZoXGeZQ"
 
 RUN apt-get -qq update \
     && apt-get install -y --no-install-recommends \
@@ -35,4 +39,4 @@ COPY --from=builder /usr/local/lib/python3.7/ /usr/local/lib/python3.7/
 COPY . .
 
 EXPOSE 8080
-ENTRYPOINT [ "python", "email_server.py" ]
+ENTRYPOINT [ "ls-trace-run", "python", "email_server.py" ]
