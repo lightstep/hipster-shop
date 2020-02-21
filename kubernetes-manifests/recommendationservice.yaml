@@ -46,6 +46,10 @@ spec:
           value: "productcatalogservice:3550"
         - name: ENABLE_PROFILER
           value: "0"
+        - name: DD_TRACE_AGENT_URL
+          value: "https://ingest.lightstep.com:443"
+        - name: DD_TRACE_GLOBAL_TAGS
+          value: "lightstep.service_name:recommendationservice,lightstep.access_token:a4e9673d3d37a36f1ee3c4f68cc1d04d"
         resources:
           requests:
             cpu: 100m

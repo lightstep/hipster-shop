@@ -18,9 +18,6 @@ ENV PYTHONUNBUFFERED=1
 # Enable Profiler
 ENV ENABLE_PROFILER=1
 
-ENV DD_TRACE_AGENT_URL=https://ingest.lightstep.com:443
-ENV DD_TRACE_GLOBAL_TAGS="lightstep.service_name:emailservice,lightstep.access_token:Wfhecs+qnaOncJb5L8PHCuo98pnddVhtayxCtQ0lV7vZuzz7EptplEe/yTeO5E4ZBGBSg3oOcstlbeZ/nlZ2lc8lNd3z3/+35ZoXGeZQ"
-
 RUN apt-get -qq update \
     && apt-get install -y --no-install-recommends \
         wget
