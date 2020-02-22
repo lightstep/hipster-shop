@@ -49,7 +49,7 @@ spec:
         - name: DD_TRACE_AGENT_URL
           value: "https://ingest.lightstep.com:443"
         - name: DD_TRACE_GLOBAL_TAGS
-          value: "lightstep.service_name:recommendationservice,lightstep.access_token:a4e9673d3d37a36f1ee3c4f68cc1d04d"
+          value: "lightstep.service_name:recommendationservice,lightstep.access_token:Wfhecs+qnaOncJb5L8PHCuo98pnddVhtayxCtQ0lV7vZuzz7EptplEe/yTeO5E4ZBGBSg3oOcstlbeZ/nlZ2lc8lNd3z3/+35ZoXGeZQ"
         resources:
           requests:
             cpu: 100m
