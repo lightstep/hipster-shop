@@ -28,6 +28,12 @@ require('@google-cloud/debug-agent').start({
   }
 });
 
+const tracer = require('ls-trace').init({
+  experimental: {
+    b3: true
+  }
+})
+
 const path = require('path');
 const grpc = require('grpc');
 const pino = require('pino');
