@@ -1,3 +1,9 @@
+FORK OF https://github.com/GoogleCloudPlatform/microservices-demo
+
+**NOTE: This repo is shared between Google and LightStep employees**
+
+-----
+
 # Hipster Shop: Cloud-Native Microservices Demo Application
 
 This project contains a 10-tier microservices application. The application is a
