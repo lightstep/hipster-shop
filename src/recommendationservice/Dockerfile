@@ -6,7 +6,7 @@ RUN apt-get update -qqy && \
 ENV PYTHONUNBUFFERED=0
 
 ENV DD_TRACE_AGENT_URL=https://ingest.lightstep.com:443
-ENV DD_TRACE_GLOBAL_TAGS="lightstep.service_name:recommendationservices,lightstep.access_token:Wfhecs+qnaOncJb5L8PHCuo98pnddVhtayxCtQ0lV7vZuzz7EptplEe/yTeO5E4ZBGBSg3oOcstlbeZ/nlZ2lc8lNd3z3/+35ZoXGeZQ"
+ENV DD_TRACE_GLOBAL_TAGS="lightstep.service_name:recommendationservice,lightstep.access_token:Wfhecs+qnaOncJb5L8PHCuo98pnddVhtayxCtQ0lV7vZuzz7EptplEe/yTeO5E4ZBGBSg3oOcstlbeZ/nlZ2lc8lNd3z3/+35ZoXGeZQ"
 
 # download the grpc health probe
 RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
