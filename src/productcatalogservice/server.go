@@ -27,6 +27,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"strconv"
 
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/productcatalogservice/genproto"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -42,6 +43,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"github.com/lightstep/lightstep-tracer-go/lightstepoc"
 )
 
 var (
@@ -74,7 +76,20 @@ func init() {
 }
 
 func main() {
-	go initTracing()
+	log := logrus.New()
+	log.Level = logrus.DebugLevel
+	log.Formatter = &logrus.JSONFormatter{
+		FieldMap: logrus.FieldMap{
+			logrus.FieldKeyTime:  "timestamp",
+			logrus.FieldKeyLevel: "severity",
+			logrus.FieldKeyMsg:   "message",
+		},
+		TimestampFormat: time.RFC3339Nano,
+	}
+	log.Out = os.Stdout
+
+
+	go initTracing(log)
 	go initProfiling("productcatalogservice", "1.0.0")
 	flag.Parse()
 
@@ -125,6 +140,35 @@ func run(port string) string {
 	healthpb.RegisterHealthServer(srv, svc)
 	go srv.Serve(l)
 	return l.Addr().String()
+}
+
+func initLightstepTracing(log logrus.FieldLogger) {
+	lsHost := os.Getenv("LIGHTSTEP_HOST")
+	lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+  if err != nil {
+     log.Fatal(err)
+  }
+	lsAccessToken := os.Getenv("LIGHTSTEP_ACCESS_TOKEN")
+	lsInsecure := true
+	lsComponentName := "frontend"
+	// static for now, but options later
+
+	exporterOptions := []lightstepoc.Option{
+		lightstepoc.WithAccessToken(lsAccessToken),
+		lightstepoc.WithSatelliteHost(lsHost),
+		lightstepoc.WithSatellitePort(lsPort),
+		lightstepoc.WithInsecure(lsInsecure),
+		lightstepoc.WithComponentName(lsComponentName),
+	}
+
+	exporter, err := lightstepoc.NewExporter(exporterOptions...)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer exporter.Close(context.Background())
+	trace.RegisterExporter(exporter)
+	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+	log.Info("lightstep initialization completed")
 }
 
 func initJaegerTracing() {
@@ -181,8 +225,9 @@ func initStackdriverTracing() {
 	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
 }
 
-func initTracing() {
+func initTracing(log logrus.FieldLogger) {
 	initJaegerTracing()
+	initLightstepTracing(log)
 	initStackdriverTracing()
 }
 

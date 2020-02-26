@@ -24,21 +24,32 @@
   version = "v0.5.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a85b0dc359de4812d383ee6670f0dae595cfcb8b13ff6b872bdb013a18c37b07"
-  name = "git.apache.org/thrift.git"
-  packages = ["lib/go/thrift"]
-  pruneopts = "UT"
-  revision = "286eee16b147a302ddc7b10740c5e5401ebbec17"
-  source = "github.com/apache/thrift"
-
-[[projects]]
   digest = "1:9370265bab17bdc207051ccedc34535484a12622a329839e580059c79236c1e3"
   name = "github.com/GoogleCloudPlatform/microservices-demo"
   packages = ["src/productcatalogservice/genproto"]
   pruneopts = "UT"
   revision = "27df445fc20f048c1c31e429f6c29075119fe454"
   version = "v0.1.1"
+
+[[projects]]
+  digest = "1:2505ada8a497ded339532cfaae30c15365f4e82245a3dbaff7a8453c086b0667"
+  name = "github.com/apache/thrift"
+  packages = ["lib/go/thrift"]
+  pruneopts = "UT"
+  revision = "cecee50308fc7e6f77f55b3fd906c1c6c471fa2f"
+  version = "v0.13.0"
+
+[[projects]]
+  digest = "1:90d79bbf6abc5fcbf9bc538766e523f7d33d07d7fda462fc299556a80dc03a7d"
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "proto",
+    "sortkeys",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "5628607bb4c51c3157aacc3a50f0ab707582b805"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:fd0a0705475581c7eb965259d417706cb49f42bde408502c3b53f139b7253d67"
@@ -89,12 +100,56 @@
   version = "v2.0.5"
 
 [[projects]]
+  digest = "1:7fae9ec96d10b2afce0da23c378c8b3389319b7f92fa092f2621bba3078cfb4b"
+  name = "github.com/hashicorp/golang-lru"
+  packages = ["simplelru"]
+  pruneopts = "UT"
+  revision = "14eae340515388ca95aa8e7b86f0de668e981f54"
+  version = "v0.5.4"
+
+[[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
   pruneopts = "UT"
   revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
   version = "v1.0.2"
+
+[[projects]]
+  digest = "1:cd390f0290e379670d3dd50a3dd6b555a2bcee710a87991b0373ee55f6b368c7"
+  name = "github.com/lightstep/lightstep-tracer-common"
+  packages = [
+    "golang/gogo/collectorpb",
+    "golang/gogo/lightsteppb",
+  ]
+  pruneopts = "UT"
+  revision = "082dbbf1b51a87f008f51a6203c269395ac3fe54"
+  version = "v1.0.3"
+
+[[projects]]
+  digest = "1:43c67520fd4eaec1d377d3fccf923aa250a96500403f6e0d9ec02bda65a0e584"
+  name = "github.com/lightstep/lightstep-tracer-go"
+  packages = [
+    ".",
+    "lightstep/rand",
+    "lightstepoc",
+    "lightstepoc/internal/conversions",
+  ]
+  pruneopts = "UT"
+  revision = "95891af43e111d60f0ae6adaa39c2abe8caad401"
+  version = "v0.18.1"
+
+[[projects]]
+  digest = "1:11e62d6050198055e6cd87ed57e5d8c669e84f839c16e16f192374d913d1a70d"
+  name = "github.com/opentracing/opentracing-go"
+  packages = [
+    ".",
+    "ext",
+    "log",
+  ]
+  pruneopts = "UT"
+  revision = "659c90643e714681897ec2521c60567dd21da733"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -105,7 +160,7 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:a5154dfd6b37bef5a3eab759e13296348e639dc8c7604f538368167782b08ccd"
+  digest = "1:1e9ac83b98c3610b47a4f41ebf94f2e8ee87db981be9aff19fc273776f1a0ee4"
   name = "go.opencensus.io"
   packages = [
     ".",
@@ -113,9 +168,12 @@
     "exporter/jaeger/internal/gen-go/jaeger",
     "internal",
     "internal/tagencoding",
+    "metric/metricdata",
+    "metric/metricproducer",
     "plugin/ocgrpc",
     "plugin/ochttp",
     "plugin/ochttp/propagation/b3",
+    "resource",
     "stats",
     "stats/internal",
     "stats/view",
@@ -126,8 +184,8 @@
     "trace/tracestate",
   ]
   pruneopts = "UT"
-  revision = "b11f239c032624b045c4c2bfd3d1287b4012ce89"
-  version = "v0.16.0"
+  revision = "75c0cca22312e51bfd4fafdbe9197ae399e18b38"
+  version = "v0.20.2"
 
 [[projects]]
   branch = "master"
@@ -325,6 +383,7 @@
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/google/go-cmp/cmp",
+    "github.com/lightstep/lightstep-tracer-go/lightstepoc",
     "github.com/sirupsen/logrus",
     "go.opencensus.io/exporter/jaeger",
     "go.opencensus.io/plugin/ocgrpc",

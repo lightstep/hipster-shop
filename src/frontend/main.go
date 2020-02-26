@@ -20,6 +20,7 @@ import (
 	"net/http"
 	"os"
 	"time"
+	"strconv"
 
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
@@ -29,10 +30,12 @@ import (
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/b3"
+	//"go.opencensus.io/plugin/ochttp/propagation/b3"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
-	"google.golang.org/grpc"
+	"google.golang.org/grpc" //something
+
+	"github.com/lightstep/lightstep-tracer-go/lightstepoc"
 )
 
 const (
@@ -97,6 +100,8 @@ func main() {
 	go initProfiling(log, "frontend", "1.0.0")
 	go initTracing(log)
 
+	ctx, span := trace.StartSpan(context.Background(), "main")
+
 	srvPort := port
 	if os.Getenv("PORT") != "" {
 		srvPort = os.Getenv("PORT")
@@ -132,15 +137,48 @@ func main() {
 	r.HandleFunc("/robots.txt", func(w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, "User-agent: *\nDisallow: /") })
 	r.HandleFunc("/_healthz", func(w http.ResponseWriter, _ *http.Request) { fmt.Fprint(w, "ok") })
 
+	span.End()
+
 	var handler http.Handler = r
 	handler = &logHandler{log: log, next: handler} // add logging
 	handler = ensureSessionID(handler)             // add session ID
 	handler = &ochttp.Handler{                     // add opencensus instrumentation
 		Handler:     handler,
-		Propagation: &b3.HTTPFormat{}}
+		//Propagation: &b3.HTTPFormat{}
+	}
 
 	log.Infof("starting server on " + addr + ":" + srvPort)
 	log.Fatal(http.ListenAndServe(addr+":"+srvPort, handler))
+}
+
+func initLightstepTracing(log logrus.FieldLogger) {
+	lsHost := os.Getenv("LIGHTSTEP_HOST")
+	lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+  if err != nil {
+     log.Fatal(err)
+  }
+	lsAccessToken := os.Getenv("LIGHTSTEP_ACCESS_TOKEN")
+	lsInsecure := true
+	lsComponentName := "frontend"
+	// static for now, but options later
+
+	exporterOptions := []lightstepoc.Option{
+		lightstepoc.WithAccessToken(lsAccessToken),
+		lightstepoc.WithSatelliteHost(lsHost),
+		lightstepoc.WithSatellitePort(lsPort),
+		lightstepoc.WithInsecure(lsInsecure),
+		lightstepoc.WithComponentName(lsComponentName),
+	}
+
+	exporter, err := lightstepoc.NewExporter(exporterOptions...)
+	if err != nil {
+		log.Info("Did not initialize lightstep exporter correctly")
+		log.Fatal(err)
+	}
+	defer exporter.Close(context.Background())
+	trace.RegisterExporter(exporter)
+	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+	log.Info("Initalized lightstep exporter")
 }
 
 func initJaegerTracing(log logrus.FieldLogger) {
@@ -215,6 +253,7 @@ func initTracing(log logrus.FieldLogger) {
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
 	initJaegerTracing(log)
+	initLightstepTracing(log)
 	initStackdriverTracing(log)
 
 }

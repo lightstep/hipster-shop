@@ -65,8 +65,14 @@ spec:
             value: "checkoutservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
+          - name: LIGHTSTEP_PORT
+            value: "8360"
+          - name: LIGHTSTEP_HOST
+            value: "satellite"
+          - name: LIGHTSTEP_ACCESS_TOKEN
+            value: "a4e9673d3d37a36f1ee3c4f68cc1d04d"
           # - name: JAEGER_SERVICE_ADDR
-          #   value: "jaeger-collector:14268"
+          #   value: "jaeger:6831"
           resources:
             requests:
               cpu: 100m
