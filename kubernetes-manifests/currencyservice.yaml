@@ -37,8 +37,11 @@ spec:
           value: "7000"
         - name: DD_TRACE_AGENT_URL
           value: "https://ingest.lightstep.com:443"
-        - name: DD_TRACE_GLOBAL_TAGS
-          value: "lightstep.service_name:currencyservice,lightstep.access_token:Wfhecs+qnaOncJb5L8PHCuo98pnddVhtayxCtQ0lV7vZuzz7EptplEe/yTeO5E4ZBGBSg3oOcstlbeZ/nlZ2lc8lNd3z3/+35ZoXGeZQ"
+        - name: SECRET_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ls-access-token
+              key: token
         readinessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:7000"]

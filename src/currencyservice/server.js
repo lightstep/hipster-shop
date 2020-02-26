@@ -38,6 +38,8 @@ const tracer = require('ls-trace').init({
     'service.version' : VERSION,
     hostname : require('os').hostname(),
     platform : require('os').platform(),
+    "lightstep.service_name": "currencyservice",
+    "lightstep.access_token": process.env.SECRET_ACCESS_TOKEN
   }
 })
 
@@ -67,7 +69,7 @@ const logger = pino({
 /**
  * Helper function that loads a protobuf file.
  */
-function _loadProto (path) {
+function _loadProto(path) {
   const packageDefinition = protoLoader.loadSync(
     path,
     {
@@ -95,7 +97,7 @@ function _getCurrencyData (parentSpan, callback) {
 /**
  * Helper function that handles decimal/fractional carrying
  */
-function _carry (amount) {
+function _carry(amount) {
   const fractionSize = Math.pow(10, 9);
   amount.nanos += (amount.units % 1) * fractionSize;
   amount.units = Math.floor(amount.units) + Math.floor(amount.nanos / fractionSize);
@@ -118,7 +120,7 @@ function getSupportedCurrencies (call, callback) {
 /**
  * Converts between currencies
  */
-function convert (call, callback) {
+function convert(call, callback) {
   logger.info('received conversion request');
   const span = opentracing.globalTracer().startSpan('convert');
   span.setTag('kind', 'server');
@@ -178,11 +180,11 @@ function check (call, callback) {
  * Starts an RPC server that receives requests for the
  * CurrencyConverter service at the sample server port
  */
-function main () {
+function main() {
   logger.info(`Starting gRPC server on port ${PORT}...`);
   const server = new grpc.Server();
-  server.addService(shopProto.CurrencyService.service, {getSupportedCurrencies, convert});
-  server.addService(healthProto.Health.service, {check});
+  server.addService(shopProto.CurrencyService.service, { getSupportedCurrencies, convert });
+  server.addService(healthProto.Health.service, { check });
   server.bind(`0.0.0.0:${PORT}`, grpc.ServerCredentials.createInsecure());
   server.start();
 }

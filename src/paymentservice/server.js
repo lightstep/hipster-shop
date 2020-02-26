@@ -20,6 +20,10 @@ const protoLoader = require('@grpc/proto-loader');
 const tracer = require('ls-trace').init({
   experimental: {
     b3: true
+  },
+  tags: {
+    "lightstep.service_name": "paymentservice",
+    "lightstep.access_token": process.env.SECRET_ACCESS_TOKEN
   }
 })
 
