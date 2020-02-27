@@ -19,13 +19,13 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strconv"
 	"time"
 
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"github.com/google/uuid"
-	"github.com/lightstep/lightstep-tracer-go/lightstepoc"
+	"github.com/lightstep/lightstep-tracer-go"
+	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -38,6 +38,8 @@ import (
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
 	money "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 )
 
 const (
@@ -71,9 +73,9 @@ type checkoutService struct {
 }
 
 func main() {
-	go initTracing()
-	go initProfiling("checkoutservice", "1.0.0")
-
+	initTracing()
+	// go initProfiling("checkoutservice", "1.0.0")
+	tracer := opentracing.GlobalTracer()
 	port := listenPort
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
@@ -93,7 +95,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	srv := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+	srv := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			otgrpc.OpenTracingServerInterceptor(tracer)),
+		grpc.StreamInterceptor(
+			otgrpc.OpenTracingStreamServerInterceptor(tracer)),
+	)
 	pb.RegisterCheckoutServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
 	log.Infof("starting to listen on tcp: %q", lis.Addr().String())
@@ -102,28 +109,24 @@ func main() {
 }
 
 func initLightstepTracing(log logrus.FieldLogger) {
-	lsHost := os.Getenv("LIGHTSTEP_HOST")
-	lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
-	if err != nil {
-		log.Fatal(err)
-	}
 	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
 	lsComponentName := "checkoutservice"
 
-	exporterOptions := []lightstepoc.Option{
-		lightstepoc.WithAccessToken(lsAccessToken),
-		lightstepoc.WithSatelliteHost(lsHost),
-		lightstepoc.WithSatellitePort(lsPort),
-		lightstepoc.WithComponentName(lsComponentName),
+	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
+		opentracing.HTTPHeaders: lightstep.B3Propagator,
+		opentracing.TextMap:     lightstep.B3Propagator,
 	}
 
-	exporter, err := lightstepoc.NewExporter(exporterOptions...)
-	if err != nil {
-		log.Info("Did not initialize lightstep exporter correctly")
-		log.Fatal(err)
-	}
+	lightStepTracer := lightstep.NewTracer(lightstep.Options{
+		Collector:   lightstep.Endpoint{},
+		AccessToken: lsAccessToken,
+		Tags: map[string]interface{}{
+			lightstep.ComponentNameKey: lsComponentName,
+		},
+		Propagators: propagators,
+	})
+	opentracing.SetGlobalTracer(lightStepTracer)
 
-	trace.RegisterExporter(exporter)
 	log.Info("Initalized lightstep exporter")
 }
 
@@ -308,9 +311,15 @@ func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context
 }
 
 func (cs *checkoutService) quoteShipping(ctx context.Context, address *pb.Address, items []*pb.CartItem) (*pb.Money, error) {
+	tracer := opentracing.GlobalTracer()
 	conn, err := grpc.DialContext(ctx, cs.shippingSvcAddr,
 		grpc.WithInsecure(),
-		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
+		// grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
+		grpc.WithUnaryInterceptor(
+			otgrpc.OpenTracingClientInterceptor(tracer)),
+		grpc.WithStreamInterceptor(
+			otgrpc.OpenTracingStreamClientInterceptor(tracer)),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("could not connect shipping service: %+v", err)
 	}

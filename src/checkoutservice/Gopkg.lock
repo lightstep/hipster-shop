@@ -24,13 +24,12 @@
   version = "v0.5.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a85b0dc359de4812d383ee6670f0dae595cfcb8b13ff6b872bdb013a18c37b07"
-  name = "git.apache.org/thrift.git"
+  digest = "1:2505ada8a497ded339532cfaae30c15365f4e82245a3dbaff7a8453c086b0667"
+  name = "github.com/apache/thrift"
   packages = ["lib/go/thrift"]
   pruneopts = "UT"
-  revision = "286eee16b147a302ddc7b10740c5e5401ebbec17"
-  source = "github.com/apache/thrift"
+  revision = "cecee50308fc7e6f77f55b3fd906c1c6c471fa2f"
+  version = "v0.13.0"
 
 [[projects]]
   digest = "1:90d79bbf6abc5fcbf9bc538766e523f7d33d07d7fda462fc299556a80dc03a7d"
@@ -87,6 +86,22 @@
   version = "v2.0.5"
 
 [[projects]]
+  branch = "master"
+  digest = "1:1a1206efd03a54d336dce7bb8719e74f2f8932f661cb9f57d5813a1d99c083d8"
+  name = "github.com/grpc-ecosystem/grpc-opentracing"
+  packages = ["go/otgrpc"]
+  pruneopts = "UT"
+  revision = "8e809c8a86450a29b90dcc9efbf062d0fe6d9746"
+
+[[projects]]
+  digest = "1:7fae9ec96d10b2afce0da23c378c8b3389319b7f92fa092f2621bba3078cfb4b"
+  name = "github.com/hashicorp/golang-lru"
+  packages = ["simplelru"]
+  pruneopts = "UT"
+  revision = "14eae340515388ca95aa8e7b86f0de668e981f54"
+  version = "v0.5.4"
+
+[[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -106,17 +121,23 @@
   version = "v1.0.3"
 
 [[projects]]
-  branch = "cody/add-access-token-header"
-  digest = "1:9ec171cde11ff8cb37372b5bd2d1ef526295aaa8b7eaa41eaa222213bca918d2"
+  digest = "1:bec504b3bb750307272d311ceab29319e9f6b37a77da1d884d54e7769a1e2412"
   name = "github.com/lightstep/lightstep-tracer-go"
   packages = [
     ".",
     "lightstep/rand",
-    "lightstepoc",
-    "lightstepoc/internal/conversions",
   ]
   pruneopts = "UT"
-  revision = "5220cdddf7283106f1e90beff07c233ddf1e0d3f"
+  revision = "95891af43e111d60f0ae6adaa39c2abe8caad401"
+  version = "v0.18.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bce8a8c7289c6c5e23423799b905c3e8f2d532117c3778a45592bdc095cf5c83"
+  name = "github.com/opentracing-contrib/go-stdlib"
+  packages = ["nethttp"]
+  pruneopts = "UT"
+  revision = "cf7a6c988dc994e945d2715565026f3cc8718689"
 
 [[projects]]
   digest = "1:11e62d6050198055e6cd87ed57e5d8c669e84f839c16e16f192374d913d1a70d"
@@ -139,7 +160,7 @@
   version = "v1.4.2"
 
 [[projects]]
-  digest = "1:a5154dfd6b37bef5a3eab759e13296348e639dc8c7604f538368167782b08ccd"
+  digest = "1:1e9ac83b98c3610b47a4f41ebf94f2e8ee87db981be9aff19fc273776f1a0ee4"
   name = "go.opencensus.io"
   packages = [
     ".",
@@ -147,9 +168,12 @@
     "exporter/jaeger/internal/gen-go/jaeger",
     "internal",
     "internal/tagencoding",
+    "metric/metricdata",
+    "metric/metricproducer",
     "plugin/ocgrpc",
     "plugin/ochttp",
     "plugin/ochttp/propagation/b3",
+    "resource",
     "stats",
     "stats/internal",
     "stats/view",
@@ -160,8 +184,8 @@
     "trace/tracestate",
   ]
   pruneopts = "UT"
-  revision = "b11f239c032624b045c4c2bfd3d1287b4012ce89"
-  version = "v0.16.0"
+  revision = "75c0cca22312e51bfd4fafdbe9197ae399e18b38"
+  version = "v0.20.2"
 
 [[projects]]
   branch = "master"
@@ -357,7 +381,10 @@
     "contrib.go.opencensus.io/exporter/stackdriver",
     "github.com/golang/protobuf/proto",
     "github.com/google/uuid",
-    "github.com/lightstep/lightstep-tracer-go/lightstepoc",
+    "github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc",
+    "github.com/lightstep/lightstep-tracer-go",
+    "github.com/opentracing-contrib/go-stdlib/nethttp",
+    "github.com/opentracing/opentracing-go",
     "github.com/sirupsen/logrus",
     "go.opencensus.io/exporter/jaeger",
     "go.opencensus.io/plugin/ocgrpc",

@@ -19,7 +19,6 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	"cloud.google.com/go/profiler"
@@ -28,14 +27,17 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.opencensus.io/exporter/jaeger"
+
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/plugin/ochttp"
-	"go.opencensus.io/plugin/ochttp/propagation/b3"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
 
-	"github.com/lightstep/lightstep-tracer-go/lightstepoc"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/lightstep/lightstep-tracer-go"
+	"github.com/opentracing-contrib/go-stdlib/nethttp"
+	"github.com/opentracing/opentracing-go"
 )
 
 const (
@@ -98,7 +100,7 @@ func main() {
 	log.Out = os.Stdout
 
 	// go initProfiling(log, "frontend", "1.0.0")
-	go initTracing(log)
+	initTracing(log)
 
 	srvPort := port
 	if os.Getenv("PORT") != "" {
@@ -138,37 +140,37 @@ func main() {
 	var handler http.Handler = r
 	handler = &logHandler{log: log, next: handler} // add logging
 	handler = ensureSessionID(handler)             // add session ID
-	handler = &ochttp.Handler{                     // add opencensus instrumentation
-		Handler:     handler,
-		Propagation: &b3.HTTPFormat{}}
-
+	// handler = &ochttp.Handler{                     // add opencensus instrumentation
+	// 	Handler:     handler,
+	// 	Propagation: &b3.HTTPFormat{}}
+	handler = nethttp.Middleware(opentracing.GlobalTracer(), handler)
 	log.Infof("starting server on " + addr + ":" + srvPort)
 	log.Fatal(http.ListenAndServe(addr+":"+srvPort, handler))
 }
 
 func initLightstepTracing(log logrus.FieldLogger) {
-	lsHost := os.Getenv("LIGHTSTEP_HOST")
-	lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
-	if err != nil {
-		log.Fatal(err)
-	}
+	// lsHost := os.Getenv("LIGHTSTEP_HOST")
+	// lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
 	lsComponentName := "frontend"
 
-	exporterOptions := []lightstepoc.Option{
-		lightstepoc.WithAccessToken(lsAccessToken),
-		lightstepoc.WithSatelliteHost(lsHost),
-		lightstepoc.WithSatellitePort(lsPort),
-		lightstepoc.WithComponentName(lsComponentName),
+	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
+		opentracing.HTTPHeaders: lightstep.B3Propagator,
+		opentracing.TextMap:     lightstep.B3Propagator,
 	}
 
-	exporter, err := lightstepoc.NewExporter(exporterOptions...)
-	if err != nil {
-		log.Info("Did not initialize lightstep exporter correctly")
-		log.Fatal(err)
-	}
-
-	trace.RegisterExporter(exporter)
+	lightStepTracer := lightstep.NewTracer(lightstep.Options{
+		Collector:   lightstep.Endpoint{},
+		AccessToken: lsAccessToken,
+		Tags: map[string]interface{}{
+			lightstep.ComponentNameKey: lsComponentName,
+		},
+		Propagators: propagators,
+	})
+	opentracing.SetGlobalTracer(lightStepTracer)
 	log.Info("Initalized lightstep exporter")
 }
 
@@ -241,7 +243,7 @@ func initTracing(log logrus.FieldLogger) {
 	// to make sure traces are available for observation and analysis.
 	// In a production environment or high QPS setup please use
 	// trace.ProbabilitySampler set at the desired probability.
-	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
+	// trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
 	// initJaegerTracing(log)
 	// initStackdriverTracing(log)
@@ -281,11 +283,15 @@ func mustMapEnv(target *string, envKey string) {
 }
 
 func mustConnGRPC(ctx context.Context, conn **grpc.ClientConn, addr string) {
+	tracer := opentracing.GlobalTracer()
 	var err error
 	*conn, err = grpc.DialContext(ctx, addr,
 		grpc.WithInsecure(),
 		grpc.WithTimeout(time.Second*3),
-		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}))
+		grpc.WithUnaryInterceptor(
+			otgrpc.OpenTracingClientInterceptor(tracer)),
+		grpc.WithStreamInterceptor(
+			otgrpc.OpenTracingStreamClientInterceptor(tracer)))
 	if err != nil {
 		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
 	}
