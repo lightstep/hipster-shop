@@ -133,7 +133,7 @@ We offer the following installation methods:
 4. Add your LightStep Access Token as a Kubernetes secret:
    - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an
 	[access token](https://docs.lightstep.com/docs/create-and-manage-access-tokens)
-   - Run `kubectl create secret generic ls-access-token --from-literal=<your-access-token>`
+   - Run `kubectl create secret generic ls-access-token --from-literal=token=<your-access-token>`
 
 5. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
    This will build and deploy the application. If you need to rebuild the images
