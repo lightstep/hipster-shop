@@ -145,8 +145,8 @@ namespace cartservice
                                 new Options()
                                 .WithToken(accessToken)
                                 .WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}}),
-								new LightStepSpanRecorder(),
-								Propagators.B3Propagator
+                                new LightStepSpanRecorder(),
+                                Propagators.B3Propagator
                             );
                             GlobalTracer.Register(tracer);
 
