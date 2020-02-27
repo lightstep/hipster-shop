@@ -38,6 +38,11 @@ spec:
           value: "7070"
         - name: LISTEN_ADDR
           value: "0.0.0.0"
+        - name: SECRET_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ls-access-token
+              key: token
         resources:
           requests:
             cpu: 200m

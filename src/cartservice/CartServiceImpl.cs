@@ -19,6 +19,7 @@ using System.Threading.Tasks;
 using cartservice.interfaces;
 using Grpc.Core;
 using Hipstershop;
+using OpenTracing.Util;
 using static Hipstershop.CartService;
 
 namespace cartservice
@@ -36,19 +37,28 @@ namespace cartservice
 
         public async override Task<Empty> AddItem(AddItemRequest request, Grpc.Core.ServerCallContext context)
         {
-            await cartStore.AddItemAsync(request.UserId, request.Item.ProductId, request.Item.Quantity);
-            return Empty;
+            using (GlobalTracer.Instance.BuildSpan("AddItem").StartActive())
+            {
+                await cartStore.AddItemAsync(request.UserId, request.Item.ProductId, request.Item.Quantity);
+                return Empty;
+            }
         }
 
         public async override Task<Empty> EmptyCart(EmptyCartRequest request, ServerCallContext context)
         {
-            await cartStore.EmptyCartAsync(request.UserId);
-            return Empty;
+            using (GlobalTracer.Instance.BuildSpan("EmptyCart").StartActive())
+            {
+                await cartStore.EmptyCartAsync(request.UserId);
+                return Empty;
+            }
         }
 
         public override Task<Hipstershop.Cart> GetCart(GetCartRequest request, ServerCallContext context)
         {
-            return cartStore.GetCartAsync(request.UserId);
+            using (GlobalTracer.Instance.BuildSpan("GetCart").StartActive())
+            {
+                return cartStore.GetCartAsync(request.UserId);
+            }
         }
     }
 }
