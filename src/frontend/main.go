@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/profiler"
@@ -33,6 +34,8 @@ import (
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
+
+	"github.com/lightstep/lightstep-tracer-go/lightstepoc"
 )
 
 const (
@@ -94,7 +97,7 @@ func main() {
 	}
 	log.Out = os.Stdout
 
-	go initProfiling(log, "frontend", "1.0.0")
+	// go initProfiling(log, "frontend", "1.0.0")
 	go initTracing(log)
 
 	srvPort := port
@@ -141,6 +144,32 @@ func main() {
 
 	log.Infof("starting server on " + addr + ":" + srvPort)
 	log.Fatal(http.ListenAndServe(addr+":"+srvPort, handler))
+}
+
+func initLightstepTracing(log logrus.FieldLogger) {
+	lsHost := os.Getenv("LIGHTSTEP_HOST")
+	lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
+	lsComponentName := "frontend"
+
+	exporterOptions := []lightstepoc.Option{
+		lightstepoc.WithAccessToken(lsAccessToken),
+		lightstepoc.WithSatelliteHost(lsHost),
+		lightstepoc.WithSatellitePort(lsPort),
+		lightstepoc.WithComponentName(lsComponentName),
+	}
+
+	exporter, err := lightstepoc.NewExporter(exporterOptions...)
+	if err != nil {
+		log.Info("Did not initialize lightstep exporter correctly")
+		log.Fatal(err)
+	}
+
+	trace.RegisterExporter(exporter)
+	log.Info("Initalized lightstep exporter")
 }
 
 func initJaegerTracing(log logrus.FieldLogger) {
@@ -214,8 +243,9 @@ func initTracing(log logrus.FieldLogger) {
 	// trace.ProbabilitySampler set at the desired probability.
 	trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
-	initJaegerTracing(log)
-	initStackdriverTracing(log)
+	// initJaegerTracing(log)
+	// initStackdriverTracing(log)
+	initLightstepTracing(log)
 
 }
 

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-const VERSION = '1.0.4';
+const VERSION = require('./package.json').version;
 
 require('@google-cloud/profiler').start({
   serviceContext: {
     service: 'currencyservice',
-    version: VERSION
+    version: '1.0.0'
   }
 });
 require('@google-cloud/trace-agent').start();
@@ -109,7 +109,8 @@ function _carry (amount) {
  * Lists the supported currencies
  */
 function getSupportedCurrencies (call, callback) {
-  const span = tracer.startSpan('getSupportedCurrencies');
+  const parentSpan = tracer.scope().active();
+  const span = tracer.startSpan('getSupportedCurrencies', { childOf : parentSpan });
   logger.info('Getting supported currencies...');
   _getCurrencyData(span, (data) => {
     callback(null, {currency_codes: Object.keys(data)});
@@ -122,7 +123,8 @@ function getSupportedCurrencies (call, callback) {
  */
 function convert (call, callback) {
   logger.info('received conversion request');
-  const span = opentracing.globalTracer().startSpan('convert');
+  const parentSpan = tracer.scope().active();
+  const span = opentracing.globalTracer().startSpan('convert', { childOf : parentSpan });
   span.setTag('kind', 'server');
   
   try {
@@ -171,7 +173,8 @@ function convert (call, callback) {
  * Endpoint for health checks
  */
 function check (call, callback) {
-  const span = opentracing.globalTracer().startSpan('health');
+  const parentSpan = tracer.scope().active();
+  const span = opentracing.globalTracer().startSpan('health', { childOf : parentSpan });
   callback(null, { status: 'SERVING' });
   span.finish();
 }
