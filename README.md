@@ -121,19 +121,20 @@ We offer the following installation methods:
     ```shell
     minikube start --cpus=4 --memory 4096
     ```
-    
+
     - Launch “Docker for Desktop” (tested with Mac/Windows). Go to Preferences:
         - choose “Enable Kubernetes”,
         - set CPUs to at least 3, and Memory to at least 6.0 GiB
         - on the "Disk" tab, set at least 32 GB disk space
 
 1. Run `kubectl get nodes` to verify you're connected to “Kubernetes on Docker”.
+   - If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
 
-1. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
+2. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
    This will build and deploy the application. If you need to rebuild the images
    automatically as you refactor the code, run `skaffold dev` command.
 
-1. Run `kubectl get pods` to verify the Pods are ready and running. The
+3. Run `kubectl get pods` to verify the Pods are ready and running. The
    application frontend should be available at http://localhost:80 on your
    machine.
 
