@@ -1,6 +1,6 @@
 {
   "name": "paymentservice",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Payment Microservice demo",
   "repository": "https://github.com/GoogleCloudPlatform/microservices-demo",
   "main": "index.js",
@@ -17,6 +17,7 @@
     "@grpc/proto-loader": "^0.1.0",
     "grpc": "^1.22.2",
     "ls-trace": "^0.2.0",
+    "opentracing": "^0.14.4",
     "pino": "^5.6.2",
     "simple-card-validator": "^1.1.0",
     "uuid": "^3.2.1"
