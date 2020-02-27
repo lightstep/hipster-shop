@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+const VERSION = '1.0.4';
+
 require('@google-cloud/profiler').start({
   serviceContext: {
     service: 'currencyservice',
-    version: '1.0.0'
+    version: VERSION
   }
 });
 require('@google-cloud/trace-agent').start();
@@ -31,8 +33,16 @@ require('@google-cloud/debug-agent').start({
 const tracer = require('ls-trace').init({
   experimental: {
     b3: true
+  },
+  tags : {
+    'service.version' : VERSION,
+    hostname : require('os').hostname(),
+    platform : require('os').platform(),
   }
 })
+
+const opentracing = require('opentracing');
+opentracing.initGlobalTracer(tracer);
 
 const path = require('path');
 const grpc = require('grpc');
@@ -75,9 +85,11 @@ function _loadProto (path) {
  * Helper function that gets currency data from a stored JSON file
  * Uses public data from European Central Bank
  */
-function _getCurrencyData (callback) {
+function _getCurrencyData (parentSpan, callback) {
+  const span = parentSpan.tracer().startSpan('_getCurrencyData', { childOf : parentSpan });
   const data = require('./data/currency_conversion.json');
   callback(data);
+  span.finish();
 }
 
 /**
@@ -95,9 +107,11 @@ function _carry (amount) {
  * Lists the supported currencies
  */
 function getSupportedCurrencies (call, callback) {
+  const span = tracer.startSpan('getSupportedCurrencies');
   logger.info('Getting supported currencies...');
-  _getCurrencyData((data) => {
+  _getCurrencyData(span, (data) => {
     callback(null, {currency_codes: Object.keys(data)});
+    span.finish();
   });
 }
 
@@ -106,8 +120,11 @@ function getSupportedCurrencies (call, callback) {
  */
 function convert (call, callback) {
   logger.info('received conversion request');
+  const span = opentracing.globalTracer().startSpan('convert');
+  span.setTag('kind', 'server');
+  
   try {
-    _getCurrencyData((data) => {
+    _getCurrencyData(span, (data) => {
       const request = call.request;
 
       // Convert: from_currency --> EUR
@@ -130,11 +147,21 @@ function convert (call, callback) {
       result.currency_code = request.to_code;
 
       logger.info(`conversion request successful`);
+      span.log({ event: 'conversion request successful' })
       callback(null, result);
+      span.finish()
     });
   } catch (err) {
     logger.error(`conversion request failed: ${err}`);
+    span.setTag('error', true);
+    span.log({ 
+      event: `conversion request failed: ${err}`,
+      'error.object': err, 
+      message: err.message, 
+      stack: err.stack 
+    });
     callback(err.message);
+    span.finish()
   }
 }
 
@@ -142,7 +169,9 @@ function convert (call, callback) {
  * Endpoint for health checks
  */
 function check (call, callback) {
+  const span = opentracing.globalTracer().startSpan('health');
   callback(null, { status: 'SERVING' });
+  span.finish();
 }
 
 /**
