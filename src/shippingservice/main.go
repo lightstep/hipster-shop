@@ -201,7 +201,7 @@ func initLighstepTracing() {
 		},
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)
-	log.Info("Initalized lightstep tracing")
+	log.Info("Initalized lightstep tracing for shipping service")
 
 	tracer := opentracing.GlobalTracer()
 	span := tracer.StartSpan("my-first-span")
