@@ -13,6 +13,7 @@
 // limitations under the License.
 
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,9 @@ using cartservice.cartstore;
 using cartservice.interfaces;
 using CommandLine;
 using Grpc.Core;
+using LightStep;
 using Microsoft.Extensions.Configuration;
+using OpenTracing.Util;
 
 namespace cartservice
 {
@@ -29,6 +32,7 @@ namespace cartservice
         const string CART_SERVICE_ADDRESS = "LISTEN_ADDR";
         const string REDIS_ADDRESS = "REDIS_ADDR";
         const string CART_SERVICE_PORT = "PORT";
+		const string LIGHTSTEP_ACCESS_TOKEN = "SECRET_ACCESS_TOKEN";
 
         [Verb("start", HelpText = "Starts the server listening on provided port")]
         class ServerOptions
@@ -132,6 +136,16 @@ namespace cartservice
                                     port = int.Parse(portStr);
                                 }
                             }
+
+							// Setup LightStep Tracer
+							Console.WriteLine($"Reading LightStep Access Token {LIGHTSTEP_ACCESS_TOKEN} environment variable");
+							string accessToken = Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN);
+							var tracer = new Tracer(
+								new Options()
+									.WithToken(accessToken)
+									.WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}})
+							);
+							GlobalTracer.Register(tracer);
 
                             // Set redis cache host (hostname+port)
                             ICartStore cartStore;
