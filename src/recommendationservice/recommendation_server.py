@@ -13,12 +13,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import os
 from ddtrace import tracer
 from ddtrace.propagation.b3 import B3HTTPPropagator
 
 tracer.configure(http_propagator=B3HTTPPropagator)
+tracer.set_tags(
+    {
+        "lightstep.service_name": "recommendationservice",
+        "lightstep.access_token": os.getenv("SECRET_ACCESS_TOKEN"),
+    }
+)
 
-import os
 import random
 import time
 import traceback

@@ -38,6 +38,8 @@ const tracer = require('ls-trace').init({
     'service.version' : VERSION,
     hostname : require('os').hostname(),
     platform : require('os').platform(),
+    "lightstep.service_name": "currencyservice",
+    "lightstep.access_token": process.env.SECRET_ACCESS_TOKEN
   }
 })
 

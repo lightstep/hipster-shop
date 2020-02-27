@@ -18,10 +18,12 @@ const tracer = require('ls-trace').init({
   experimental: {
     b3: true
   },
-  tags : {
-    'service.version' : VERSION,
-    hostname : require('os').hostname(),
-    platform : require('os').platform(),
+  tags: {
+    'service.version': VERSION,
+    hostname: require('os').hostname(),
+    platform: require('os').platform(),
+    "lightstep.service_name": "paymentservice",
+    "lightstep.access_token": process.env.SECRET_ACCESS_TOKEN
   }
 })
 
@@ -62,7 +64,7 @@ class HipsterShopServer {
    */
   static ChargeServiceHandler(call, callback) {
     const parentSpan = tracer.scope().active();
-    const span = tracer.startSpan('ChargeServiceHandler', { childOf : parentSpan });
+    const span = tracer.startSpan('ChargeServiceHandler', { childOf: parentSpan });
     try {
       logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
       const response = charge(call.request);
@@ -71,11 +73,11 @@ class HipsterShopServer {
     } catch (err) {
       console.warn(err);
       span.setTag('error', true);
-      span.log({ 
+      span.log({
         event: `conversion request failed: ${err}`,
-        'error.object': err, 
-        message: err.message, 
-        stack: err.stack 
+        'error.object': err,
+        message: err.message,
+        stack: err.stack
       });
       callback(err);
       span.finish();
