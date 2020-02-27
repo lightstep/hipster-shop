@@ -109,7 +109,7 @@ We offer the following installation methods:
      here](https://docs.docker.com/docker-for-mac/kubernetes/).
    - [skaffold]( https://skaffold.dev/docs/install/) (ensure version ≥v0.20)
 
-1. Launch the local Kubernetes cluster with one of the following tools:
+2. Launch the local Kubernetes cluster with one of the following tools:
 
     - Launch Minikube (tested with Ubuntu Linux). Please, ensure that the
        local Kubernetes cluster has at least:
@@ -127,14 +127,17 @@ We offer the following installation methods:
         - set CPUs to at least 3, and Memory to at least 6.0 GiB
         - on the "Disk" tab, set at least 32 GB disk space
 
-1. Run `kubectl get nodes` to verify you're connected to “Kubernetes on Docker”.
+3. Run `kubectl get nodes` to verify you're connected to “Kubernetes on Docker”.
    - If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
 
-2. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
+4. Add your LightStep Access Token as a Kubernetes secret:
+   - Run `kubectl create secret generic ls-access-token --from-literal=<your-access-token>`
+
+5. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
    This will build and deploy the application. If you need to rebuild the images
    automatically as you refactor the code, run `skaffold dev` command.
 
-3. Run `kubectl get pods` to verify the Pods are ready and running. The
+6. Run `kubectl get pods` to verify the Pods are ready and running. The
    application frontend should be available at http://localhost:80 on your
    machine.
 
