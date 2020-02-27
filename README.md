@@ -131,7 +131,8 @@ We offer the following installation methods:
    - If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
 
 4. Add your LightStep Access Token as a Kubernetes secret:
-   - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an access token
+   - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an
+	[access token](https://docs.lightstep.com/docs/create-and-manage-access-tokens)
    - Run `kubectl create secret generic ls-access-token --from-literal=<your-access-token>`
 
 5. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
