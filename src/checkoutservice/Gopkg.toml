@@ -56,3 +56,7 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  branch = "cody/add-access-token-header"
+  name = "github.com/lightstep/lightstep-tracer-go"

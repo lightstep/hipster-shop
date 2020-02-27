@@ -65,6 +65,15 @@ spec:
             value: "checkoutservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
+          - name: LIGHTSTEP_HOST
+            value: "ingest.lightstep.com"
+          - name: LIGHTSTEP_PORT
+            value: "443"
+          - name: SECRET_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: ls-access-token
+                key: token
           # - name: JAEGER_SERVICE_ADDR
           #   value: "jaeger-collector:14268"
           resources:
