@@ -19,11 +19,13 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"github.com/google/uuid"
+	"github.com/lightstep/lightstep-tracer-go/lightstepoc"
 	"github.com/sirupsen/logrus"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -99,6 +101,32 @@ func main() {
 	log.Fatal(err)
 }
 
+func initLightstepTracing(log logrus.FieldLogger) {
+	lsHost := os.Getenv("LIGHTSTEP_HOST")
+	lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
+	lsComponentName := "checkoutservice"
+
+	exporterOptions := []lightstepoc.Option{
+		lightstepoc.WithAccessToken(lsAccessToken),
+		lightstepoc.WithSatelliteHost(lsHost),
+		lightstepoc.WithSatellitePort(lsPort),
+		lightstepoc.WithComponentName(lsComponentName),
+	}
+
+	exporter, err := lightstepoc.NewExporter(exporterOptions...)
+	if err != nil {
+		log.Info("Did not initialize lightstep exporter correctly")
+		log.Fatal(err)
+	}
+
+	trace.RegisterExporter(exporter)
+	log.Info("Initalized lightstep exporter")
+}
+
 func initJaegerTracing() {
 	svcAddr := os.Getenv("JAEGER_SERVICE_ADDR")
 	if svcAddr == "" {
@@ -154,8 +182,9 @@ func initStackdriverTracing() {
 }
 
 func initTracing() {
-	initJaegerTracing()
-	initStackdriverTracing()
+	// initJaegerTracing()
+	// initStackdriverTracing()
+	initLightstepTracing(log)
 }
 
 func initProfiling(service, version string) {
