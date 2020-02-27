@@ -55,7 +55,7 @@
 
 [[constraint]]
   name = "go.opencensus.io"
-  version = "0.16.0"
+  version = "0.20.2"
 
 [[constraint]]
   branch = "master"
@@ -66,5 +66,13 @@
   unused-packages = true
 
 [[constraint]]
-  branch = "master"
   name = "github.com/lightstep/lightstep-tracer-go"
+  version = "v0.18.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/grpc-opentracing"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/opentracing-contrib/go-stdlib"
