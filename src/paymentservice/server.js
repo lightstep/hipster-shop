@@ -14,11 +14,6 @@
 
 const VERSION = require('./package.json').version;
 
-const path = require('path');
-const grpc = require('grpc');
-const pino = require('pino');
-const protoLoader = require('@grpc/proto-loader');
-
 const tracer = require('ls-trace').init({
   experimental: {
     b3: true
@@ -29,6 +24,14 @@ const tracer = require('ls-trace').init({
     platform : require('os').platform(),
   }
 })
+
+const opentracing = require('opentracing');
+opentracing.initGlobalTracer(tracer);
+
+const path = require('path');
+const grpc = require('grpc');
+const pino = require('pino');
+const protoLoader = require('@grpc/proto-loader');
 
 const charge = require('./charge');
 
