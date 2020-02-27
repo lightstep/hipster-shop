@@ -22,6 +22,7 @@ using cartservice.interfaces;
 using CommandLine;
 using Grpc.Core;
 using LightStep;
+using LightStep.Propagation;
 using Microsoft.Extensions.Configuration;
 using OpenTracing.Util;
 
@@ -143,7 +144,9 @@ namespace cartservice
                             var tracer = new Tracer(
                                 new Options()
                                 .WithToken(accessToken)
-                                .WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}})
+                                .WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}}),
+								new LightStepSpanRecorder(),
+								Propagators.B3Propagator
                             );
                             GlobalTracer.Register(tracer);
 
