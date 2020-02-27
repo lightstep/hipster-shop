@@ -91,7 +91,7 @@ namespace cartservice.cartstore
                     return Task.FromResult(emptyCart);
                 }
 
-            return Task.FromResult(cart);
+                return Task.FromResult(cart);
             }
         }
 
