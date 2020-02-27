@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const VERSION = require('package.json').version;
+const VERSION = require('./package.json').version;
 
 require('@google-cloud/profiler').start({
   serviceContext: {

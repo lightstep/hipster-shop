@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const VERSION = require('./package.json').version;
+
 const path = require('path');
 const grpc = require('grpc');
 const pino = require('pino');
@@ -20,6 +22,11 @@ const protoLoader = require('@grpc/proto-loader');
 const tracer = require('ls-trace').init({
   experimental: {
     b3: true
+  },
+  tags : {
+    'service.version' : VERSION,
+    hostname : require('os').hostname(),
+    platform : require('os').platform(),
   }
 })
 
@@ -51,13 +58,24 @@ class HipsterShopServer {
    * @param {*} callback  fn(err, ChargeResponse)
    */
   static ChargeServiceHandler(call, callback) {
+    const parentSpan = tracer.scope().active();
+    const span = tracer.startSpan('ChargeServiceHandler', { childOf : parentSpan });
     try {
       logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
       const response = charge(call.request);
       callback(null, response);
+      span.finish();
     } catch (err) {
       console.warn(err);
+      span.setTag('error', true);
+      span.log({ 
+        event: `conversion request failed: ${err}`,
+        'error.object': err, 
+        message: err.message, 
+        stack: err.stack 
+      });
       callback(err);
+      span.finish();
     }
   }
 
