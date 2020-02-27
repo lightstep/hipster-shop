@@ -32,6 +32,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"github.com/opentracing/opentracing-go"
+	"github.com/lightstep/lightstep-tracer-go"
 
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/shippingservice/genproto"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -190,9 +192,31 @@ func initStackdriverTracing() {
 	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
 }
 
+func initLighstepTracing() {
+	lightStepTracer := lightstep.NewTracer(lightstep.Options{
+		Collector: lightstep.Endpoint{},
+		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
+		Tags: map[string]interface{}{
+		  lightstep.ComponentNameKey: "shippingservice",
+		},
+	})
+	opentracing.SetGlobalTracer(lightStepTracer)
+	log.Info("Initalized lightstep tracing")
+
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("my-first-span")
+	span.SetTag("kind", "server")
+	span.LogKV("message", "what a lovely day")
+	span.Finish()
+
+	// remember to close the tracer in order to ensure spans are sent
+	lightStepTracer.Close(context.Background())
+}
+
 func initTracing() {
 	initJaegerTracing()
 	initStackdriverTracing()
+	initLighstepTracing()
 }
 
 func initProfiling(service, version string) {

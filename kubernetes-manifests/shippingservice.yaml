@@ -33,6 +33,15 @@ spec:
         env:
         - name: PORT
           value: "50051"
+        - name: LIGHTSTEP_HOST
+          value: "ingest.lightstep.com"
+        - name: LIGHTSTEP_PORT
+          value: "443"
+        - name: SECRET_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ls-access-token
+              key: token
         readinessProbe:
           periodSeconds: 5
           exec:
