@@ -19,11 +19,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using cartservice.cartstore;
 using cartservice.interfaces;
+using CartService.Propagation;
 using CommandLine;
 using Grpc.Core;
+using Grpc.Core.Interceptors;
 using LightStep;
-using LightStep.Propagation;
 using Microsoft.Extensions.Configuration;
+using OpenTracing.Contrib.Grpc.Interceptors;
 using OpenTracing.Util;
 
 namespace cartservice
@@ -58,16 +60,19 @@ namespace cartservice
                 {
                     await cartStore.InitializeAsync();
 
+                    // setup grpc interceptor
+                    var tracingInterceptor = new ServerTracingInterceptor(GlobalTracer.Instance);
+
                     Console.WriteLine($"Trying to start a grpc server at  {host}:{port}");
                     Server server = new Server
                     {
                         Services =
                         {
                             // Cart Service Endpoint
-                             Hipstershop.CartService.BindService(new CartServiceImpl(cartStore)),
+                             Hipstershop.CartService.BindService(new CartServiceImpl(cartStore)).Intercept(tracingInterceptor),
 
                              // Health Endpoint
-                             Grpc.Health.V1.Health.BindService(new HealthImpl(cartStore))
+                             Grpc.Health.V1.Health.BindService(new HealthImpl(cartStore)).Intercept(tracingInterceptor),
                         },
                         Ports = { new ServerPort(host, port, ServerCredentials.Insecure) }
                     };
@@ -137,6 +142,7 @@ namespace cartservice
                                     port = int.Parse(portStr);
                                 }
                             }
+
                             // Setup LightStep Tracer
                             Console.WriteLine($"Reading LightStep Access Token {LIGHTSTEP_ACCESS_TOKEN} environment variable");
                             string accessToken = Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN);
@@ -145,7 +151,7 @@ namespace cartservice
 									.WithToken(accessToken)
 									.WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}}),
                                 new LightStepSpanRecorder(),
-                                Propagators.B3Propagator
+                                new B3Propagator()
                             );
                             GlobalTracer.Register(tracer);
 
