@@ -41,6 +41,18 @@
   version = "v0.1.1"
 
 [[projects]]
+  digest = "1:90d79bbf6abc5fcbf9bc538766e523f7d33d07d7fda462fc299556a80dc03a7d"
+  name = "github.com/gogo/protobuf"
+  packages = [
+    "proto",
+    "sortkeys",
+    "types",
+  ]
+  pruneopts = "UT"
+  revision = "5628607bb4c51c3157aacc3a50f0ab707582b805"
+  version = "v1.3.1"
+
+[[projects]]
   digest = "1:1d3ad0f6a57c08e2168089a64c34313930571fcbe5359d71c608a97ce504f7ca"
   name = "github.com/golang/protobuf"
   packages = [
@@ -81,6 +93,39 @@
   pruneopts = "UT"
   revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
   version = "v1.0.2"
+
+[[projects]]
+  digest = "1:cd390f0290e379670d3dd50a3dd6b555a2bcee710a87991b0373ee55f6b368c7"
+  name = "github.com/lightstep/lightstep-tracer-common"
+  packages = [
+    "golang/gogo/collectorpb",
+    "golang/gogo/lightsteppb",
+  ]
+  pruneopts = "UT"
+  revision = "082dbbf1b51a87f008f51a6203c269395ac3fe54"
+  version = "v1.0.3"
+
+[[projects]]
+  digest = "1:bec504b3bb750307272d311ceab29319e9f6b37a77da1d884d54e7769a1e2412"
+  name = "github.com/lightstep/lightstep-tracer-go"
+  packages = [
+    ".",
+    "lightstep/rand",
+  ]
+  pruneopts = "UT"
+  revision = "95891af43e111d60f0ae6adaa39c2abe8caad401"
+  version = "v0.18.1"
+
+[[projects]]
+  digest = "1:90e282624796901d91e49c98f4a05dc4f6136d1aab7af39bd3dcf3e989273650"
+  name = "github.com/opentracing/opentracing-go"
+  packages = [
+    ".",
+    "log",
+  ]
+  pruneopts = "UT"
+  revision = "659c90643e714681897ec2521c60567dd21da733"
+  version = "v1.1.0"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -311,6 +356,8 @@
     "contrib.go.opencensus.io/exporter/stackdriver",
     "github.com/GoogleCloudPlatform/microservices-demo/src/shippingservice/genproto",
     "github.com/golang/protobuf/proto",
+    "github.com/lightstep/lightstep-tracer-go",
+    "github.com/opentracing/opentracing-go",
     "github.com/sirupsen/logrus",
     "go.opencensus.io/exporter/jaeger",
     "go.opencensus.io/plugin/ocgrpc",
@@ -318,8 +365,10 @@
     "go.opencensus.io/trace",
     "golang.org/x/net/context",
     "google.golang.org/grpc",
+    "google.golang.org/grpc/codes",
     "google.golang.org/grpc/health/grpc_health_v1",
     "google.golang.org/grpc/reflection",
+    "google.golang.org/grpc/status",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

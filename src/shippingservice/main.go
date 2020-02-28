@@ -23,6 +23,8 @@ import (
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"github.com/sirupsen/logrus"
+	"github.com/opentracing/opentracing-go"
+	"github.com/lightstep/lightstep-tracer-go"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/stats/view"
@@ -190,10 +192,32 @@ func initStackdriverTracing() {
 	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
 }
 
-func initTracing() {
+func initLighstepTracing() {
+	lightStepTracer := lightstep.NewTracer(lightstep.Options{
+	Collector: lightstep.Endpoint{},
+	AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
+	Tags: map[string]interface{}{
+	lightstep.ComponentNameKey: "shippingservice",
+	},
+	})
+	opentracing.SetGlobalTracer(lightStepTracer)
+	log.Info("Initalized lightstep tracing")
+
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("my-first-span")
+	span.SetTag("kind", "server")
+	span.LogKV("message", "what a lovely day")
+	span.Finish()
+
+	// remember to close the tracer in order to ensure spans are sent
+	lightStepTracer.Close(context.Background())
+	}
+
+	func initTracing() {
 	initJaegerTracing()
 	initStackdriverTracing()
-}
+	initLighstepTracing()
+	}
 
 func initProfiling(service, version string) {
 	// TODO(ahmetb) this method is duplicated in other microservices using Go
