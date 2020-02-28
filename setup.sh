@@ -11,7 +11,7 @@ kube_node_check () {
 
 # Lightstep access token
 set_ls_access_token () {
-  kubectl create secret generic ls-access-token --from-literal=token=$1
+  kubectl create secret generic ls-access-token --from-literal=token=\'$1\'
 }
 
 # Run skaffold
