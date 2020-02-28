@@ -34,29 +34,19 @@ namespace CartService.Propagation
 
                 foreach (var entry in text)
                 {
-					Console.WriteLine($"{entry.Key}={entry.Value}");
-					try
-					{
-						if (TraceIdName.Equals(entry.Key, StringComparison.OrdinalIgnoreCase))
-						{
-							traceId = ParseTraceId(entry.Value);
-							OriginalTraceId = entry.Value;
-						}
-						else if (SpanIdName.Equals(entry.Key, StringComparison.OrdinalIgnoreCase))
-						{
-							Console.WriteLine($"Attempting to parse SpanId: {entry.Value}");
-							spanId = Convert.ToUInt64(entry.Value, 16);
-						}
-					}
-					catch (Exception e)
-					{
-						Console.WriteLine($"Error processing header: {entry}\n{e}");
-					}
+                    if (TraceIdName.Equals(entry.Key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        traceId = ParseTraceId(entry.Value);
+                        OriginalTraceId = entry.Value;
+                    }
+                    else if (SpanIdName.Equals(entry.Key, StringComparison.OrdinalIgnoreCase))
+                    {
+                        spanId = Convert.ToUInt64(entry.Value, 16);
+                    }
                 }
 
                 if (traceId.HasValue && spanId.HasValue)
                 {
-					Console.WriteLine($"created span context: TraceId={traceId.Value} SpanId={spanId.Value} OrigTraceId={OriginalTraceId}");
                     return new SpanContext(traceId.Value, spanId.Value, originalTraceId: OriginalTraceId);
                 }
             }
@@ -66,7 +56,6 @@ namespace CartService.Propagation
 
         private static ulong ParseTraceId(string str)
         {
-			Console.WriteLine($"Attempting to parse trace ID: {str}");
             ulong traceId;
 
             if (ContainsHexChar(str))
