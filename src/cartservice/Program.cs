@@ -137,15 +137,13 @@ namespace cartservice
                                     port = int.Parse(portStr);
                                 }
                             }
-                            var satelliteOptions = new SatelliteOptions("ingest.lightstep.com");
                             // Setup LightStep Tracer
                             Console.WriteLine($"Reading LightStep Access Token {LIGHTSTEP_ACCESS_TOKEN} environment variable");
                             string accessToken = Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN);
                             var tracer = new Tracer(
                                 new Options()
-                                .WithToken(accessToken)
-                                .WithSatellite(satelliteOptions)
-                                .WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}}),
+									.WithToken(accessToken)
+									.WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}}),
                                 new LightStepSpanRecorder(),
                                 Propagators.B3Propagator
                             );
