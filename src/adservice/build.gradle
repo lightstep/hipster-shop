@@ -56,7 +56,11 @@ dependencies {
                 "io.grpc:grpc-stub:${grpcVersion}",
                 "io.grpc:grpc-netty:${grpcVersion}",
                 "io.grpc:grpc-services:${grpcVersion}",
-                "org.apache.logging.log4j:log4j-core:2.11.1"
+                "org.apache.logging.log4j:log4j-core:2.11.1",
+                "com.lightstep.opencensus:lightstep-opencensus-exporter:0.0.3",
+                "com.lightstep.tracer:lightstep-tracer-jre:0.18.4",
+                "com.lightstep.tracer:tracer-okhttp:0.19.3",
+                "org.slf4j:slf4j-simple:1.7.25"
 
         runtime "com.fasterxml.jackson.core:jackson-core:${jacksonVersion}",
                 "com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}",

@@ -36,6 +36,11 @@ spec:
           value: "9555"
         #- name: JAEGER_SERVICE_ADDR
         #  value: "jaeger-collector:14268"
+        - name: SECRET_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: ls-access-token
+              key: token
         resources:
           requests:
             cpu: 200m

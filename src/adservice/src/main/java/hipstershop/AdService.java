@@ -19,6 +19,9 @@ package hipstershop;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
+import com.lightstep.opencensus.exporter.LightStepTraceExporter;
+import com.lightstep.tracer.jre.JRETracer;
+import com.lightstep.tracer.shared.Options;
 import hipstershop.Demo.Ad;
 import hipstershop.Demo.AdRequest;
 import hipstershop.Demo.AdResponse;
@@ -45,6 +48,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.net.MalformedURLException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -267,6 +271,25 @@ public final class AdService {
     }
   }
 
+  private static void initLightstep() {
+    String accessToken = System.getenv("SECRET_ACCESS_TOKEN");
+    if (accessToken != null && !accessToken.isEmpty()) {
+      JRETracer tracer = null;
+      Options.OptionsBuilder optsBuilder = new Options.OptionsBuilder()
+          .withComponentName("adservice")
+          .withAccessToken(accessToken);
+      try {
+        tracer = new JRETracer(optsBuilder.build());
+      } catch (MalformedURLException e) {
+        logger.info("Lightstep initialization failed: " + e);
+      }
+      LightStepTraceExporter.createAndRegister(tracer);
+      logger.info("LightStep initialization complete");
+    } else {
+      logger.info("Lightstep initialization disabled.");
+    }
+  }
+
   /** Main launches the server from the command line. */
   public static void main(String[] args) throws IOException, InterruptedException {
     // Registers all RPC views.
@@ -279,6 +302,8 @@ public final class AdService {
      */
     RpcViews.registerAllViews();
 
+    /*
+     * Disable Stackdriver for now.
     new Thread(
             new Runnable() {
               public void run() {
@@ -286,9 +311,13 @@ public final class AdService {
               }
             })
         .start();
+    */
 
     // Register Jaeger
     initJaeger();
+
+    // Register LS.
+    initLightstep();
 
     // Start the RPC server. You shouldn't see any output from gRPC before this.
     logger.info("AdService starting.");

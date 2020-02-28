@@ -136,6 +136,9 @@ public class AdServiceClient {
     long sleepTime = 10; /* seconds */
     int maxAttempts = 3;
 
+    /*
+     * Disable Stackdriver for now.
+     *
     for (int i = 0; i < maxAttempts; i++) {
       try {
         StackdriverTraceExporter.createAndRegister(StackdriverTraceConfiguration.builder().build());
@@ -159,7 +162,7 @@ public class AdServiceClient {
           }
         }
       }
-    }
+    }*/
 
     // Register Prometheus exporters and export metrics to a Prometheus HTTPServer.
     // PrometheusStatsCollector.createAndRegister();
