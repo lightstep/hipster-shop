@@ -22,6 +22,9 @@ import (
 
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/lightstep/lightstep-tracer-go"
+	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -58,8 +61,9 @@ func init() {
 }
 
 func main() {
-	go initTracing()
+	initTracing()
 	go initProfiling("shippingservice", "1.0.0")
+	tracer := opentracing.GlobalTracer()
 
 	port := defaultPort
 	if value, ok := os.LookupEnv("PORT"); ok {
@@ -71,7 +75,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	srv := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+	srv := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			otgrpc.OpenTracingServerInterceptor(tracer)),
+		grpc.StreamInterceptor(
+			otgrpc.OpenTracingStreamServerInterceptor(tracer)),
+	)
 	svc := &server{}
 	pb.RegisterShippingServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
@@ -190,9 +199,28 @@ func initStackdriverTracing() {
 	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
 }
 
+func initLighstepTracing() {
+	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
+		opentracing.HTTPHeaders: lightstep.B3Propagator,
+		opentracing.TextMap:     lightstep.B3Propagator,
+	}
+
+	lightStepTracer := lightstep.NewTracer(lightstep.Options{
+		Collector:   lightstep.Endpoint{},
+		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
+		Tags: map[string]interface{}{
+			lightstep.ComponentNameKey: "shippingservice",
+		},
+		Propagators: propagators,
+	})
+	opentracing.SetGlobalTracer(lightStepTracer)
+	log.Info("Initalized lightstep tracing")
+}
+
 func initTracing() {
-	initJaegerTracing()
-	initStackdriverTracing()
+	// initJaegerTracing()
+	// initStackdriverTracing()
+	initLighstepTracing()
 }
 
 func initProfiling(service, version string) {

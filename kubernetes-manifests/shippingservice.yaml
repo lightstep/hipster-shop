@@ -26,30 +26,39 @@ spec:
         app: shippingservice
     spec:
       containers:
-      - name: server
-        image: shippingservice
-        ports:
-        - containerPort: 50051
-        env:
-        - name: PORT
-          value: "50051"
-        readinessProbe:
-          periodSeconds: 5
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:50051"]
-        livenessProbe:
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:50051"]
-#        env:
-#          - name: JAEGER_SERVICE_ADDR
-#            value: "jaeger-collector:14268"
-        resources:
-          requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
-            cpu: 200m
-            memory: 128Mi
+        - name: server
+          image: shippingservice
+          ports:
+            - containerPort: 50051
+          env:
+            - name: PORT
+              value: "50051"
+            - name: LIGHTSTEP_HOST
+              value: "ingest.lightstep.com"
+            - name: LIGHTSTEP_PORT
+              value: "443"
+            - name: SECRET_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: ls-access-token
+                  key: token
+          readinessProbe:
+            periodSeconds: 5
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:50051"]
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:50051"]
+          #        env:
+          #          - name: JAEGER_SERVICE_ADDR
+          #            value: "jaeger-collector:14268"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
 ---
 apiVersion: v1
 kind: Service
@@ -60,6 +69,6 @@ spec:
   selector:
     app: shippingservice
   ports:
-  - name: grpc
-    port: 50051
-    targetPort: 50051
+    - name: grpc
+      port: 50051
+      targetPort: 50051
