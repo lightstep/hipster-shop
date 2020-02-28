@@ -34,6 +34,9 @@ import (
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
 	"github.com/golang/protobuf/jsonpb"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/lightstep/lightstep-tracer-go"
+	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
@@ -74,7 +77,7 @@ func init() {
 }
 
 func main() {
-	go initTracing()
+	initTracing()
 	go initProfiling("productcatalogservice", "1.0.0")
 	flag.Parse()
 
@@ -119,11 +122,20 @@ func run(port string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-	srv := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+
+	srv := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer())),
+		grpc.StreamInterceptor(
+			otgrpc.OpenTracingStreamServerInterceptor(opentracing.GlobalTracer())),
+	)
+
+	// srv := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
 	svc := &productCatalog{}
 	pb.RegisterProductCatalogServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
 	go srv.Serve(l)
+
 	return l.Addr().String()
 }
 
@@ -146,6 +158,33 @@ func initJaegerTracing() {
 	}
 	trace.RegisterExporter(exporter)
 	log.Info("jaeger initialization completed.")
+}
+
+func initLightstepTracing() {
+	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
+		opentracing.HTTPHeaders: lightstep.B3Propagator,
+		opentracing.TextMap:     lightstep.B3Propagator,
+	}
+
+	lightStepTracer := lightstep.NewTracer(lightstep.Options{
+		Collector:   lightstep.Endpoint{},
+		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
+		Tags: map[string]interface{}{
+			lightstep.ComponentNameKey: "productcatalogservice",
+		},
+		Propagators: propagators,
+	})
+	opentracing.SetGlobalTracer(lightStepTracer)
+	log.Info("Initalized lightstep tracing")
+
+	tracer := opentracing.GlobalTracer()
+	span := tracer.StartSpan("my-first-span")
+	span.SetTag("kind", "server")
+	span.LogKV("message", "what a lovely day")
+	span.Finish()
+
+	// remember to close the tracer in order to ensure spans are sent
+	lightStepTracer.Close(context.Background())
 }
 
 func initStats(exporter *stackdriver.Exporter) {
@@ -182,8 +221,9 @@ func initStackdriverTracing() {
 }
 
 func initTracing() {
-	initJaegerTracing()
-	initStackdriverTracing()
+	// initJaegerTracing()
+	// initStackdriverTracing()
+	initLightstepTracing()
 }
 
 func initProfiling(service, version string) {
