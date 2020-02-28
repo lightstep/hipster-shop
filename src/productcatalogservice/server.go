@@ -182,9 +182,6 @@ func initLightstepTracing() {
 	span.SetTag("kind", "server")
 	span.LogKV("message", "what a lovely day")
 	span.Finish()
-
-	// remember to close the tracer in order to ensure spans are sent
-	lightStepTracer.Close(context.Background())
 }
 
 func initStats(exporter *stackdriver.Exporter) {
