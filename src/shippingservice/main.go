@@ -22,10 +22,10 @@ import (
 
 	"cloud.google.com/go/profiler"
 	"contrib.go.opencensus.io/exporter/stackdriver"
-	"github.com/sirupsen/logrus"
-	"github.com/opentracing/opentracing-go"
-	"github.com/lightstep/lightstep-tracer-go"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/lightstep/lightstep-tracer-go"
+	"github.com/opentracing/opentracing-go"
+	"github.com/sirupsen/logrus"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/stats/view"
@@ -61,7 +61,7 @@ func init() {
 }
 
 func main() {
-	go initTracing()
+	initTracing()
 	go initProfiling("shippingservice", "1.0.0")
 	tracer := opentracing.GlobalTracer()
 
@@ -206,22 +206,22 @@ func initLighstepTracing() {
 	}
 
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-	Collector: lightstep.Endpoint{},
-	AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
-	Tags: map[string]interface{}{
-	lightstep.ComponentNameKey: "shippingservice",
-	},
-	Propagators: propagators,
+		Collector:   lightstep.Endpoint{},
+		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
+		Tags: map[string]interface{}{
+			lightstep.ComponentNameKey: "shippingservice",
+		},
+		Propagators: propagators,
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)
 	log.Info("Initalized lightstep tracing")
-	}
+}
 
-	func initTracing() {
-	initJaegerTracing()
-	initStackdriverTracing()
+func initTracing() {
+	// initJaegerTracing()
+	// initStackdriverTracing()
 	initLighstepTracing()
-	}
+}
 
 func initProfiling(service, version string) {
 	// TODO(ahmetb) this method is duplicated in other microservices using Go
