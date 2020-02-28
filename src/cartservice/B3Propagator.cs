@@ -81,7 +81,6 @@ namespace CartService.Propagation
                 }
             }
 
-			Console.WriteLine($"TraceID: {traceId}");
             return traceId;
         }
 
