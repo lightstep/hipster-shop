@@ -2,27 +2,31 @@
     "products": [
         {
             "id": "OLJCESPC7Z",
-            "name": "Vintage Typewriter",
-            "description": "This typewriter looks good in your living room.",
-            "picture": "/static/img/products/typewriter.jpg",
+            "name": "Coffee",
+            "description": "Beans with a smooth and flowery chocolate finish.",
+            "picture": "/static/img/products/coffee-beans.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 67,
+                "units": 18,
                 "nanos": 990000000
             },
-            "categories": ["vintage"]
+            "categories": [
+                "coffee"
+            ]
         },
         {
             "id": "66VCHSJNUP",
-            "name": "Vintage Camera Lens",
-            "description": "You won't have a camera to use it and it probably doesn't work anyway.",
-            "picture": "/static/img/products/camera-lens.jpg",
+            "name": "Rainbow Delight",
+            "description": "All the colours of the rainbow!",
+            "picture": "/static/img/products/donut-rainbow.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 12,
+                "units": 4,
                 "nanos": 490000000
             },
-            "categories": ["photography", "vintage"]
+            "categories": [
+                "donuts"
+            ]
         },
         {
             "id": "1YMWWN1N4O",
@@ -33,42 +37,38 @@
                 "currencyCode": "USD",
                 "units": 124
             },
-            "categories": ["cookware"]
+            "categories": [
+                "cookware",
+                "coffee"
+            ]
         },
         {
             "id": "L9ECAV7KIM",
-            "name": "Terrarium",
-            "description": "This terrarium will looks great in your white painted living room.",
-            "picture": "/static/img/products/terrarium.jpg",
+            "name": "Cookie Crumble",
+            "description": "Imagine your favourite cookie smashed onto a donut, here it is.",
+            "picture": "/static/img/products/donut-cookie.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 36,
-                "nanos": 450000000
+                "units": 5,
+                "nanos": 250000000
             },
-            "categories": ["gardening"]
-        },
-        {
-            "id": "2ZYFJ3GM2N",
-            "name": "Film Camera",
-            "description": "This camera looks like it's a film camera, but it's actually digital.",
-            "picture": "/static/img/products/film-camera.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 2245
-            },
-            "categories": ["photography", "vintage"]
+            "categories": [
+                "donuts"
+            ]
         },
         {
             "id": "0PUK6V6EV0",
-            "name": "Vintage Record Player",
-            "description": "It still works.",
-            "picture": "/static/img/products/record-player.jpg",
+            "name": "Chocolate Supreme",
+            "description": "So. Much. Chocolate.",
+            "picture": "/static/img/products/donut-chocolate.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 65,
-                "nanos": 500000000
+                "units": 5,
+                "nanos": 900000000
             },
-            "categories": ["music", "vintage"]
+            "categories": [
+                "donuts"
+            ]
         },
         {
             "id": "LS4PSXUNUM",
@@ -80,31 +80,52 @@
                 "units": 24,
                 "nanos": 330000000
             },
-            "categories": ["cookware"]
+            "categories": [
+                "cookware",
+                "coffee"
+            ]
         },
         {
-            "id": "9SIQT8TOJO",
-            "name": "City Bike",
-            "description": "This single gear bike probably cannot climb the hills of San Francisco.",
-            "picture": "/static/img/products/city-bike.jpg",
+            "id": "6E92ZMYYKL",
+            "name": "Strawberry & Cream",
+            "description": "Delicious strawberry and cream glaze.",
+            "picture": "/static/img/products/donut-strawberry.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 789,
+                "units": 3,
                 "nanos": 500000000
             },
-            "categories": ["cycling"]
+            "categories": [
+                "donuts"
+            ]
         },
         {
-            "id": "6E92ZMYYFZ",
-            "name": "Air Plant",
-            "description": "Have you ever wondered whether air plants need water? Buy one and figure out.",
-            "picture": "/static/img/products/air-plant.jpg",
+            "id": "3R92ZMYYKL",
+            "name": "Powdered",
+            "description": "Light and fluffy, best enjoyed with a delicious coffee.",
+            "picture": "/static/img/products/donut-powdered.jpg",
             "priceUsd": {
                 "currencyCode": "USD",
-                "units": 12,
-                "nanos": 300000000
+                "units": 2,
+                "nanos": 250000000
             },
-            "categories": ["gardening"]
+            "categories": [
+                "donuts"
+            ]
+        },
+        {
+            "id": "3R92ZDDYKL",
+            "name": "Old Fashioned",
+            "description": "A classic hits the spot every time",
+            "picture": "/static/img/products/donut-old-fashioned.jpg",
+            "priceUsd": {
+                "currencyCode": "USD",
+                "units": 3,
+                "nanos": 200000000
+            },
+            "categories": [
+                "donuts"
+            ]
         }
     ]
 }
