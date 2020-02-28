@@ -31,6 +31,21 @@ success_message () {
   echo Visit https://app.lightstep.com to see the trace data.
 }
 
+# Wait for store
+wait_for_store () {
+  echo -n "Waiting for store to be ready"
+  while [ 1 ]; do
+    echo -n "."
+    curl -s -q http://localhost > /dev/null
+    rc=$?
+    if [ $rc == 0 ]; then
+      echo "done!"
+      return
+    fi
+    sleep 1
+  done
+}
+
 # Docker for Desktop steps
 docker_for_desktop_steps () {
  echo
@@ -46,6 +61,7 @@ docker_for_desktop_steps () {
   kube_node_check #TODO better error handling
   set_ls_access_token $1
   run_skaffold
+  wait_for_store
   success_message
  fi
 }
@@ -64,6 +80,7 @@ minikube_steps () {
   kube_node_check #TODO better error handling
   set_ls_access_token $1
   run_skaffold
+  wait_for_store
   success_message
  fi
 }
