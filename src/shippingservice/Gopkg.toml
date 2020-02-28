@@ -42,10 +42,6 @@
   version = "1.0.6"
 
 [[constraint]]
-  name = "go.opencensus.io"
-  version = "0.16.0"
-
-[[constraint]]
   branch = "master"
   name = "golang.org/x/net"
 

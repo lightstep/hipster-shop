@@ -34,15 +34,21 @@ spec:
         env:
         - name: PORT
           value: "3550"
+        - name: LIGHTSTEP_PORT
+          value: "443"
+        - name: LIGHTSTEP_HOST
+          value: "ingest.lightstep.com"
+        - name: SECRET_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+                name: ls-access-token
+                key: token
         readinessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:3550"]
         livenessProbe:
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:3550"]
-#        env:
-#          - name: JAEGER_SERVICE_ADDR
-#            value: "jaeger-collector:14268"
         resources:
           requests:
             cpu: 100m
