@@ -33,7 +33,7 @@ success_message () {
 
 # Wait for store
 wait_for_store () {
-  echo -n "Waiting for store to be ready"
+  echo -n "Waiting for store to be ready.."
   while [ 1 ]; do
     echo -n "."
     curl -s -q http://localhost > /dev/null
