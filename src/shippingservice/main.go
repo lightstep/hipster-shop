@@ -25,6 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/opentracing/opentracing-go"
 	"github.com/lightstep/lightstep-tracer-go"
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"go.opencensus.io/exporter/jaeger"
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/stats/view"
@@ -62,6 +63,7 @@ func init() {
 func main() {
 	go initTracing()
 	go initProfiling("shippingservice", "1.0.0")
+	tracer := opentracing.GlobalTracer()
 
 	port := defaultPort
 	if value, ok := os.LookupEnv("PORT"); ok {
@@ -73,7 +75,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	srv := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
+	srv := grpc.NewServer(
+		grpc.UnaryInterceptor(
+			otgrpc.OpenTracingServerInterceptor(tracer)),
+		grpc.StreamInterceptor(
+			otgrpc.OpenTracingStreamServerInterceptor(tracer)),
+	)
 	svc := &server{}
 	pb.RegisterShippingServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
@@ -193,24 +200,21 @@ func initStackdriverTracing() {
 }
 
 func initLighstepTracing() {
+	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
+		opentracing.HTTPHeaders: lightstep.B3Propagator,
+		opentracing.TextMap:     lightstep.B3Propagator,
+	}
+
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
 	Collector: lightstep.Endpoint{},
 	AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
 	Tags: map[string]interface{}{
 	lightstep.ComponentNameKey: "shippingservice",
 	},
+	Propagators: propagators,
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)
 	log.Info("Initalized lightstep tracing")
-
-	tracer := opentracing.GlobalTracer()
-	span := tracer.StartSpan("my-first-span")
-	span.SetTag("kind", "server")
-	span.LogKV("message", "what a lovely day")
-	span.Finish()
-
-	// remember to close the tracer in order to ensure spans are sent
-	lightStepTracer.Close(context.Background())
 	}
 
 	func initTracing() {

@@ -87,6 +87,14 @@
   version = "v2.0.5"
 
 [[projects]]
+  branch = "master"
+  digest = "1:1a1206efd03a54d336dce7bb8719e74f2f8932f661cb9f57d5813a1d99c083d8"
+  name = "github.com/grpc-ecosystem/grpc-opentracing"
+  packages = ["go/otgrpc"]
+  pruneopts = "UT"
+  revision = "8e809c8a86450a29b90dcc9efbf062d0fe6d9746"
+
+[[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -117,10 +125,11 @@
   version = "v0.18.1"
 
 [[projects]]
-  digest = "1:90e282624796901d91e49c98f4a05dc4f6136d1aab7af39bd3dcf3e989273650"
+  digest = "1:11e62d6050198055e6cd87ed57e5d8c669e84f839c16e16f192374d913d1a70d"
   name = "github.com/opentracing/opentracing-go"
   packages = [
     ".",
+    "ext",
     "log",
   ]
   pruneopts = "UT"
@@ -356,6 +365,7 @@
     "contrib.go.opencensus.io/exporter/stackdriver",
     "github.com/GoogleCloudPlatform/microservices-demo/src/shippingservice/genproto",
     "github.com/golang/protobuf/proto",
+    "github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc",
     "github.com/lightstep/lightstep-tracer-go",
     "github.com/opentracing/opentracing-go",
     "github.com/sirupsen/logrus",

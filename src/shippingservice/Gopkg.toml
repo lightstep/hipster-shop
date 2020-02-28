@@ -60,3 +60,7 @@
 [[constraint]]
   name = "github.com/lightstep/lightstep-tracer-go"
   version = "0.18.1"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/grpc-opentracing"
