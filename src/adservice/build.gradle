@@ -123,7 +123,17 @@ task adService(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
     defaultJvmOpts =
         ["-Dlog4j2.contextDataInjector=io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector",
-	"-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adservice,-cprof_service_version=1.0.0"]
+	"-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adservice,-cprof_service_version=1.0.0",
+        "-javaagent:/opt/specialagent/opentracing-specialagent-1.5.9.jar",
+        "-Dsa.tracer=lightstep",
+        "-Dsa.log.level=FINE",
+        "-Dsa.instrumentation.plugin.netty.disable",
+        "-Dsa.instrumentation.plugin.okhttp.disable",
+        "-Dsa.instrumentation.plugin.thread.disable",
+        "-Dsa.instrumentation.plugin.concurrent.disable",
+        "-Dls.propagator=b3",
+        "-Dls.accessToken=",
+        "-Dls.componentName=adservice"]
 }
 
 task adServiceClient(type: CreateStartScripts) {
@@ -133,7 +143,17 @@ task adServiceClient(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
     defaultJvmOpts =
         ["-Dlog4j2.contextDataInjector=io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector",
-	"-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adserviceclient,-cprof_service_version=1.0.0"]
+	"-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adserviceclient,-cprof_service_version=1.0.0",
+        "-javaagent:/opt/specialagent/opentracing-specialagent-1.5.9.jar",
+        "-Dsa.tracer=lightstep",
+        "-Dsa.log.level=FINE",
+        "-Dsa.instrumentation.plugin.netty.disable",
+        "-Dsa.instrumentation.plugin.okhttp.disable",
+        "-Dsa.instrumentation.plugin.thread.disable",
+        "-Dsa.instrumentation.plugin.concurrent.disable",
+        "-Dls.propagator=b3",
+        "-Dls.accessToken=",
+        "-Dls.componentName=adservice"]
 }
 
 applicationDistribution.into('bin') {

@@ -22,6 +22,10 @@ RUN mkdir -p /opt/cprof && \
     | tar xzv -C /opt/cprof && \
     rm -rf profiler_java_agent.tar.gz
 
+# Download SpecialAgent and create a configuration file with the token.
+RUN mkdir -p /opt/specialagent/ && \
+    wget -qP/opt/specialagent/ https://repo1.maven.org/maven2/io/opentracing/contrib/specialagent/opentracing-specialagent/1.5.9/opentracing-specialagent-1.5.9.jar
+
 RUN GRPC_HEALTH_PROBE_VERSION=v0.2.1 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe

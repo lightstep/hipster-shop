@@ -317,7 +317,7 @@ public final class AdService {
     initJaeger();
 
     // Register LS.
-    initLightstep();
+    //initLightstep();
 
     // Start the RPC server. You shouldn't see any output from gRPC before this.
     logger.info("AdService starting.");
