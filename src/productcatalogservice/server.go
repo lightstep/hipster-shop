@@ -124,13 +124,13 @@ func run(port string) string {
 	}
 
 	srv := grpc.NewServer(
+		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(opentracing.GlobalTracer())),
 		grpc.StreamInterceptor(
 			otgrpc.OpenTracingStreamServerInterceptor(opentracing.GlobalTracer())),
 	)
 
-	// srv := grpc.NewServer(grpc.StatsHandler(&ocgrpc.ServerHandler{}))
 	svc := &productCatalog{}
 	pb.RegisterProductCatalogServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
@@ -176,12 +176,6 @@ func initLightstepTracing() {
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)
 	log.Info("Initalized lightstep tracing")
-
-	tracer := opentracing.GlobalTracer()
-	span := tracer.StartSpan("my-first-span")
-	span.SetTag("kind", "server")
-	span.LogKV("message", "what a lovely day")
-	span.Finish()
 }
 
 func initStats(exporter *stackdriver.Exporter) {
@@ -218,8 +212,8 @@ func initStackdriverTracing() {
 }
 
 func initTracing() {
-	// initJaegerTracing()
-	// initStackdriverTracing()
+	initJaegerTracing()
+	go initStackdriverTracing()
 	initLightstepTracing()
 }
 

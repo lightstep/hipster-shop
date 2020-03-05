@@ -76,6 +76,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	srv := grpc.NewServer(
+		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(tracer)),
 		grpc.StreamInterceptor(
@@ -218,8 +219,8 @@ func initLighstepTracing() {
 }
 
 func initTracing() {
-	// initJaegerTracing()
-	// initStackdriverTracing()
+	initJaegerTracing()
+	go initStackdriverTracing()
 	initLighstepTracing()
 }
 

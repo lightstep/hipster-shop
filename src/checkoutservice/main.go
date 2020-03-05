@@ -74,7 +74,7 @@ type checkoutService struct {
 
 func main() {
 	initTracing()
-	// go initProfiling("checkoutservice", "1.0.0")
+	go initProfiling("checkoutservice", "1.0.0")
 	tracer := opentracing.GlobalTracer()
 	port := listenPort
 	if os.Getenv("PORT") != "" {
@@ -96,6 +96,7 @@ func main() {
 		log.Fatal(err)
 	}
 	srv := grpc.NewServer(
+		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
 		grpc.UnaryInterceptor(
 			otgrpc.OpenTracingServerInterceptor(tracer)),
 		grpc.StreamInterceptor(
@@ -185,8 +186,8 @@ func initStackdriverTracing() {
 }
 
 func initTracing() {
-	// initJaegerTracing()
-	// initStackdriverTracing()
+	initJaegerTracing()
+	go initStackdriverTracing()
 	initLightstepTracing(log)
 }
 
@@ -449,5 +450,6 @@ func getConnection(ctx context.Context, target string) (conn *grpc.ClientConn, e
 			otgrpc.OpenTracingClientInterceptor(tracer)),
 		grpc.WithStreamInterceptor(
 			otgrpc.OpenTracingStreamClientInterceptor(tracer)),
+		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
 	)
 }
