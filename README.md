@@ -173,6 +173,11 @@ We offer the following installation methods:
     gcloud auth configure-docker -q
     ```
 
+1. Add your LightStep Access Token as a Kubernetes secret:
+   - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an
+	[access token](https://docs.lightstep.com/docs/create-and-manage-access-tokens)
+   - Run `kubectl create secret generic ls-access-token --from-literal=token='<your-access-token>'`
+
 1.  In the root of this repository, run `skaffold run --default-repo=gcr.io/[PROJECT_ID]`,
     where [PROJECT_ID] is your GCP project ID.
 
