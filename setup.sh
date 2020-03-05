@@ -46,6 +46,25 @@ wait_for_store () {
   done
 }
 
+# Called if the user is deploying to GKE. Ensures the necessary environment
+# variables are set.
+gke_steps () {
+  echo
+  echo Great!
+  echo
+
+  if [ -z "$GCP_PROJECT_ID" ]  
+  then
+    echo Please set the GCP_PROJECT_ID environment variable first
+    echo so we know where to deploy the cluster! See the README
+    echo if you need help!
+    echo
+    exit
+  fi
+
+  make run
+}
+
 # Docker for Desktop steps
 docker_for_desktop_steps () {
  echo
@@ -85,17 +104,45 @@ minikube_steps () {
  fi
 }
 
+check_lightstep_access_token () {
+  local KUBESECRET
+  KUBESECRET=$(kubectl get secret ls-access-token -o go-template --template "{{.data.token}}" | base64 --decode)
+  if [ ! -z "$KUBESECRET" ]
+  then
+    echo Lightstep access token already defined as a Kubernetes secret. Proceeding!
+    return
+  fi
+  if [ -z "$LIGHTSTEP_ACCESS_TOKEN" ]  
+  then
+    echo Please set the LIGHTSTEP_ACCESS_TOKEN environment variable to get
+    echo started. Check out the README if you need help.
+    echo
+    exit
+  fi
+
+  echo Setting up an ls-access-token secret in Kubernetes
+  kubectl create secret generic ls-access-token --from-literal=token='$LIGHTSTEP_ACCESS_TOKEN'
+  echo
+}
+
 # Welcome
+echo 
 echo Welcome to the Lightstep Mock Application Setup!
+echo
+check_lightstep_access_token
 echo Help answer a couple questions about your environment and we\'ll get you up and running.
 echo
-# What local Kubernetes cluster is being used?
-echo What kind of local Kubernetes cluster are you using?
+# What Kubernetes cluster is being used?
+echo What kind of Kubernetes cluster are you using?
 PS3='Please enter your choice: '
-options=("Docker for Desktop" "Minikube" "Quit")
+options=("Google Kubernetes Engine (GKE)" "Docker for Desktop" "Minikube" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
+        "Google Kubernetes Engine (GKE)")
+            gke_steps $1
+            break
+            ;;
         "Docker for Desktop")
             docker_for_desktop_steps $1
             break
