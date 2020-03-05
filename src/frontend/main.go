@@ -30,6 +30,7 @@ import (
 
 	"go.opencensus.io/plugin/ocgrpc"
 	"go.opencensus.io/plugin/ochttp"
+	"go.opencensus.io/plugin/ochttp/propagation/b3"
 	"go.opencensus.io/stats/view"
 	"go.opencensus.io/trace"
 	"google.golang.org/grpc"
@@ -99,7 +100,7 @@ func main() {
 	}
 	log.Out = os.Stdout
 
-	// go initProfiling(log, "frontend", "1.0.0")
+	go initProfiling(log, "frontend", "1.0.0")
 	initTracing(log)
 
 	srvPort := port
@@ -140,20 +141,15 @@ func main() {
 	var handler http.Handler = r
 	handler = &logHandler{log: log, next: handler} // add logging
 	handler = ensureSessionID(handler)             // add session ID
-	// handler = &ochttp.Handler{                     // add opencensus instrumentation
-	// 	Handler:     handler,
-	// 	Propagation: &b3.HTTPFormat{}}
+	handler = &ochttp.Handler{                     // add opencensus instrumentation
+		Handler:     handler,
+		Propagation: &b3.HTTPFormat{}}
 	handler = nethttp.Middleware(opentracing.GlobalTracer(), handler)
 	log.Infof("starting server on " + addr + ":" + srvPort)
 	log.Fatal(http.ListenAndServe(addr+":"+srvPort, handler))
 }
 
 func initLightstepTracing(log logrus.FieldLogger) {
-	// lsHost := os.Getenv("LIGHTSTEP_HOST")
-	// lsPort, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
 	lsComponentName := "frontend"
 
@@ -245,8 +241,8 @@ func initTracing(log logrus.FieldLogger) {
 	// trace.ProbabilitySampler set at the desired probability.
 	// trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
 
-	// initJaegerTracing(log)
-	// initStackdriverTracing(log)
+	initJaegerTracing(log)
+	go initStackdriverTracing(log)
 	initLightstepTracing(log)
 
 }
@@ -291,7 +287,9 @@ func mustConnGRPC(ctx context.Context, conn **grpc.ClientConn, addr string) {
 		grpc.WithUnaryInterceptor(
 			otgrpc.OpenTracingClientInterceptor(tracer)),
 		grpc.WithStreamInterceptor(
-			otgrpc.OpenTracingStreamClientInterceptor(tracer)))
+			otgrpc.OpenTracingStreamClientInterceptor(tracer)),
+		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
+	)
 	if err != nil {
 		panic(errors.Wrapf(err, "grpc: failed to connect %s", addr))
 	}
