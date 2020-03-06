@@ -11,7 +11,7 @@ kube_node_check () {
 
 # Lightstep access token
 set_ls_access_token () {
-  kubectl create secret generic ls-access-token --from-literal=token=\'$1\'
+  kubectl create secret generic lightstep-access-token --from-literal=token=\'$1\'
 }
 
 # Run skaffold
@@ -106,7 +106,7 @@ minikube_steps () {
 
 check_lightstep_access_token () {
   local KUBESECRET
-  KUBESECRET=$(kubectl get secret ls-access-token -o go-template --template "{{.data.token}}" | base64 --decode)
+  KUBESECRET=$(kubectl get secret lightstep-access-token -o go-template --template "{{.data.token}}" 2>/dev/null | base64 --decode) || ''
   if [ ! -z "$KUBESECRET" ]
   then
     echo Lightstep access token already defined as a Kubernetes secret. Proceeding!
@@ -120,8 +120,8 @@ check_lightstep_access_token () {
     exit
   fi
 
-  echo Setting up an ls-access-token secret in Kubernetes
-  kubectl create secret generic ls-access-token --from-literal=token='$LIGHTSTEP_ACCESS_TOKEN'
+  echo Setting up an lightstep-access-token secret in Kubernetes
+  kubectl create secret generic lightstep-access-token --from-literal=token='$LIGHTSTEP_ACCESS_TOKEN'
   echo
 }
 
