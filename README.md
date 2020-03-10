@@ -199,7 +199,6 @@ here](https://docs.docker.com/docker-for-mac/kubernetes/).
 Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to see how data from the app is visualized in LightStep and learn how you can quickly resolve issues.
 
 ### (Optional) Deploying on an Istio-installed GKE Cluster
-<p style="color:red">Should we keep this section and include a link to instructions for using with LightStep? Would that replace Steps 3 and 4? </p>
 
 > **Note:** If you followed GKE deployment steps above, run `skaffold delete` first
 > to delete what's deployed.
