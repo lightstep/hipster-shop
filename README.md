@@ -1,7 +1,6 @@
 This is a [Lightstep](https://lightstep.com) fork of https://github.com/GoogleCloudPlatform/microservices-demo
 
-# Hipster Shop: Cloud-Native Microservices Demo Application
-<p style="color:red">Can we change the name of the app and "rebrand" it to be about observability rather than microservices in the cloud?</p>
+# Hipster Shop: Cloud-Native Observability Demo Application
 
 - [Service Architecture](#service-architecture)
 - [Features](#features)
@@ -22,17 +21,16 @@ The application is a web-based e-commerce app called **Hipster Shop** where user
 add them to the cart, and purchase them.  Google uses this application to demonstrate use of technologies like
 Kubernetes/GKE, Istio, Stackdriver, gRPC and OpenCensus.
 
-LightStep modified this application to demonstrate how to instrument for distributed tracing and monitoring using multiple tracing libraries, including OpenTelemetry, OpenTracing, and tracers from LightStep, Zipkin, and Jaeger.
-Use the app to learn and experiment with different tracing implementations and then run [LightStep](https://app.lightstep.com) to see your trace data in action.
+This fork of the repository demonstrate how to instrument for distributed tracing and monitoring using multiple tracing libraries, including OpenTelemetry, OpenTracing, and tracers from LightStep, Zipkin, and Jaeger.
+Use the app to learn and experiment with distributed system telemetry and then run [LightStep](https://app.lightstep.com) to see your telemetry data in action.
 
-> 💡 Need a LightStep account? Sign up for our [**free trial**](https://go.lightstep.com/signup-dev.html)!
+> 💡 Don't have a LightStep account? Sign up for [**LightStep Developer**](https://go.lightstep.com/signup-dev.html)!
 
 This project contains a 10-tier microservices application, where services are built using different languages and different tracing libraries. It works on any Kubernetes cluster (such as a local one), as well as Google
 Kubernetes Engine. It’s **easy to deploy with little to no configuration**.
 
 If you’re using this demo, please **★Star** this repository to show your interest!
 
-<p style="color:red">Do we need to keep this note? </p>
  👓**Note to Googlers:** Please fill out the form at [go/microservices-demo](http://go/microservices-demo) if you are using this application.
 
 
@@ -50,8 +48,6 @@ microservices](./docs/img/architecture-diagram.png)](./docs/img/architecture-dia
 
 Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
 
-<p style="color:red">[[Does anything here need to change? We should add the type of tracing used in each service]]</p>
-
 | Service                                              | Language      | Description                                                                                                                       |
 | ---------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | [frontend](./src/frontend)                           | Go            | Exposes an HTTP server to serve the website. Does not require signup/login and generates session IDs for all users automatically. |
@@ -67,8 +63,6 @@ Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
 | [loadgenerator](./src/loadgenerator)                 | Python/Locust | Continuously sends requests imitating realistic user shopping flows to the frontend.                                              |
 
 ## Features
-
-<p style="color:red">[[What do we want to add/delete here? Anything LS-specific?]]</p>
 
 - **[Kubernetes](https://kubernetes.io)/[GKE](https://cloud.google.com/kubernetes-engine/):**
   The app is designed to run on Kubernetes (both locally on "Docker for
@@ -98,15 +92,14 @@ Both installations take between 20-30 minutes
 ## Prerequisites
 ### GKE Installation Only
 * **Google Cloud Platform account**: Visit [console.cloud.google.com](https://console.cloud.google.com) to set up your account.<br>
-Create and activate your project.
+Create and activate your project, and make sure [billing is activated](https://cloud.google.com/billing/docs/how-to/modify-project) for your account.
 
 * **Set the project ID as an environment variable**<br>
-    `export GCP_PROJECT_ID=<your-project-name>`
+    `export GCP_PROJECT_ID=<your-project-ID>`
 
 * **Google Cloud Console (command line tool)**: Visit [cloud.google.com/pubsub/docs/quickstart-cli](https://cloud.google.com/pubsub/docs/quickstart-cli) for instructions.
 
 * Run `gcloud init` to configure Google Cloud (GC). Follow the console instructions. If you've already created a project in GC, be sure to select that project.
-  > 💡 Make sure to include the whole name of the project, including any dashes or numbers after the name.
 
 ### Local Installation Only
 Install one of the following two options to run a Kubernetes cluster locally for this demo:
@@ -123,10 +116,10 @@ Install one of the following two options to run a Kubernetes cluster locally for
      - Docker for Desktop (recommended for Mac/Windows): It provides Kubernetes support as [noted
   here](https://docs.docker.com/docker-for-mac/kubernetes/).
 - [**skaffold**]( https://skaffold.dev/docs/install/): Ensure the version is ≥ v0.20)
-* **LightStep account and project**: You can sign up for a [free version](https://go.lightstep.com/signup-dev.html). A new LightStep account includes two projects---dev and production. You can use one of these or [create a new one](https://docs.lightstep.com/docs/create-projects-for-your-environments).
-* **LightStep access token**: This token is needed to determine the LightStep project that this app should send it's telemetry to. You can find it in your LightStep's [project settings](https://docs.lightstep.com/docs/create-and-manage-access-tokens).<br>
+* **LightStep account and project**: You can sign up for [LightStep Developer](https://go.lightstep.com/signup-dev.html) if you don't already have an account. A new LightStep account includes two projects---dev and production. You can use one of these or [create a new one](https://docs.lightstep.com/docs/create-projects-for-your-environments).
+* **LightStep access token**: This token is needed to determine the LightStep project that this app should send it's telemetry to. You can find it in LightStep's [project settings](https://docs.lightstep.com/docs/create-and-manage-access-tokens).<br>
   Set the token as an environment variable:<br>
-      `export LIGHTSTEP_ACCESS_TOKEN=<your-project-access-token>`
+      export LIGHTSTEP_ACCESS_TOKEN=<your-project-access-token>
 * **A clone of [this repo](https://github.com/lightstep/hipster-shop.git)**: You won't be able to create a branch or push changes to this repo, so if you want to be able to check in any changes, create a fork instead.
 
 ## GKE Installation
@@ -172,7 +165,7 @@ You will build, upload and deploy the container images to a Kubernetes cluster o
       `kubectl get service frontend-external`
 
 1. In your browser, visit that IP address to confirm installation.   You should see the home page where you can shop for donuts and coffee.
-    ![Hipster home page](/docs/img/home-page.png)
+    ![Hipster Shop home page](/docs/img/home-page.png)
 
 Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to see how data from the app is visualized in LightStep and learn how you can quickly resolve issues.
 
@@ -181,53 +174,37 @@ Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to
 
 You will build and deploy microservices images to a single-node Kubernetes cluster running on your development machine.
 
+Use one of the following for you cluster:
+- [Minikube (recommended for
+ Linux)](https://kubernetes.io/docs/setup/minikube/).
+- Docker for Desktop (recommended for Mac/Windows): It provides Kubernetes support as [noted
+here](https://docs.docker.com/docker-for-mac/kubernetes/).
+
 > 💡 Recommended if you're planning to develop the application or you want to try on your local cluster.
 
 > 💡 Be sure to follow all [prerequisites](#prerequisites) before starting installation.
 
-1. Launch the local Kubernetes cluster with one of the following tools:
+1. Run `kubectl get nodes` to verify you're connected to “Kubernetes on Docker”.
+   > 💡If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
 
-    - Launch Minikube (tested with Ubuntu Linux). Ensure that the
-       local Kubernetes cluster has at least `4` CPU's and `4.0` GiB memory
-
-    ```shell
-    minikube start --cpus=4 --memory 4096
-    ```
-    OR
-    - Launch “Docker for Desktop” (tested with Mac/Windows). <br>
-      Go to Preferences:
-        - Choose **Enable Kubernetes**.
-        - Set CPUs to at least `3`, and Memory to at least `6.0 GiB`
-        - On the **Disk** tab, set at least `32 GB` disk space
-
-3. Run `kubectl get nodes` to verify you're connected to “Kubernetes on Docker”.
-   - If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
-
-<p style="color:red"> Not sure this step is needed. If the env var doesn't work, then move prereq to gke only prereq. </p>
-
-4. Add your LightStep Access Token as a Kubernetes secret:
-   - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an
-	[access token](https://docs.lightstep.com/docs/create-and-manage-access-tokens)
-   - Run `kubectl create secret generic ls-access-token --from-literal=token='<your-access-token>'`
-
-5. Run `skaffold run` (first time will be slow, it can take ~20 minutes).
-   This will build and deploy the application. If you need to rebuild the images
-   automatically as you refactor the code, run `skaffold dev` command.
+1. Navigate the root directory of the Hipster Shop repo clone and run:
+    `make setup`
+    When asked `What kind of Kubernetes cluster are you using?`, choose `2) Docker for Desktop` or `3) Minikube` and follow the configuration instructions.
 
 6. Run `kubectl get pods` to verify the Pods are ready and running.
 
 7. In a browser, visit http://localhost:80. You should see the home page where you can shop for donuts and coffee.
-    ![Hipster home page](/docs/img/home-page.png)
+    ![Hipster Shop home page](/docs/img/home-page.png)
 
 Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to see how data from the app is visualized in LightStep and learn how you can quickly resolve issues.
 
 ### (Optional) Deploying on an Istio-installed GKE Cluster
 <p style="color:red">Should we keep this section and include a link to instructions for using with LightStep? Would that replace Steps 3 and 4? </p>
 
-> **Note:** you followed GKE deployment steps above, run `skaffold delete` first
+> **Note:** If you followed GKE deployment steps above, run `skaffold delete` first
 > to delete what's deployed.
 
-1. Create a GKE cluster (described in [GKE Installation](#gke-installation)).
+1. Create a GKE cluster (described in [GKE Installation](#gke-installation)). Go through Steps 1-4 (do not deploy the app).
 
 1. Use [Istio on GKE add-on](https://cloud.google.com/istio/docs/istio-on-gke/installing)
    to install Istio to your existing GKE cluster.
@@ -273,7 +250,7 @@ Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to
    ```
 
 7. In a browser, navigate to the app's IP address. You should see the home page where you can shop for donuts and coffee.
-  ![Hipster home page](/docs/img/home-page.png)
+  ![Hipster Shop home page](/docs/img/home-page.png)
 
 ## See Telemetry Data in LightStep
 Browse and purchase a few items (a dummy credit card and service are configured to allow purchasing), then go to the LightStep app and open the [Explorer page](https://docs.lightstep.com/docs/query-span-data) for your project.
@@ -281,7 +258,12 @@ Browse and purchase a few items (a dummy credit card and service are configured 
 You should see the Latency Histogram, which shows the distribution of spans over latency periods. Spans are shown in latency buckets - longer blue lines mean there are more spans in that latency bucket. Lines towards the left have lower latency and towards the right, higher latency.
 ![Hipster home page](/docs/img/lightstep-explorer.png)
 
-Read [Next Steps](#next-steps) to learn more about how to instrument for monitoring deep systems and how to use LightStep to find issues in those systems fast.
+Check these out for more info on using LightStep:
+* [**LightStep Product Overview**](https://docs.lightstep.com/videos/product-overview)(video): Take a tour through LightStep
+* [**Play in the LightStep Sandbox**](https://lightstep.com/play/): Work directly in LightStep to resolve a performance regression, debug and iOS error, and monitor a deploy.
+* [**Learning Paths**](https://docs.lightstep.com/paths/): Run through tutorials to learn how to use LightStep resolve issues in deep systems.
+* [**LightStep Blog**](https://lightstep.com/blog/): Read and learn the latest from LightStep.
+* [**LightStep Learning Portal**](https://docs.lightstep.com): Browse through the LightStep product docs.
 
 ## Cleanup
 
@@ -293,7 +275,6 @@ run `kubectl delete -f [...]` with the same argument to clean up the deployed
 resources.
 
 ## Conferences Featuring Hipster Shop
-<p style="color:red">Do we need to keep this section?</p>
 
 - [Google Cloud Next'18 London – Keynote](https://youtu.be/nIq2pkNcfEI?t=3071)
   showing Stackdriver Incident Response Management
