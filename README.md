@@ -1,27 +1,44 @@
 This is a [Lightstep](https://lightstep.com) fork of https://github.com/GoogleCloudPlatform/microservices-demo
 
 # Hipster Shop: Cloud-Native Microservices Demo Application
+<p style="color:red">Can we change the name of the app and "rebrand" it to be about observability rather than microservices in the cloud?</p>
 
-This project contains a 10-tier microservices application. The application is a
-web-based e-commerce app called **“Hipster Shop”** where users can browse items,
-add them to the cart, and purchase them.
+- [Service Architecture](#service-architecture)
+- [Features](#features)
+- [Installation Options](#installation-options)
+- [Prerequisites](#prerequisites)
+  - [GKE Installation Only](#gke-installation-only)
+  - [Local Installation Only](#local-installation-only)
+  - [All Installations](#all-installations)
+- [GKE Installation](#gke-installation)
+- [Local Installation](#local-installation)
+- [(Optional) Deploying on a Istio-installed GKE cluster](#optional-deploying-on-a-istio-installed-gke-cluster)
+- [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep)
+- [Cleanup](#cleanup)
+- [Conferences featuring Hipster Shop](#conferences-featuring-hipster-shop)
 
-**Google uses this application to demonstrate use of technologies like
-Kubernetes/GKE, Istio, Stackdriver, gRPC and OpenCensus**. This application
-works on any Kubernetes cluster (such as a local one), as well as Google
+
+The application is a web-based e-commerce app called **Hipster Shop** where users can browse items,
+add them to the cart, and purchase them.  Google uses this application to demonstrate use of technologies like
+Kubernetes/GKE, Istio, Stackdriver, gRPC and OpenCensus.
+
+LightStep modified this application to demonstrate how to instrument for distributed tracing and monitoring using multiple tracing libraries, including OpenTelemetry, OpenTracing, and tracers from LightStep, Zipkin, and Jaeger.
+Use the app to learn and experiment with different tracing implementations and then run [LightStep](https://app.lightstep.com) to see your trace data in action.
+
+> 💡 Need a LightStep account? Sign up for our [**free trial**](https://go.lightstep.com/signup-dev.html)!
+
+This project contains a 10-tier microservices application, where services are built using different languages and different tracing libraries. It works on any Kubernetes cluster (such as a local one), as well as Google
 Kubernetes Engine. It’s **easy to deploy with little to no configuration**.
 
 If you’re using this demo, please **★Star** this repository to show your interest!
 
-> 👓**Note to Googlers:** Please fill out the form at
-> [go/microservices-demo](http://go/microservices-demo) if you are using this
-> application.
+<p style="color:red">Do we need to keep this note? </p>
+ 👓**Note to Googlers:** Please fill out the form at [go/microservices-demo](http://go/microservices-demo) if you are using this application.
 
-## Screenshots
 
-| Home Page                                                                                                         | Checkout Screen                                                                                                    |
+| Home Page                                                                                                         | Checkout Page                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| [![Screenshot of store homepage](./docs/img/hipster-shop-frontend-1.png)](./docs/img/hipster-shop-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/hipster-shop-frontend-2.png)](./docs/img/hipster-shop-frontend-2.png) |
+| [![Screenshot of store homepage](/docs/img/home-page.png)](./docs/img/hipster-shop-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/checkout-page.png)](./docs/img/hipster-shop-frontend-2.png) |
 
 ## Service Architecture
 
@@ -32,6 +49,8 @@ languages that talk to each other over gRPC.
 microservices](./docs/img/architecture-diagram.png)](./docs/img/architecture-diagram.png)
 
 Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
+
+<p style="color:red">[[Does anything here need to change? We should add the type of tracing used in each service]]</p>
 
 | Service                                              | Language      | Description                                                                                                                       |
 | ---------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -48,6 +67,8 @@ Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
 | [loadgenerator](./src/loadgenerator)                 | Python/Locust | Continuously sends requests imitating realistic user shopping flows to the frontend.                                              |
 
 ## Features
+
+<p style="color:red">[[What do we want to add/delete here? Anything LS-specific?]]</p>
 
 - **[Kubernetes](https://kubernetes.io)/[GKE](https://cloud.google.com/kubernetes-engine/):**
   The app is designed to run on Kubernetes (both locally on "Docker for
@@ -68,63 +89,121 @@ Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
   job that creates realistic usage patterns on the website using
   [Locust](https://locust.io/) load generator.
 
-## Installation
+## Installation Options
+You can install the Hipster-Shop into these environments:
+* [**Google Kubernetes Engine** (GKE)](#gke-installation): Install the app to a similar environment that you'll deploy your production system to.
+* [**Locally**](#local-installation): Deploy to a single-node Kubernetes cluster running on your own development machine, using either [Minikube](https://github.com/kubernetes/minikube) (recommended for Linux) or [Docker for Desktop](https://www.docker.com/products/docker-desktop) (recommended for Mac/Windows).
+Both installations take between 20-30 minutes
 
-We offer the following installation methods:
+## Prerequisites
+### GKE Installation Only
+* **Google Cloud Platform account**: Visit [console.cloud.google.com](https://console.cloud.google.com) to set up your account.<br>
+Create and activate your project.
 
-1. **Running locally** (~20 minutes) You will build
-   and deploy microservices images to a single-node Kubernetes cluster running
-   on your development machine. There are two options to run a Kubernetes
-   cluster locally for this demo:
+* **Set the project ID as an environment variable**<br>
+    `export GCP_PROJECT_ID=<your-project-name>`
+
+* **Google Cloud Console (command line tool)**: Visit [cloud.google.com/pubsub/docs/quickstart-cli](https://cloud.google.com/pubsub/docs/quickstart-cli) for instructions.
+
+* Run `gcloud init` to configure Google Cloud (GC). Follow the console instructions. If you've already created a project in GC, be sure to select that project.
+  > 💡 Make sure to include the whole name of the project, including any dashes or numbers after the name.
+
+### Local Installation Only
+Install one of the following two options to run a Kubernetes cluster locally for this demo:
    - [Minikube](https://github.com/kubernetes/minikube). Recommended for the
      Linux hosts (also supports Mac/Windows).
    - [Docker for Desktop](https://www.docker.com/products/docker-desktop).
      Recommended for Mac/Windows.
 
-1. **Running on Google Kubernetes Engine (GKE)”** (~30 minutes) You will build,
-   upload and deploy the container images to a Kubernetes cluster on Google
-   Cloud.
+### All Installations
+* **kubectl**: Install using `gcloud components install kubectl`
+* **Local Kubernetes cluster deployment tool**:
+     - [Minikube (recommended for
+      Linux)](https://kubernetes.io/docs/setup/minikube/).
+     - Docker for Desktop (recommended for Mac/Windows): It provides Kubernetes support as [noted
+  here](https://docs.docker.com/docker-for-mac/kubernetes/).
+- [**skaffold**]( https://skaffold.dev/docs/install/): Ensure the version is ≥ v0.20)
+* **LightStep account and project**: You can sign up for a [free version](https://go.lightstep.com/signup-dev.html). A new LightStep account includes two projects---dev and production. You can use one of these or [create a new one](https://docs.lightstep.com/docs/create-projects-for-your-environments).
+* **LightStep access token**: This token is needed to determine the LightStep project that this app should send it's telemetry to. You can find it in your LightStep's [project settings](https://docs.lightstep.com/docs/create-and-manage-access-tokens).<br>
+  Set the token as an environment variable:<br>
+      `export LIGHTSTEP_ACCESS_TOKEN=<your-project-access-token>`
+* **A clone of [this repo](https://github.com/lightstep/hipster-shop.git)**: You won't be able to create a branch or push changes to this repo, so if you want to be able to check in any changes, create a fork instead.
 
-1. **Using pre-built container images:** (~10 minutes, you will still need to
-   follow one of the steps above up until `skaffold run` command). With this
-   option, you will use pre-built container images that are available publicly,
-   instead of building them yourself, which takes a long time).
+## GKE Installation
+**Time to install**: About 30 minutes
 
-### Option 1: Running locally
+You will build, upload and deploy the container images to a Kubernetes cluster on Google Cloud.
+> 💡 Recommended if you're using Google Cloud Platform and want to try it on a realistic cluster.
 
-> 💡 Recommended if you're planning to develop the application or giving it a
-> try on your local cluster.
+> 💡 Be sure to follow all [prerequisites](#prerequisites) before starting installation.
 
-1. Install tools to run a Kubernetes cluster locally:
+1.  From the cloned repo directory, create a Google Kubernetes Engine cluster .
 
-   - kubectl (can be installed via `gcloud components install kubectl`)
-   - Local Kubernetes cluster deployment tool:
-        - [Minikube (recommended for
-         Linux)](https://kubernetes.io/docs/setup/minikube/).
-        - Docker for Desktop (recommended for Mac/Windows): It provides Kubernetes support as [noted
-     here](https://docs.docker.com/docker-for-mac/kubernetes/).
-   - [skaffold]( https://skaffold.dev/docs/install/) (ensure version ≥v0.20)
+    ```sh
+    gcloud services enable container.googleapis.com
+    ```
 
-2. Launch the local Kubernetes cluster with one of the following tools:
+    ```sh
+    gcloud container clusters create demo --enable-autoupgrade \
+        --enable-autoscaling --min-nodes=3 --max-nodes=10 --num-nodes=5 --zone=us-central1-a
+    ```
+1.  Enable Google Container Registry (GCR) on your GCP project
 
-    - Launch Minikube (tested with Ubuntu Linux). Please, ensure that the
-       local Kubernetes cluster has at least:
-        - 4 CPU's
-        - 4.0 GiB memory
+    ```sh
+    gcloud services enable containerregistry.googleapis.com
+    ```
 
-        To run a Kubernetes cluster with Minikube using the described configuration, please run:
+1. Make sure `kubectl` is pointing to the cluster
+    ```
+    kubectl get nodes
+    ```
+    If you kept the name `demo` for the clusters (from the example in Step 1), you should see something like this:<br>
+    ![Screenshot of node listing](/docs/img/nodes.png)
+
+1. Configure the `docker` CLI to authenticate to GCR:
+    ```sh
+    gcloud auth configure-docker -q
+    ```
+
+1. In the root of this repository, run `make setup`.<br>
+    When asked `What kind of Kubernetes cluster are you using?`, choose `1) Google Kubernetes Engine (GKE)`.
+
+1.  Find the external IP address of your application:<br>
+      `kubectl get service frontend-external`
+
+1. In your browser, visit that IP address to confirm installation.   You should see the home page where you can shop for donuts and coffee.
+    ![Hipster home page](/docs/img/home-page.png)
+
+Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to see how data from the app is visualized in LightStep and learn how you can quickly resolve issues.
+
+## Local Installation
+**Time to install**: About 20 minutes
+
+You will build and deploy microservices images to a single-node Kubernetes cluster running on your development machine.
+
+> 💡 Recommended if you're planning to develop the application or you want to try on your local cluster.
+
+> 💡 Be sure to follow all [prerequisites](#prerequisites) before starting installation.
+
+1. Launch the local Kubernetes cluster with one of the following tools:
+
+    - Launch Minikube (tested with Ubuntu Linux). Ensure that the
+       local Kubernetes cluster has at least `4` CPU's and `4.0` GiB memory
 
     ```shell
     minikube start --cpus=4 --memory 4096
     ```
-
-    - Launch “Docker for Desktop” (tested with Mac/Windows). Go to Preferences:
-        - choose “Enable Kubernetes”,
-        - set CPUs to at least 3, and Memory to at least 6.0 GiB
-        - on the "Disk" tab, set at least 32 GB disk space
+    OR
+    - Launch “Docker for Desktop” (tested with Mac/Windows). <br>
+      Go to Preferences:
+        - Choose **Enable Kubernetes**.
+        - Set CPUs to at least `3`, and Memory to at least `6.0 GiB`
+        - On the **Disk** tab, set at least `32 GB` disk space
 
 3. Run `kubectl get nodes` to verify you're connected to “Kubernetes on Docker”.
    - If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
+
+<p style="color:red"> Not sure this step is needed. If the env var doesn't work, then move prereq to gke only prereq. </p>
 
 4. Add your LightStep Access Token as a Kubernetes secret:
    - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an
@@ -135,105 +214,20 @@ We offer the following installation methods:
    This will build and deploy the application. If you need to rebuild the images
    automatically as you refactor the code, run `skaffold dev` command.
 
-6. Run `kubectl get pods` to verify the Pods are ready and running. The
-   application frontend should be available at http://localhost:80 on your
-   machine.
+6. Run `kubectl get pods` to verify the Pods are ready and running.
 
-### Option 2: Running on Google Kubernetes Engine (GKE)
+7. In a browser, visit http://localhost:80. You should see the home page where you can shop for donuts and coffee.
+    ![Hipster home page](/docs/img/home-page.png)
 
-> 💡 Recommended if you're using Google Cloud Platform and want to try it on
-> a realistic cluster.
+Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to see how data from the app is visualized in LightStep and learn how you can quickly resolve issues.
 
-1.  Install tools specified in the previous section (Docker, kubectl, skaffold)
-
-1.  Create a Google Kubernetes Engine cluster and make sure `kubectl` is pointing
-    to the cluster.
-
-    ```sh
-    gcloud services enable container.googleapis.com
-    ```
-
-    ```sh
-    gcloud container clusters create demo --enable-autoupgrade \
-        --enable-autoscaling --min-nodes=3 --max-nodes=10 --num-nodes=5 --zone=us-central1-a
-    ```
-
-    ```
-    kubectl get nodes
-    ```
-
-1.  Enable Google Container Registry (GCR) on your GCP project and configure the
-    `docker` CLI to authenticate to GCR:
-
-    ```sh
-    gcloud services enable containerregistry.googleapis.com
-    ```
-
-    ```sh
-    gcloud auth configure-docker -q
-    ```
-
-1. Add your LightStep Access Token as a Kubernetes secret:
-   - [Signup](https://go.lightstep.com/signup-dev) to LightStep to get an
-	[access token](https://docs.lightstep.com/docs/create-and-manage-access-tokens)
-   - Run `kubectl create secret generic ls-access-token --from-literal=token='<your-access-token>'`
-
-1.  In the root of this repository, run `skaffold run --default-repo=gcr.io/[PROJECT_ID]`,
-    where [PROJECT_ID] is your GCP project ID.
-
-    This command:
-
-    - builds the container images
-    - pushes them to GCR
-    - applies the `./kubernetes-manifests` deploying the application to
-      Kubernetes.
-
-    **Troubleshooting:** If you get "No space left on device" error on Google
-    Cloud Shell, you can build the images on Google Cloud Build: [Enable the
-    Cloud Build
-    API](https://console.cloud.google.com/flows/enableapi?apiid=cloudbuild.googleapis.com),
-    then run `skaffold run -p gcb --default-repo=gcr.io/[PROJECT_ID]` instead.
-
-1.  Find the IP address of your application, then visit the application on your
-    browser to confirm installation.
-
-        kubectl get service frontend-external
-
-    **Troubleshooting:** A Kubernetes bug (will be fixed in 1.12) combined with
-    a Skaffold [bug](https://github.com/GoogleContainerTools/skaffold/issues/887)
-    causes load balancer to not to work even after getting an IP address. If you
-    are seeing this, run `kubectl get service frontend-external -o=yaml | kubectl apply -f-`
-    to trigger load balancer reconfiguration.
-
-### Option 3: Using Pre-Built Container Images
-
-> 💡 Recommended if you want to deploy the app faster in fewer steps to an
-> existing cluster.
-
-**NOTE:** If you need to create a Kubernetes cluster locally or on the cloud,
-follow "Option 1" or "Option 2" until you reach the `skaffold run` step.
-
-This option offers you pre-built public container images that are easy to deploy
-by deploying the [release manifest](./release) directly to an existing cluster.
-
-**Prerequisite**: a running Kubernetes cluster (either local or on cloud).
-
-1. Clone this repository, and go to the repository directory
-1. Run `kubectl apply -f ./release/kubernetes-manifests.yaml` to deploy the app.
-1. Run `kubectl get pods` to see pods are in a Ready state.
-1. Find the IP address of your application, then visit the application on your
-   browser to confirm installation.
-
-   ```sh
-   kubectl get service/frontend-external
-   ```
-
-### (Optional) Deploying on a Istio-installed GKE cluster
+### (Optional) Deploying on an Istio-installed GKE Cluster
+<p style="color:red">Should we keep this section and include a link to instructions for using with LightStep? Would that replace Steps 3 and 4? </p>
 
 > **Note:** you followed GKE deployment steps above, run `skaffold delete` first
 > to delete what's deployed.
 
-1. Create a GKE cluster (described in "Option 2").
+1. Create a GKE cluster (described in [GKE Installation](#gke-installation)).
 
 1. Use [Istio on GKE add-on](https://cloud.google.com/istio/docs/istio-on-gke/installing)
    to install Istio to your existing GKE cluster.
@@ -266,8 +260,7 @@ by deploying the [release manifest](./release) directly to an existing cluster.
 
 6. Run `kubectl get pods` to see pods are in a healthy and ready state.
 
-7. Find the IP address of your Istio gateway Ingress or Service, and visit the
-   application.
+7. Find the IP address of your Istio gateway Ingress or Service.
 
    ```sh
    INGRESS_HOST="$(kubectl -n istio-system get service istio-ingressgateway \
@@ -279,7 +272,18 @@ by deploying the [release manifest](./release) directly to an existing cluster.
    curl -v "http://$INGRESS_HOST"
    ```
 
-### Cleanup
+7. In a browser, navigate to the app's IP address. You should see the home page where you can shop for donuts and coffee.
+  ![Hipster home page](/docs/img/home-page.png)
+
+## See Telemetry Data in LightStep
+Browse and purchase a few items (a dummy credit card and service are configured to allow purchasing), then go to the LightStep app and open the [Explorer page](https://docs.lightstep.com/docs/query-span-data) for your project.
+
+You should see the Latency Histogram, which shows the distribution of spans over latency periods. Spans are shown in latency buckets - longer blue lines mean there are more spans in that latency bucket. Lines towards the left have lower latency and towards the right, higher latency.
+![Hipster home page](/docs/img/lightstep-explorer.png)
+
+Read [Next Steps](#next-steps) to learn more about how to instrument for monitoring deep systems and how to use LightStep to find issues in those systems fast.
+
+## Cleanup
 
 If you've deployed the application with `skaffold run` command, you can run
 `skaffold delete` to clean up the deployed resources.
@@ -288,7 +292,8 @@ If you've deployed the application with `kubectl apply -f [...]`, you can
 run `kubectl delete -f [...]` with the same argument to clean up the deployed
 resources.
 
-## Conferences featuring Hipster Shop
+## Conferences Featuring Hipster Shop
+<p style="color:red">Do we need to keep this section?</p>
 
 - [Google Cloud Next'18 London – Keynote](https://youtu.be/nIq2pkNcfEI?t=3071)
   showing Stackdriver Incident Response Management
