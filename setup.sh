@@ -121,7 +121,7 @@ check_lightstep_access_token () {
   fi
 
   echo Setting up an lightstep-access-token secret in Kubernetes
-  kubectl create secret generic lightstep-access-token --from-literal=token='$LIGHTSTEP_ACCESS_TOKEN'
+  kubectl create secret generic lightstep-access-token --from-literal=token="$LIGHTSTEP_ACCESS_TOKEN"
   echo
 }
 

@@ -149,7 +149,11 @@ namespace cartservice
                             var tracer = new Tracer(
                                 new Options()
 									.WithToken(accessToken)
-									.WithTags(new Dictionary<string, object> { {LightStepConstants.ComponentNameKey, "cartservice"}}),
+									.WithTags(new Dictionary<string, object> { 
+                                        {LightStepConstants.ComponentNameKey, "cartservice"},
+                                        {"service.version","1.0.1"},
+                                        {"cartservice.identity", "f738e221f8"}
+                                    }),
                                 new LightStepSpanRecorder(),
                                 new B3Propagator()
                             );

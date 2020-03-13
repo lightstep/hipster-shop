@@ -138,6 +138,9 @@ function convert (call, callback) {
         nanos: from.nanos / data[from.currency_code]
       });
 
+      span.setTag('currency_code.from', from.currency_code);
+      span.setTag('currency_code.to', request.to_code);
+
       euros.nanos = Math.round(euros.nanos);
 
       // Convert: EUR --> to_currency
