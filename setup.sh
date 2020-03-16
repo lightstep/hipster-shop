@@ -1,4 +1,6 @@
 #!/bin/bash
+set -euo pipefail
+IFS=$'\n\t'
 
 # Check for Kubernetes Nodes
 kube_node_check () {
@@ -6,12 +8,14 @@ kube_node_check () {
   echo Checking Kubernetes connection
   output=$(kubectl get nodes)
   [[ $output = "The connection to the server kubernetes.docker.internal:6443 was refused - did you specify the right host or port?" ]] && echo Problem connecting to Kubernetes
-  [[ $output -ne "The connection to the server kubernetes.docker.internal:6443 was refused - did you specify the right host or port?" ]] && echo Connection verified
+  [[ $output != "The connection to the server kubernetes.docker.internal:6443 was refused - did you specify the right host or port?" ]] && echo Connection verified
 }
 
 # Lightstep access token
 set_ls_access_token () {
-  kubectl create secret generic lightstep-access-token --from-literal=token=\'$1\'
+  echo Setting up an lightstep-access-token secret in Kubernetes
+  kubectl create secret generic lightstep-access-token --from-literal=token="$LS_HIPSTER_ACCESS_TOKEN" || echo "Secret already present, not updated."
+  echo
 }
 
 # Run skaffold
@@ -78,7 +82,7 @@ docker_for_desktop_steps () {
  if [[ $REPLY =~ ^[Yy]$ ]]
  then
   kube_node_check #TODO better error handling
-  set_ls_access_token $1
+  set_ls_access_token
   run_skaffold
   wait_for_store
   success_message
@@ -97,7 +101,7 @@ minikube_steps () {
   echo Starting Minikube
   minikube start --cpus=4 --memory 4096
   kube_node_check #TODO better error handling
-  set_ls_access_token $1
+  set_ls_access_token
   run_skaffold
   wait_for_store
   success_message
@@ -119,10 +123,6 @@ check_lightstep_access_token () {
     echo
     exit
   fi
-
-  echo Setting up an lightstep-access-token secret in Kubernetes
-  kubectl create secret generic lightstep-access-token --from-literal=token="$LIGHTSTEP_ACCESS_TOKEN"
-  echo
 }
 
 # Welcome
@@ -140,15 +140,15 @@ select opt in "${options[@]}"
 do
     case $opt in
         "Google Kubernetes Engine (GKE)")
-            gke_steps $1
+            gke_steps
             break
             ;;
         "Docker for Desktop")
-            docker_for_desktop_steps $1
+            docker_for_desktop_steps
             break
             ;;
         "Minikube")
-            minikube_steps  $1
+            minikube_steps
             break
             ;;
         "Quit")
