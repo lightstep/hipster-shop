@@ -43,6 +43,14 @@ spec:
             secretKeyRef:
               name: lightstep-access-token
               key: token
+        - name: DD_TRACE_AGENT_URL
+          value: https://ingest.staging.lightstep.com
+        - name: DD_TRACE_AGENT_PORT
+          value: "443"
+        - name: DD_SERVICE_NAME
+          value: cartservice
+        - name: LIGHTSTEP_HOST
+          value: "ingest.lightstep.com"
         resources:
           requests:
             cpu: 200m

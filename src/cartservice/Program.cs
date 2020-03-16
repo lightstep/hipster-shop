@@ -35,7 +35,7 @@ namespace cartservice
         const string CART_SERVICE_ADDRESS = "LISTEN_ADDR";
         const string REDIS_ADDRESS = "REDIS_ADDR";
         const string CART_SERVICE_PORT = "PORT";
-		const string LIGHTSTEP_ACCESS_TOKEN = "SECRET_ACCESS_TOKEN";
+		const string ACCESS_TOKEN_ENV_VARIABLE = "SECRET_ACCESS_TOKEN";
 
         [Verb("start", HelpText = "Starts the server listening on provided port")]
         class ServerOptions
@@ -144,20 +144,28 @@ namespace cartservice
                             }
 
                             // Setup LightStep Tracer
-                            Console.WriteLine($"Reading LightStep Access Token {LIGHTSTEP_ACCESS_TOKEN} environment variable");
-                            string accessToken = Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN);
-                            var tracer = new Tracer(
-                                new Options()
-									.WithToken(accessToken)
-									.WithTags(new Dictionary<string, object> { 
-                                        {LightStepConstants.ComponentNameKey, "cartservice"},
-                                        {"service.version","1.0.1"},
-                                        {"cartservice.identity", "f738e221f8"}
-                                    }),
-                                new LightStepSpanRecorder(),
-                                new B3Propagator()
+                            Console.WriteLine($"Reading LightStep Access Token {ACCESS_TOKEN_ENV_VARIABLE} environment variable");
+                            string accessToken = Environment.GetEnvironmentVariable(ACCESS_TOKEN_ENV_VARIABLE);
+
+                            // TODO: autoinstrumentation is missing "global tags" and then should work.
+                            var satelliteOptions = new SatelliteOptions(Environment.GetEnvironmentVariable("LIGHTSTEP_HOST"));
+                            var overrideTags = new Dictionary<string, object>
+                            {
+                              { LightStepConstants.ComponentNameKey, "cartservice" },
+                              {"service.version","1.0.1"},
+                              {"cartservice.identity", "f738e221f8"}
+                            };
+
+                            var tracerOptions = new Options(accessToken).
+                                                    WithSatellite(satelliteOptions).
+                                                    WithTags(overrideTags);
+                            var lightStepTracer = new Tracer(
+                                    tracerOptions,
+                                    new LightStepSpanRecorder(),
+                                    new B3Propagator()
                             );
-                            GlobalTracer.Register(tracer);
+
+                            GlobalTracer.Register(lightStepTracer);
 
                             // Set redis cache host (hostname+port)
                             ICartStore cartStore;
