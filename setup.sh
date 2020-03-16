@@ -14,7 +14,7 @@ kube_node_check () {
 # Lightstep access token
 set_ls_access_token () {
   echo Setting up an lightstep-access-token secret in Kubernetes
-  kubectl create secret generic lightstep-access-token --from-literal=token="$LS_HIPSTER_ACCESS_TOKEN" || echo "Secret already present, not updated."
+  kubectl create secret generic lightstep-access-token --from-literal=token="$LIGHTSTEP_ACCESS_TOKEN" || echo "Secret already present, not updated."
   echo
 }
 
@@ -38,7 +38,7 @@ success_message () {
 # Wait for store
 wait_for_store () {
   echo -n "Waiting for store to be ready.."
-  while [ 1 ]; do
+  while true; do
     echo -n "."
     curl -s -q http://localhost > /dev/null
     rc=$?
@@ -116,7 +116,7 @@ check_lightstep_access_token () {
     echo Lightstep access token already defined as a Kubernetes secret. Proceeding!
     return
   fi
-  if [ -z "$LIGHTSTEP_ACCESS_TOKEN" ]  
+  if [ -z "$LIGHTSTEP_ACCESS_TOKEN" ]
   then
     echo Please set the LIGHTSTEP_ACCESS_TOKEN environment variable to get
     echo started. Check out the README if you need help.
