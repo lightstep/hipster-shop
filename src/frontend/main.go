@@ -173,6 +173,7 @@ func initLightstepTracing(log logrus.FieldLogger) {
 		AccessToken: lsAccessToken,
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: lsComponentName,
+			lightstep.HostnameKey: "frontend-0",
 		},
 		Propagators: propagators,
 	})
