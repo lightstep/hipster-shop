@@ -23,6 +23,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -166,8 +167,17 @@ func initLightstepTracing() {
 		opentracing.TextMap:     lightstep.B3Propagator,
 	}
 
+	port, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+	if err != nil {
+		log.Warningf("could not parse port: %v", err)
+		port = 0
+	}
+
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector:   lightstep.Endpoint{},
+		Collector:   lightstep.Endpoint{
+			Host: os.Getenv("LIGHTSTEP_HOST"),
+			Port: port,
+		},
 		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: "productcatalogservice",
