@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/profiler"
@@ -118,8 +119,17 @@ func initLightstepTracing(log logrus.FieldLogger) {
 		opentracing.TextMap:     lightstep.B3Propagator,
 	}
 
+	port, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
+	if err != nil {
+		log.Warningf("could not parse port: %v", err)
+		port = 0
+	}
+
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector:   lightstep.Endpoint{},
+		Collector:   lightstep.Endpoint{
+			Host: os.Getenv("LIGHTSTEP_HOST"),
+			Port: port,
+		},
 		AccessToken: lsAccessToken,
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: lsComponentName,
