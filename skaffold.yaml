@@ -48,6 +48,9 @@ build:
     context: src/loadgenerator
   - image: adservice
     context: src/adservice
+    docker:
+      buildArgs:
+        LS_ACCESS_TOKEN: '{{.LIGHTSTEP_ACCESS_TOKEN}}'
   - image: satellite
     context: src/satellite
   tagPolicy:
