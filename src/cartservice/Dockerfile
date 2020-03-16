@@ -23,7 +23,21 @@ RUN apk add --no-cache \
     libstdc++ \
     libintl \
     icu \
-    openssl
+    openssl \
+    curl
+
+RUN mkdir -p /opt/datadog && \
+    curl -L \
+       https://github.com/lightstep/ls-trace-dotnet/releases/download/v1.9.0/lightstep-dotnet-apm-1.9.0.tar.gz \
+        -o /tmp/lightstep-dotnet-apm-1.9.0.tar.gz && \
+    tar xzf /tmp/lightstep-dotnet-apm-1.9.0.tar.gz -C /opt/datadog
+
+ENV CORECLR_ENABLE_PROFILING=1
+ENV CORECLR_PROFILER={846F5F1C-F9AE-4B07-969E-05C26BC060D8}
+ENV CORECLR_PROFILER_PATH=/opt/datadog/Datadog.Trace.ClrProfiler.Native.so
+ENV DD_INTEGRATIONS=/opt/datadog/integrations.json
+ENV DD_DOTNET_TRACER_HOME=/opt/datadog
+
 WORKDIR /app
 COPY --from=builder /cartservice .
 ENTRYPOINT ["./cartservice", "start"]

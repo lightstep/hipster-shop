@@ -17,6 +17,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
     <PackageReference Include="OpenTracing.Contrib.Grpc" Version="0.2.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.0.601" />
+    <PackageReference Include="LightStep.Trace.ClrProfiler.Managed" Version="1.9.0" />
   </ItemGroup>
 
   <ItemGroup>
