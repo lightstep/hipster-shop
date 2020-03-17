@@ -152,7 +152,7 @@ namespace cartservice
                             var overrideTags = new Dictionary<string, object>
                             {
                               { LightStepConstants.ComponentNameKey, "cartservice" },
-                              {"service.version","1.0.1"},
+                              {"service.version", RedisCartStore.updateUserProfileValue ? RedisCartStore.UnhealthyVersion : RedisCartStore.HealthyVersion},
                               {"cartservice.identity", "f738e221f8"}
                             };
 

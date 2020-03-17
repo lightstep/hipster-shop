@@ -40,6 +40,14 @@ namespace cartservice.cartstore
 
         private readonly ConfigurationOptions redisConnectionOptions;
 
+        private const string updateUserProfileTag = "update_user_profile";
+        // TODO: make not const? basically just figure out how to do this.
+        public const bool updateUserProfileValue = false;
+        private const int updateUserProfileDelayMillis = 3000;
+
+        public const string HealthyVersion = "1.0.1";
+        public const string UnhealthyVersion = "1.0.2";
+
         public RedisCartStore(string redisAddress)
         {
             // Serialize empty cart into byte array.
@@ -54,6 +62,17 @@ namespace cartservice.cartstore
             redisConnectionOptions.ReconnectRetryPolicy = new ExponentialRetry(100);
 
             redisConnectionOptions.KeepAlive = 180;
+        }
+
+        public void updateUserProfile() {
+            var scope = GlobalTracer.Instance.ScopeManager.Active;
+            var span = scope.Span;
+            span.SetTag(updateUserProfileTag, updateUserProfileValue);
+
+            if (!updateUserProfileValue) {
+                return;
+            }
+            Thread.Sleep(updateUserProfileDelayMillis);
         }
 
         public Task InitializeAsync()
@@ -160,6 +179,7 @@ namespace cartservice.cartstore
                 {
                     throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
                 }
+                updateUserProfile();
             }
         }
 
@@ -181,6 +201,7 @@ namespace cartservice.cartstore
                 {
                     throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
                 }
+                updateUserProfile();
             }
         }
 
@@ -211,6 +232,7 @@ namespace cartservice.cartstore
                 {
                     throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
                 }
+                updateUserProfile();
             }
         }
 
