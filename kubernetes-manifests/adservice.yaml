@@ -46,13 +46,15 @@ spec:
         readinessProbe:
           initialDelaySeconds: 20
           periodSeconds: 15
+          timeoutSeconds: 5
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:9555"]
+            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout=5s", "-rpc-timeout=5s"]
         livenessProbe:
           initialDelaySeconds: 20
           periodSeconds: 15
+          timeoutSeconds: 5
           exec:
-            command: ["/bin/grpc_health_probe", "-addr=:9555"]
+            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout=5s", "-rpc-timeout=5s"]
 ---
 apiVersion: v1
 kind: Service
