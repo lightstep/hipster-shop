@@ -1,6 +1,6 @@
 FROM python:2.7-slim
 RUN apt-get update -qqy && \
-	apt-get -qqy install wget g++ && \
+	apt-get -qqy install wget g++ git && \
 	rm -rf /var/lib/apt/lists/*
 # show python logs as they occur
 ENV PYTHONUNBUFFERED=0
@@ -14,7 +14,8 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
 WORKDIR /recommendationservice
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install ls-trace
+RUN pip install git+https://github.com/benpbrown/ls-trace-py.git@ben-hackery
+RUN pip install opentracing
 
 # add files into working directory
 COPY . .

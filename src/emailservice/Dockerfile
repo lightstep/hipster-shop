@@ -2,7 +2,7 @@ FROM python:3.7-slim as base
 
 RUN apt-get -qq update \
     && apt-get install -y --no-install-recommends \
-    g++ \
+    g++ git \
     && rm -rf /var/lib/apt/lists/*
 
 # Enable unbuffered logging
@@ -23,7 +23,7 @@ WORKDIR /email_server
 # get packages
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-RUN pip install ls-trace
+RUN pip install git+https://github.com/benpbrown/ls-trace-py.git@ben-hackery
 
 # Add the application
 COPY . .
