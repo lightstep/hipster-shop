@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -35,7 +35,7 @@ namespace cartservice
         const string CART_SERVICE_ADDRESS = "LISTEN_ADDR";
         const string REDIS_ADDRESS = "REDIS_ADDR";
         const string CART_SERVICE_PORT = "PORT";
-		const string ACCESS_TOKEN_ENV_VARIABLE = "SECRET_ACCESS_TOKEN";
+        const string ACCESS_TOKEN_ENV_VARIABLE = "SECRET_ACCESS_TOKEN";
 
         [Verb("start", HelpText = "Starts the server listening on provided port")]
         class ServerOptions
@@ -83,7 +83,7 @@ namespace cartservice
                     Console.WriteLine("Initialization completed");
 
                     // Keep the server up and running
-                    while(true)
+                    while (true)
                     {
                         Thread.Sleep(TimeSpan.FromMinutes(10));
                     }
