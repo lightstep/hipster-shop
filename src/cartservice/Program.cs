@@ -27,6 +27,7 @@ using LightStep;
 using Microsoft.Extensions.Configuration;
 using OpenTracing.Contrib.Grpc.Interceptors;
 using OpenTracing.Util;
+using Datadog.Trace;
 
 namespace cartservice
 {
@@ -147,7 +148,9 @@ namespace cartservice
                             Console.WriteLine($"Reading LightStep Access Token {ACCESS_TOKEN_ENV_VARIABLE} environment variable");
                             string accessToken = Environment.GetEnvironmentVariable(ACCESS_TOKEN_ENV_VARIABLE);
 
-                            // TODO: autoinstrumentation is missing "global tags" and then should work.
+                            Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.service_name", "cartservice");
+                            Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.access_token", accessToken);
+
                             var satelliteOptions = new SatelliteOptions(Environment.GetEnvironmentVariable("LIGHTSTEP_HOST"));
                             var overrideTags = new Dictionary<string, object>
                             {
@@ -159,7 +162,7 @@ namespace cartservice
                             var tracerOptions = new Options(accessToken).
                                                     WithSatellite(satelliteOptions).
                                                     WithTags(overrideTags);
-                            var lightStepTracer = new Tracer(
+                            var lightStepTracer = new LightStep.Tracer(
                                     tracerOptions,
                                     new LightStepSpanRecorder(),
                                     new B3Propagator()
