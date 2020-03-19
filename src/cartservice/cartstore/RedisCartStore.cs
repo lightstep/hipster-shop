@@ -41,7 +41,16 @@ namespace cartservice.cartstore
         private readonly ConfigurationOptions redisConnectionOptions;
 
         private const string updateUserProfileTag = "update_user_profile";
-        // TODO: make not const? basically just figure out how to do this.
+        // If updateUserProfileValue is true, then this service
+        // will experience a performance regression.
+        // if updateUserProfileValue is false, then this service
+        // will be fast.
+        //
+        // The demo flow should be the following
+        // - Start with false, leave for N minutes (30?), let it bake.
+        // - Flip to true, leave for M minutes (5?), then find the regression,
+        // using LightStep.
+        // - Rollback to false, things recover.
         public const bool updateUserProfileValue = false;
         private const int updateUserProfileDelayMillis = 3000;
 
@@ -64,12 +73,14 @@ namespace cartservice.cartstore
             redisConnectionOptions.KeepAlive = 180;
         }
 
-        public void updateUserProfile() {
+        public void updateUserProfile()
+        {
             var scope = GlobalTracer.Instance.ScopeManager.Active;
             var span = scope.Span;
             span.SetTag(updateUserProfileTag, updateUserProfileValue);
 
-            if (!updateUserProfileValue) {
+            if (!updateUserProfileValue)
+            {
                 return;
             }
             Thread.Sleep(updateUserProfileDelayMillis);
@@ -116,7 +127,7 @@ namespace cartservice.cartstore
                     var cache = redis.GetDatabase();
 
                     Console.WriteLine("Performing small test");
-                    cache.StringSet("cart", "OK" );
+                    cache.StringSet("cart", "OK");
                     object res = cache.StringGet("cart");
                     Console.WriteLine($"Small test result: {res}");
 
@@ -173,7 +184,7 @@ namespace cartservice.cartstore
                         }
                     }
 
-                    await db.HashSetAsync(userId, new[]{ new HashEntry(CART_FIELD_NAME, cart.ToByteArray()) });
+                    await db.HashSetAsync(userId, new[] { new HashEntry(CART_FIELD_NAME, cart.ToByteArray()) });
                 }
                 catch (Exception ex)
                 {
@@ -225,6 +236,7 @@ namespace cartservice.cartstore
                         return Hipstershop.Cart.Parser.ParseFrom(value);
                     }
 
+                    updateUserProfile();
                     // We decided to return empty cart in cases when user wasn't in the cache before
                     return new Hipstershop.Cart();
                 }
@@ -232,7 +244,6 @@ namespace cartservice.cartstore
                 {
                     throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
                 }
-                updateUserProfile();
             }
         }
 
