@@ -51,7 +51,7 @@ namespace cartservice.cartstore
         // - Flip to true, leave for M minutes (5?), then find the regression,
         // using LightStep.
         // - Rollback to false, things recover.
-        public static bool updateUserProfileValue = (Environment.GetEnvironmentVariable("HIPSTER_HEALTH") != "true");
+        public static bool updateUserProfileValue = (Environment.GetEnvironmentVariable("HIPSTER_SICK") == "true");
         private const int updateUserProfileDelayMillis = 3000;
 
         public const string HealthyVersion = "1.0.1";

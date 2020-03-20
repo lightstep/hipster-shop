@@ -234,7 +234,7 @@ func mustMapEnv(target *string, envKey string) {
 }
 
 func (cs *checkoutService) Check(ctx context.Context, req *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
-	if os.Getenv("HIPSTER_HEALTH") != "true" {
+	if os.Getenv("HIPSTER_SICK") == "true" {
 		time.Sleep(3 * time.Second)
 	}
 	return &healthpb.HealthCheckResponse{Status: healthpb.HealthCheckResponse_SERVING}, nil

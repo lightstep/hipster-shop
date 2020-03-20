@@ -20,6 +20,6 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
     chmod +x /bin/grpc_health_probe
 COPY --from=builder /checkoutservice /checkoutservice
 EXPOSE 5050
-ARG HIPSTER_HEALTH
-ENV HIPSTER_HEALTH $HIPSTER_HEALTH
+ARG HIPSTER_SICK
+ENV HIPSTER_SICK $HIPSTER_SICK
 ENTRYPOINT ["/checkoutservice"]

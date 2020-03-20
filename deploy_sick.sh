@@ -2,5 +2,5 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-HIPSTER_HEALTH="false" skaffold run
+HIPSTER_SICK="true" skaffold run
 
