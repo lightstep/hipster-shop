@@ -174,13 +174,14 @@ func initLightstepTracing() {
 	}
 
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector:   lightstep.Endpoint{
+		Collector: lightstep.Endpoint{
 			Host: os.Getenv("LIGHTSTEP_HOST"),
 			Port: port,
 		},
 		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: "productcatalogservice",
+			lightstep.HostnameKey:      "productcatalogservice-0",
 		},
 		Propagators: propagators,
 	})
