@@ -30,12 +30,18 @@ build:
     context: src/shippingservice
   - image: checkoutservice
     context: src/checkoutservice
+    docker:
+      buildArgs:
+        HIPSTER_HEALTH: '{{.HIPSTER_HEALTH}}'
   - image: paymentservice
     context: src/paymentservice
   - image: currencyservice
     context: src/currencyservice
   - image: cartservice
     context: src/cartservice
+    docker:
+      buildArgs:
+        HIPSTER_HEALTH: '{{.HIPSTER_HEALTH}}'
   - image: frontend
     context: src/frontend
   - image: loadgenerator
