@@ -24,7 +24,8 @@ RUN apk add --no-cache \
     libintl \
     icu \
     openssl \
-    curl
+    curl \
+    bash
 
 RUN mkdir -p /opt/datadog && \
     curl -L \
@@ -40,4 +41,6 @@ ENV DD_DOTNET_TRACER_HOME=/opt/datadog
 
 WORKDIR /app
 COPY --from=builder /cartservice .
+ARG HIPSTER_HEALTH
+ENV HIPSTER_HEALTH $HIPSTER_HEALTH
 ENTRYPOINT ["./cartservice", "start"]
