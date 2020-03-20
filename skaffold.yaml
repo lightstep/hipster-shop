@@ -32,7 +32,7 @@ build:
     context: src/checkoutservice
     docker:
       buildArgs:
-        HIPSTER_HEALTH: '{{.HIPSTER_HEALTH}}'
+        HIPSTER_SICK: '{{.HIPSTER_SICK}}'
   - image: paymentservice
     context: src/paymentservice
   - image: currencyservice
@@ -41,7 +41,7 @@ build:
     context: src/cartservice
     docker:
       buildArgs:
-        HIPSTER_HEALTH: '{{.HIPSTER_HEALTH}}'
+        HIPSTER_SICK: '{{.HIPSTER_SICK}}'
   - image: frontend
     context: src/frontend
   - image: loadgenerator
