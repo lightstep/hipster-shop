@@ -83,7 +83,10 @@ namespace cartservice.cartstore
             {
                 return;
             }
-            Thread.Sleep(updateUserProfileDelayMillis);
+            using (GlobalTracer.Instance.BuildSpan("UpdateUserProfile").StartActive())
+            {
+                Thread.Sleep(updateUserProfileDelayMillis);
+            }
         }
 
         public Task InitializeAsync()
