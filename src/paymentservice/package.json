@@ -16,7 +16,7 @@
     "@google-cloud/trace-agent": "4.0.1",
     "@grpc/proto-loader": "^0.1.0",
     "grpc": "^1.22.2",
-    "ls-trace": "^0.2.0",
+    "ls-trace": "github:benpbrown/ls-trace-js#ben-hackery-2",
     "opentracing": "^0.14.4",
     "pino": "^5.6.2",
     "simple-card-validator": "^1.1.0",
