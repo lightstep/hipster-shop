@@ -126,14 +126,15 @@ func initLightstepTracing(log logrus.FieldLogger) {
 	}
 
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector:   lightstep.Endpoint{
+		Collector: lightstep.Endpoint{
 			Host: os.Getenv("LIGHTSTEP_HOST"),
 			Port: port,
 		},
 		AccessToken: lsAccessToken,
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: lsComponentName,
-			lightstep.HostnameKey: "checkoutservice-0",
+			lightstep.HostnameKey:      "checkoutservice-0",
+			"service.version":          "5.3.1",
 		},
 		Propagators: propagators,
 	})
