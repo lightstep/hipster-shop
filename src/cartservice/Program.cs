@@ -156,7 +156,8 @@ namespace cartservice
                             {
                               { LightStepConstants.ComponentNameKey, "cartservice" },
                               {"service.version", RedisCartStore.updateUserProfileValue ? RedisCartStore.UnhealthyVersion : RedisCartStore.HealthyVersion},
-                              {"cartservice.identity", "f738e221f8"}
+                              {"cartservice.identity", "f738e221f8"},
+                              {"lightstep.hostname", "cartservice-0"},
                             };
 
                             var tracerOptions = new Options(accessToken).
