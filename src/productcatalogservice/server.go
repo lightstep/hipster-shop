@@ -174,7 +174,7 @@ func initLightstepTracing() {
 	}
 
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector:   lightstep.Endpoint{
+		Collector: lightstep.Endpoint{
 			Host: os.Getenv("LIGHTSTEP_HOST"),
 			Port: port,
 		},
@@ -183,6 +183,12 @@ func initLightstepTracing() {
 			lightstep.ComponentNameKey: "productcatalogservice",
 		},
 		Propagators: propagators,
+		SystemMetrics: lightstep.SystemMetricsOptions{
+			Endpoint: lightstep.Endpoint{
+				Host: os.Getenv("LIGHTSTEP_HOST"),
+				Port: port,
+			},
+		},
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)
 	log.Info("Initalized lightstep tracing")

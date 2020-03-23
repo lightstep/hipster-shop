@@ -221,9 +221,15 @@ func initLighstepTracing() {
 		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: "shippingservice",
-			lightstep.HostnameKey: "shippingservice-0",
+			lightstep.HostnameKey:      "shippingservice-0",
 		},
 		Propagators: propagators,
+		SystemMetrics: lightstep.SystemMetricsOptions{
+			Endpoint: lightstep.Endpoint{
+				Host: os.Getenv("LIGHTSTEP_HOST"),
+				Port: port,
+			},
+		},
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)
 	log.Info("Initalized lightstep tracing")

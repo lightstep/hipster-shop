@@ -14,7 +14,7 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
 WORKDIR /recommendationservice
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install git+https://github.com/benpbrown/ls-trace-py.git@ben-hackery
+RUN pip install git+https://github.com/lightstep/ls-trace-py.git@codeboten/metrics-ingest
 RUN pip install opentracing
 
 # add files into working directory

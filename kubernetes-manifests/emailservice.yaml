@@ -36,8 +36,10 @@ spec:
           value: "8080"
         - name: ENABLE_PROFILER
           value: "0"
+        - name: LS_METRICS_URL
+          value: "https://ingest.staging.lightstep.com:443/metrics"
         - name: DD_TRACE_AGENT_URL
-          value: "https://ingest.lightstep.com:443"
+          value: "https://ingest.staging.lightstep.com"
         - name: SECRET_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:

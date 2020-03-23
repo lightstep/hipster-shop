@@ -22,6 +22,7 @@ tracer.set_tags(
     {
         "lightstep.service_name": "emailservice",
         "lightstep.access_token": os.getenv("SECRET_ACCESS_TOKEN"),
+        "service.version": "1.1.1",
     }
 )
 
@@ -64,6 +65,8 @@ except:
 
 from logger import getJSONLogger
 logger = getJSONLogger('emailservice-server')
+
+
 
 # Loads confirmation email template from file
 env = Environment(

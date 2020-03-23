@@ -25,20 +25,31 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9d3a867627f4c2ed7530c68672ce7b5381fbd36419743dfa01ccff501a7995e5"
+  digest = "1:1831d26c79af9fb024abcdaa6ad9a9cdd4e1e4fb01e6253a7f3d806c20e6c2ea"
   name = "git.apache.org/thrift.git"
   packages = ["lib/go/thrift"]
   pruneopts = "UT"
-  revision = "4903d18fca988871bcedce3b420fef2cd9682ca1"
+  revision = "4b66a9d8812cf2c19f15382c56ec8e1327b6f2a1"
   source = "github.com/apache/thrift"
 
 [[projects]]
-  digest = "1:9370265bab17bdc207051ccedc34535484a12622a329839e580059c79236c1e3"
-  name = "github.com/GoogleCloudPlatform/microservices-demo"
-  packages = ["src/productcatalogservice/genproto"]
+  digest = "1:9909e0a06cff3bd88841c9d2e0cc91b0a431676009018c74c3315f33b49b0046"
+  name = "github.com/StackExchange/wmi"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "d66cbdd27f73bb1ffa7479a3527f55dec070baa0"
-  version = "v0.1.4"
+  revision = "cbe66965904dbe8a6cd589e2298e5d8b986bd7dd"
+  version = "1.1.0"
+
+[[projects]]
+  digest = "1:440028f55cb322d8cb5b9d5ebec298a00b7d74690a658fe6b1c0c0b44341bfae"
+  name = "github.com/go-ole/go-ole"
+  packages = [
+    ".",
+    "oleutil",
+  ]
+  pruneopts = "UT"
+  revision = "97b6244175ae18ea6eef668034fd6565847501c9"
+  version = "v1.2.4"
 
 [[projects]]
   digest = "1:90d79bbf6abc5fcbf9bc538766e523f7d33d07d7fda462fc299556a80dc03a7d"
@@ -68,8 +79,8 @@
     "ptypes/wrappers",
   ]
   pruneopts = "UT"
-  revision = "5d5b4c10bd43f85e63bd9e4a3fa9b1ea2ef88af2"
-  version = "v1.3.4"
+  revision = "84668698ea25b64748563aa20726db66a6b8d299"
+  version = "v1.3.5"
 
 [[projects]]
   digest = "1:2e3c336fc7fde5c984d2841455a658a6d626450b1754a854b3b32e7a8f49a07a"
@@ -86,11 +97,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1f1aa5c5a82ee4d757145920b88601a4c80aa0979a349a21c877a588cc0fe03c"
+  digest = "1:5e64b431df7defcd21c77487d88d727600f343490e668312853bfbb63b3dc41f"
   name = "github.com/google/pprof"
   packages = ["profile"]
   pruneopts = "UT"
-  revision = "4ac0da889f5869b4ce048f66afcd9cce809409e7"
+  revision = "1ebb73c60ed3b70bd749d4f798d7ae427263e2c5"
 
 [[projects]]
   digest = "1:766102087520f9d54f2acc72bd6637045900ac735b4a419b128d216f0c5c4876"
@@ -117,26 +128,28 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:cd390f0290e379670d3dd50a3dd6b555a2bcee710a87991b0373ee55f6b368c7"
+  digest = "1:b4a4c86b178491a00a606218410a046bb56089369d4f713b67b1ee503099fae6"
   name = "github.com/lightstep/lightstep-tracer-common"
   packages = [
     "golang/gogo/collectorpb",
     "golang/gogo/lightsteppb",
+    "golang/gogo/metricspb",
   ]
   pruneopts = "UT"
-  revision = "082dbbf1b51a87f008f51a6203c269395ac3fe54"
-  version = "v1.0.3"
+  revision = "a88bf8de3718c9b0279d85effcf667f7a94d6101"
+  version = "v1.1.0"
 
 [[projects]]
-  digest = "1:bec504b3bb750307272d311ceab29319e9f6b37a77da1d884d54e7769a1e2412"
+  digest = "1:423bfeacbcdfbf16b8f5ca1fcad8a72b7ae68fb3f6954da66c0f153e496a67f3"
   name = "github.com/lightstep/lightstep-tracer-go"
   packages = [
     ".",
+    "constants",
+    "internal/metrics",
     "lightstep/rand",
   ]
   pruneopts = "UT"
-  revision = "95891af43e111d60f0ae6adaa39c2abe8caad401"
-  version = "v0.18.1"
+  revision = "282429c9730b6f2f8e50312b2c99da23ab7a6e9c"
 
 [[projects]]
   digest = "1:11e62d6050198055e6cd87ed57e5d8c669e84f839c16e16f192374d913d1a70d"
@@ -149,6 +162,20 @@
   pruneopts = "UT"
   revision = "659c90643e714681897ec2521c60567dd21da733"
   version = "v1.1.0"
+
+[[projects]]
+  digest = "1:2fa1be3249f8e2871cc1d97922c9369582c9189fc17e5d805359abf29a44978e"
+  name = "github.com/shirou/gopsutil"
+  packages = [
+    "cpu",
+    "internal/common",
+    "mem",
+    "net",
+    "process",
+  ]
+  pruneopts = "UT"
+  revision = "a3b23c5ccf4fb7b33d319fcaad53d7777907f4e1"
+  version = "v2.20.2"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -185,7 +212,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bdb79e93c04bf9406eb285f6d3d85b884f71e73d68950d036be78c1b0c039689"
+  digest = "1:a103d9c7d2edf2294696edf9d65c5a587e228a4409fee53e38c9b087fb147508"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -198,7 +225,7 @@
     "trace",
   ]
   pruneopts = "UT"
-  revision = "0de0cce0169b09b364e001f108dc0399ea8630b3"
+  revision = "63522dbf7eec79acb34c1eb827fb0527d168c182"
 
 [[projects]]
   branch = "master"
@@ -216,19 +243,22 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:382bb5a7fb4034db3b6a2d19e5a4a6bcf52f4750530603c01ca18a172fa3089b"
+  digest = "1:4692f916cb72b2c295f04841036d85a3f13e96d1cc9e8e4c2c30edebac518053"
   name = "golang.org/x/sync"
   packages = ["semaphore"]
   pruneopts = "UT"
-  revision = "cd5d95a43a6e21273425c7ae415d3df9ea832eeb"
+  revision = "43a5402ce75a95522677f77c619865d66b8c57ab"
 
 [[projects]]
   branch = "master"
-  digest = "1:578046baf093df15df2904bbb0fe06f3f2385bad59987532201007754aa7e1d5"
+  digest = "1:70ad9a7394ce9ae89ca0ded5c02ddb0135ccfc636d41a4d3b7c3a5c8cf39fd53"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
-  revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
+  revision = "5766fd39f98ddd8d769ad4aedcee557dd28de90f"
 
 [[projects]]
   digest = "1:8d8faad6b12a3a4c819a3f9618cb6ee1fa1cfc33253abeeea8b55336721e3405"
@@ -257,7 +287,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:223d8f4aae8092b14cdce7d897c7c9bf0865307c392e10892f53bc1d98348eb3"
+  digest = "1:0ad0d6252a07813a9a12fee0ffca6df06fef08c5a03bbcaa0271dc59b88f97e5"
   name = "google.golang.org/api"
   packages = [
     "googleapi/transport",
@@ -272,7 +302,7 @@
     "transport/http/internal/propagation",
   ]
   pruneopts = "UT"
-  revision = "b2aedb1679d601b0ffcf4feaf06f2d0e62987545"
+  revision = "214a0d2663ab0d218fc5fee8d44e96019beb1151"
 
 [[projects]]
   digest = "1:c98e9b93e6d178378530b920fe6e1aa4b3dd4972872111e83827746aa1f33ded"
@@ -297,7 +327,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:27eab97838a513495741575029eb5031eea4a5157a07fc20e168686a6238a75a"
+  digest = "1:02f4ea57fdb7eb3c826d364436129e124534fdd285585ca413f610ec56181d04"
   name = "google.golang.org/genproto"
   packages = [
     "googleapis/api",
@@ -315,10 +345,10 @@
     "protobuf/field_mask",
   ]
   pruneopts = "UT"
-  revision = "3f1135a288c9a07e340ae8ba4cc6c7065a3160e8"
+  revision = "08878b785e9c1c5903852e4cb9277fce9d1e16d5"
 
 [[projects]]
-  digest = "1:6595b4790062c71ba85f3a816172ce800beffe392bd351d511b29ea25a303b80"
+  digest = "1:1c478bcdc7be261088125e229ba1bb2e67b11123692ed7ab5fefe902bfa40eaa"
   name = "google.golang.org/grpc"
   packages = [
     ".",
@@ -354,8 +384,10 @@
     "internal/buffer",
     "internal/channelz",
     "internal/envconfig",
+    "internal/grpclog",
     "internal/grpcrand",
     "internal/grpcsync",
+    "internal/grpcutil",
     "internal/resolver/dns",
     "internal/resolver/passthrough",
     "internal/syscall",
@@ -371,8 +403,8 @@
     "tap",
   ]
   pruneopts = "UT"
-  revision = "f495f5b15ae7ccda3b38c53a1bfcde4c1a58a2bc"
-  version = "v1.27.1"
+  revision = "142182889d38b76209f1d9f1d8e91d7608aff542"
+  version = "v1.28.0"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -380,7 +412,6 @@
   input-imports = [
     "cloud.google.com/go/profiler",
     "contrib.go.opencensus.io/exporter/stackdriver",
-    "github.com/GoogleCloudPlatform/microservices-demo/src/productcatalogservice/genproto",
     "github.com/golang/protobuf/jsonpb",
     "github.com/golang/protobuf/proto",
     "github.com/google/go-cmp/cmp",

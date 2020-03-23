@@ -22,6 +22,7 @@ tracer.set_tags(
     {
         "lightstep.service_name": "recommendationservice",
         "lightstep.access_token": os.getenv("SECRET_ACCESS_TOKEN"),
+        "service.version": "1.1.6",
     }
 )
 
@@ -93,7 +94,6 @@ class RecommendationService(demo_pb2_grpc.RecommendationServiceServicer):
     def Check(self, request, context):
         return health_pb2.HealthCheckResponse(
             status=health_pb2.HealthCheckResponse.SERVING)
-
 
 if __name__ == "__main__":
     logger.info("initializing recommendationservice")

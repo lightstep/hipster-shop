@@ -34,7 +34,7 @@ spec:
             - name: PORT
               value: "50051"
             - name: LIGHTSTEP_HOST
-              value: "ingest.lightstep.com"
+              value: "ingest.staging.lightstep.com"
             - name: LIGHTSTEP_PORT
               value: "443"
             - name: SECRET_ACCESS_TOKEN

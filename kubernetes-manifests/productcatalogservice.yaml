@@ -37,7 +37,7 @@ spec:
         - name: LIGHTSTEP_PORT
           value: "443"
         - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
+          value: "ingest.staging.lightstep.com"
         - name: SECRET_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:

@@ -23,7 +23,7 @@ WORKDIR /email_server
 # get packages
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-RUN pip install git+https://github.com/benpbrown/ls-trace-py.git@ben-hackery
+RUN pip install git+https://github.com/lightstep/ls-trace-py.git@codeboten/metrics-ingest
 
 # Add the application
 COPY . .

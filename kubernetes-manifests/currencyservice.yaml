@@ -36,7 +36,7 @@ spec:
         - name: PORT
           value: "7000"
         - name: DD_TRACE_AGENT_URL
-          value: "https://ingest.lightstep.com:443"
+          value: "https://ingest.staging.lightstep.com"
         - name: SECRET_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
