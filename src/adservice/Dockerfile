@@ -25,8 +25,16 @@ RUN mkdir -p /opt/cprof && \
     | tar xzv -C /opt/cprof && \
     rm -rf profiler_java_agent.tar.gz
 
+RUN mkdir -p /opt/otel && \
+	wget --quiet -O /opt/otel/opentelemetry-auto-0.2.0.jar \
+	https://github.com/open-telemetry/opentelemetry-auto-instr-java/releases/download/v0.2.0/opentelemetry-auto-0.2.0.jar
+
+RUN mkdir -p /opt/otel && \
+	wget --quiet -O /opt/otel/opentelemetry-auto-exporters-jaeger-0.2.0.jar \
+	https://github.com/open-telemetry/opentelemetry-auto-instr-java/releases/download/v0.2.0/opentelemetry-auto-exporters-jaeger-0.2.0.jar
+
 RUN mkdir -p /opt/specialagent && \
-    wget -O /opt/specialagent/opentracing-specialagent-1.6.0.jar \
+    wget --quiet -O /opt/specialagent/opentracing-specialagent-1.6.0.jar \
     "https://repo1.maven.org/maven2/io/opentracing/contrib/specialagent/opentracing-specialagent/1.6.0/opentracing-specialagent-1.6.0.jar"
 
 RUN GRPC_HEALTH_PROBE_VERSION=v0.2.1 && \

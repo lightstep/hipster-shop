@@ -121,17 +121,13 @@ task adService(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
     defaultJvmOpts =
         [
-        // "-javaagent:/opt/specialagent/opentracing-specialagent-1.6.0.jar",
+        "-javaagent:/opt/otel/opentelemetry-auto-0.2.0.jar",
+        "-Dota.exporter.jar=/opt/otel/opentelemetry-auto-exporters-jaeger-0.2.0.jar",
+        "-Dota.exporter.jaeger.endpoint=ingest.staging.lightstep.com:443",
+        "-Dota.exporter.jaeger.service.name=adservice",
+
         "-Dlog4j2.contextDataInjector=io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector",
 	    "-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adservice,-cprof_service_version=1.0.0",
-	    "-Dsa.tracer=lightstep",
-        "-Dls.collectorHost=ingest.staging.lightstep.com",
-        "-Dls.collectorProtocol=https",
-        "-Dls.collectorPort=443",
-        "-Dsa.init.defer=false",
-        // TODO: should be LIGHTSTEP_ACCESS_TOKEN
-        "-Dls.accessToken=" + System.getenv('LS_ACCESS_TOKEN'),
-        "-Dls.componentName=adservice"
 	]
 }
 
@@ -142,17 +138,13 @@ task adServiceClient(type: CreateStartScripts) {
     classpath = jar.outputs.files + project.configurations.runtime
     defaultJvmOpts =
         [
-        // "-javaagent:/opt/specialagent/opentracing-specialagent-1.6.0.jar",
+        "-javaagent:/opt/otel/opentelemetry-auto-0.2.0.jar",
+        "-Dota.exporter.jar=/opt/otel/opentelemetry-auto-exporters-jaeger-0.2.0.jar",
+        "-Dota.exporter.jaeger.endpoint=ingest.staging.lightstep.com:443",
+        "-Dota.exporter.jaeger.service.name=adservice",
+
         "-Dlog4j2.contextDataInjector=io.opencensus.contrib.logcorrelation.log4j2.OpenCensusTraceContextDataInjector",
 	    "-agentpath:/opt/cprof/profiler_java_agent.so=-cprof_service=adserviceclient,-cprof_service_version=1.0.0",
-        "-Dsa.tracer=lightstep",
-        "-Dls.collectorHost=ingest.staging.lightstep.com",
-        "-Dls.collectorProtocol=https",
-        "-Dls.collectorPort=443",
-        "-Dsa.init.defer=false",
-        // TODO: should be LIGHTSTEP_ACCESS_TOKEN
-        "-Dls.accessToken=" + System.getenv('LS_ACCESS_TOKEN'),
-        "-Dls.componentName=adservice"
 	    ]
 }
 
