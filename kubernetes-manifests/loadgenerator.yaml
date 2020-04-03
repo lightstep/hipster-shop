@@ -36,7 +36,7 @@ spec:
         - name: FRONTEND_ADDR
           value: "frontend:80"
         - name: USERS
-          value: "500"
+          value: "10"
         resources:
           requests:
             cpu: 300m
