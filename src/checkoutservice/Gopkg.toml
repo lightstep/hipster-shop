@@ -58,7 +58,7 @@
   unused-packages = true
 
 [[constraint]]
-  version = "v0.18.1"
+  version = "v0.20.0"
   name = "github.com/lightstep/lightstep-tracer-go"
 
 [[constraint]]

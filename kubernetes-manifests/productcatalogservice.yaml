@@ -35,9 +35,9 @@ spec:
         - name: PORT
           value: "3550"
         - name: LIGHTSTEP_PORT
-          value: "443"
+          value: "8181"
         - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
+          value: "satellite"
         - name: SECRET_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:

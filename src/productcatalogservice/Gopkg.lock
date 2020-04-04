@@ -41,6 +41,25 @@
   version = "v0.1.4"
 
 [[projects]]
+  digest = "1:9909e0a06cff3bd88841c9d2e0cc91b0a431676009018c74c3315f33b49b0046"
+  name = "github.com/StackExchange/wmi"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cbe66965904dbe8a6cd589e2298e5d8b986bd7dd"
+  version = "1.1.0"
+
+[[projects]]
+  digest = "1:440028f55cb322d8cb5b9d5ebec298a00b7d74690a658fe6b1c0c0b44341bfae"
+  name = "github.com/go-ole/go-ole"
+  packages = [
+    ".",
+    "oleutil",
+  ]
+  pruneopts = "UT"
+  revision = "97b6244175ae18ea6eef668034fd6565847501c9"
+  version = "v1.2.4"
+
+[[projects]]
   digest = "1:90d79bbf6abc5fcbf9bc538766e523f7d33d07d7fda462fc299556a80dc03a7d"
   name = "github.com/gogo/protobuf"
   packages = [
@@ -117,26 +136,29 @@
   version = "v1.0.2"
 
 [[projects]]
-  digest = "1:cd390f0290e379670d3dd50a3dd6b555a2bcee710a87991b0373ee55f6b368c7"
+  digest = "1:b4a4c86b178491a00a606218410a046bb56089369d4f713b67b1ee503099fae6"
   name = "github.com/lightstep/lightstep-tracer-common"
   packages = [
     "golang/gogo/collectorpb",
     "golang/gogo/lightsteppb",
+    "golang/gogo/metricspb",
   ]
   pruneopts = "UT"
-  revision = "082dbbf1b51a87f008f51a6203c269395ac3fe54"
-  version = "v1.0.3"
+  revision = "a88bf8de3718c9b0279d85effcf667f7a94d6101"
+  version = "v1.1.0"
 
 [[projects]]
-  digest = "1:bec504b3bb750307272d311ceab29319e9f6b37a77da1d884d54e7769a1e2412"
+  digest = "1:8c0fc62356d405a8cfd04d4ad2d8f47bf53c986928ee254f31b00c69b7516d95"
   name = "github.com/lightstep/lightstep-tracer-go"
   packages = [
     ".",
+    "constants",
+    "internal/metrics",
     "lightstep/rand",
   ]
   pruneopts = "UT"
-  revision = "95891af43e111d60f0ae6adaa39c2abe8caad401"
-  version = "v0.18.1"
+  revision = "17fbf59446c267827d5f6888490de8b1903abb9c"
+  version = "v0.20.0"
 
 [[projects]]
   digest = "1:11e62d6050198055e6cd87ed57e5d8c669e84f839c16e16f192374d913d1a70d"
@@ -149,6 +171,20 @@
   pruneopts = "UT"
   revision = "659c90643e714681897ec2521c60567dd21da733"
   version = "v1.1.0"
+
+[[projects]]
+  digest = "1:a1b3e8dca0272d3971000ef0459322a3e678107607284310766bcb2c51f996cb"
+  name = "github.com/shirou/gopsutil"
+  packages = [
+    "cpu",
+    "internal/common",
+    "mem",
+    "net",
+    "process",
+  ]
+  pruneopts = "UT"
+  revision = "53cec6b37e6a2fa787e771c706f7c1fd67ec40f1"
+  version = "v2.20.3"
 
 [[projects]]
   digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
@@ -224,9 +260,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:578046baf093df15df2904bbb0fe06f3f2385bad59987532201007754aa7e1d5"
+  digest = "1:e6f3eca022d18ff28112534a46d8bad7400b1523724061dff2d1bfc737bee376"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows",
+  ]
   pruneopts = "UT"
   revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
 

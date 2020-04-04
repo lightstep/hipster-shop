@@ -24,7 +24,7 @@ WORKDIR /email_server
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 # check out the tip of ben-hackery, but bust the Docker cache.
-RUN pip install git+https://github.com/benpbrown/ls-trace-py.git@6710dcd546ed8ce002d6022df4f76a08aca85746
+RUN pip install ls-trace
 
 # Add the application
 COPY . .

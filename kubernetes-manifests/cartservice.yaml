@@ -44,13 +44,13 @@ spec:
               name: lightstep-access-token
               key: token
         - name: DD_TRACE_AGENT_URL
-          value: https://ingest.staging.lightstep.com
+          value: http://satellite:8181
         - name: DD_TRACE_AGENT_PORT
-          value: "443"
+          value: "8181"
         - name: DD_SERVICE_NAME
           value: cartservice
         - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
+          value: "satellite:8181"
         resources:
           requests:
             cpu: 200m

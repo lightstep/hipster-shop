@@ -54,9 +54,9 @@ spec:
           - name: CART_SERVICE_ADDR
             value: "cartservice:7070"
           - name: LIGHTSTEP_HOST
-            value: "ingest.lightstep.com"
+            value: "satellite"
           - name: LIGHTSTEP_PORT
-            value: "443"
+            value: "8181"
           - name: SECRET_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:

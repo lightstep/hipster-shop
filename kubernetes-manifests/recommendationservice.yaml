@@ -49,7 +49,7 @@ spec:
         - name: ENABLE_PROFILER
           value: "0"
         - name: DD_TRACE_AGENT_URL
-          value: "https://ingest.lightstep.com"
+          value: "http://satellite:8181"
         - name: SECRET_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:

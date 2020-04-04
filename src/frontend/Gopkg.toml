@@ -67,7 +67,7 @@
 
 [[constraint]]
   name = "github.com/lightstep/lightstep-tracer-go"
-  version = "v0.18.1"
+  version = "v0.20.0"
 
 [[constraint]]
   branch = "master"

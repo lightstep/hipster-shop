@@ -48,8 +48,6 @@ build:
     context: src/loadgenerator
   - image: adservice
     context: src/adservice
-  - image: satellite
-    context: src/satellite
   tagPolicy:
     gitCommit: {}
 deploy:

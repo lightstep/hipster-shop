@@ -169,6 +169,7 @@ func initLightstepTracing(log logrus.FieldLogger) {
 		Collector:   lightstep.Endpoint{
 			Host: os.Getenv("LIGHTSTEP_HOST"),
 			Port: port,
+			Plaintext: true,
 		},
 		AccessToken: lsAccessToken,
 		Tags: map[string]interface{}{
