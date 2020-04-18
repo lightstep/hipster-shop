@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.shipping.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.shipping.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.shipping.name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: {{ .Values.config.shipping.name }}
+          image: "{{ .Values.shipping.deployment.image.repository }}:{{ .Values.shipping.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.shipping.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.config.shipping.internalPort }}
+          env:
+          - name: PORT
+            value: "{{ .Values.config.shipping.internalPort }}"
+          - name: LIGHTSTEP_HOST
+            value: "{{ .Values.config.lightstep.host }}"
+          - name: LIGHTSTEP_PORT
+            value: "{{ .Values.config.lightstep.port }}"
+          - name: SECRET_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.config.lightstep.secretName }}"
+                key: "{{ .Values.config.lightstep.secretKey }}"
+          readinessProbe:
+            periodSeconds: 5
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.shipping.internalPort }}"]
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.shipping.internalPort }}"]
+          resources:
+{{ toYaml .Values.shipping.deployment.resources | indent 12}}
+
+        

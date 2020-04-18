@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.redis.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.redis.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.redis.name }}
+    spec:
+      containers:
+      - name: {{ .Values.config.redis.name }}
+        image: {{ .Values.redis.deployment.image.repository }}:{{ .Values.redis.deployment.image.tag }}
+        ports:
+        - containerPort: {{ .Values.config.redis.internalPort }}
+        readinessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: {{ .Values.config.redis.internalPort }}
+        livenessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: {{ .Values.config.redis.internalPort }}
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 125m
+          requests:
+            cpu: 70m
+            memory: 200Mi
+      volumes:
+      - name: redis-data
+        emptyDir: {}

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.checkout.name }}
+  labels:
+    app.kubernetes.io/name: "{{ .Values.config.checkout.name }}"  
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service  }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"   
+spec:
+  type: {{ .Values.checkout.service.type }}
+  ports:
+  - port: {{ .Values.config.checkout.externalPort }}
+    targetPort: {{ .Values.config.checkout.internalPort }}
+    protocol: TCP
+    name: {{ .Values.checkout.service.name }}
+  selector:
+    app: {{ .Values.config.checkout.name }}

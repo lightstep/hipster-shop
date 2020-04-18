@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.frontend.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.frontend.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.frontend.name }}
+      annotations:
+          sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      containers:
+        - name: {{ .Values.config.frontend.name }}
+          image: "{{ .Values.frontend.deployment.image.repository }}:{{ .Values.frontend.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.config.frontend.internalPort }}
+          env:
+          - name: PORT
+            value: "{{ .Values.config.frontend.internalPort }}"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "{{ .Values.config.catalog.name }}:{{ .Values.config.catalog.externalPort }}"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "{{ .Values.config.shipping.name }}:{{ .Values.config.shipping.externalPort }}"
+          - name: PAYMENT_SERVICE_ADDR
+            value: "{{ .Values.config.payment.name }}:{{ .Values.config.payment.externalPort }}"
+          - name: EMAIL_SERVICE_ADDR
+            value: "{{ .Values.config.email.name }}:{{ .Values.config.email.externalPort }}"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "{{ .Values.config.currency.name }}:{{ .Values.config.currency.externalPort }}"
+          - name: CART_SERVICE_ADDR
+            value: "{{ .Values.config.cart.name }}:{{ .Values.config.cart.externalPort }}"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "{{ .Values.config.recommendation.name }}:{{ .Values.config.recommendation.externalPort }}"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "{{ .Values.config.checkout.name }}:{{ .Values.config.checkout.externalPort }}"
+          - name: AD_SERVICE_ADDR
+            value: "{{ .Values.config.ads.name }}:{{ .Values.config.ads.externalPort }}"
+          - name: LIGHTSTEP_HOST
+            value: "{{ .Values.config.lightstep.host }}"
+          - name: LIGHTSTEP_PORT
+            value: "{{ .Values.config.lightstep.port }}"
+          - name: SECRET_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.config.lightstep.secretName }}"
+                key: "{{ .Values.config.lightstep.secretKey }}"
+          readinessProbe:
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          resources:
+{{ toYaml .Values.frontend.deployment.resources | indent 12}}
+
+        

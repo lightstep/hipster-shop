@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.checkout.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.checkout.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.checkout.name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: {{ .Values.config.checkout.name }}
+          image: "{{ .Values.checkout.deployment.image.repository }}:{{ .Values.checkout.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.checkout.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.config.checkout.internalPort }}
+          env:
+          - name: PORT
+            value: "{{ .Values.config.checkout.internalPort }}"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "{{ .Values.config.catalog.name }}:{{ .Values.config.catalog.externalPort }}"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "{{ .Values.config.shipping.name }}:{{ .Values.config.shipping.externalPort }}"
+          - name: PAYMENT_SERVICE_ADDR
+            value: "{{ .Values.config.payment.name }}:{{ .Values.config.payment.externalPort }}"
+          - name: EMAIL_SERVICE_ADDR
+            value: "{{ .Values.config.email.name }}:{{ .Values.config.email.externalPort }}"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "{{ .Values.config.currency.name }}:{{ .Values.config.currency.externalPort }}"
+          - name: CART_SERVICE_ADDR
+            value: "{{ .Values.config.cart.name }}:{{ .Values.config.cart.externalPort }}"
+          - name: LIGHTSTEP_HOST
+            value: "{{ .Values.config.lightstep.host }}"
+          - name: LIGHTSTEP_PORT
+            value: "{{ .Values.config.lightstep.port }}"
+          - name: SECRET_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.config.lightstep.secretName }}"
+                key: "{{ .Values.config.lightstep.secretKey }}"
+          readinessProbe:
+            timeoutSeconds: 30
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.checkout.internalPort }}", "-rpc-timeout=30s"]
+          livenessProbe:
+            timeoutSeconds: 30
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.checkout.internalPort }}", "-rpc-timeout=30s"]
+          resources:
+{{ toYaml .Values.checkout.deployment.resources | indent 12}}
+
+        

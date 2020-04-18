@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.redis.name }}
+  labels:
+    app.kubernetes.io/name: "{{ .Values.config.redis.name }}"  
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service  }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"   
+spec:
+  type: {{ .Values.redis.service.type }}
+  selector:
+    app: {{ .Values.config.redis.name }}
+  ports:
+  - name: {{ .Values.config.redis.name }}
+    port: {{ .Values.config.redis.internalPort }}
+    targetPort: {{ .Values.config.redis.externalPort }}

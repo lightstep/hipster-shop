@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.currency.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.currency.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.currency.name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: {{ .Values.config.currency.name }}
+        image: {{ .Values.currency.deployment.image.repository }}:{{ .Values.currency.deployment.image.tag }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.config.currency.internalPort }}
+        env:
+        - name: PORT
+          value: {{ .Values.config.currency.internalPort }}
+        - name: DD_TRACE_AGENT_URL
+          value: "https://{{.Values.config.lightstep.host}}:{{.Values.config.lightstep.port}}"
+        - name: SECRET_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: lightstep-access-token
+              key: token
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.currency.internalPort }}"]
+        livenessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.currency.internalPort }}"]
+        resources:
+{{ toYaml .Values.currency.deployment.resources | indent 12}}

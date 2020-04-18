@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.currency.name }}
+  labels:
+    app.kubernetes.io/name: "{{ .Values.config.currency.name }}"  
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service  }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"   
+spec:
+  type: {{ .Values.currency.service.type }}
+  metadata:
+    name: {{ .Values.config.currency.name }}
+  ports:
+  - name: {{ .Values.currency.service.name }}
+    port: {{ .Values.config.currency.internalPort }}
+    targetPort: {{ .Values.config.currency.externalPort }}
+  selector:
+    app: {{ .Values.config.currency.name }}

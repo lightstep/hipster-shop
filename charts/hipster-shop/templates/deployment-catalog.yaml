@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.catalog.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.catalog.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.catalog.name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: {{ .Values.config.catalog.name }}
+          image: "{{ .Values.catalog.deployment.image.repository }}:{{ .Values.catalog.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.catalog.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.config.catalog.internalPort }}
+          env:
+          - name: PORT
+            value: "{{ .Values.config.catalog.internalPort }}"
+          - name: LIGHTSTEP_HOST
+            value: "{{ .Values.config.lightstep.host }}"
+          - name: LIGHTSTEP_PORT
+            value: "{{ .Values.config.lightstep.port }}"
+          - name: SECRET_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.config.lightstep.secretName }}"
+                key: "{{ .Values.config.lightstep.secretKey }}"
+          readinessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.catalog.internalPort }}"]
+          livenessProbe:
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.catalog.internalPort }}"]
+          resources:
+{{ toYaml .Values.catalog.deployment.resources | indent 12}}
+
+        

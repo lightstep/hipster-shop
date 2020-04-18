@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.catalog.name }}
+  labels:
+    app.kubernetes.io/name: "{{ .Values.config.catalog.name }}"  
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service  }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"   
+spec:
+  type: {{ .Values.catalog.service.type }}
+  ports:
+  - port: {{ .Values.config.catalog.externalPort }}
+    targetPort: {{ .Values.config.catalog.internalPort }}
+    protocol: TCP
+    name: {{ .Values.catalog.service.name }}
+  selector:
+    app: {{ .Values.config.catalog.name }}

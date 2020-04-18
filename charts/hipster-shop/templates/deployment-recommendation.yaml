@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.recommendation.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.recommendation.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.recommendation.name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: {{ .Values.config.recommendation.name }}
+          image: "{{ .Values.recommendation.deployment.image.repository }}:{{ .Values.recommendation.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.recommendation.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.config.recommendation.internalPort }}
+          env:
+          - name: PORT
+            value: "{{ .Values.config.recommendation.internalPort }}"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "{{ .Values.config.catalog.name }}:{{ .Values.config.catalog.externalPort }}"
+          - name: ENABLE_PROFILER
+            value: "0"
+          - name: DD_TRACE_AGENT_URL
+            value: "https://{{ .Values.config.lightstep.host }}:{{ .Values.config.lightstep.port }}"
+          - name: SECRET_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Values.config.lightstep.secretName }}"
+                key: "{{ .Values.config.lightstep.secretKey }}"
+          readinessProbe:
+            periodSeconds: 5
+            timeoutSeconds: 5
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.recommendation.internalPort }}", "-connect-timeout=5s", "-rpc-timeout=5s"]
+          livenessProbe:
+            periodSeconds: 5
+            timeoutSeconds: 5
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.recommendation.internalPort }}", "-connect-timeout=5s", "-rpc-timeout=5s"]
+          resources:
+{{ toYaml .Values.recommendation.deployment.resources | indent 12}}
+
+        

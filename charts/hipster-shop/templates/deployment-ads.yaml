@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.config.ads.name }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.config.ads.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.config.ads.name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: {{ .Values.config.ads.name }}
+          image: "{{ .Values.ads.deployment.image.repository }}:{{ .Values.ads.deployment.image.tag }}"
+          imagePullPolicy: {{ .Values.ads.deployment.image.pullPolicy }}
+          ports:
+          - containerPort: {{ .Values.config.ads.internalPort }}
+          env:
+          - name: PORT
+            value: "{{ .Values.config.ads.internalPort }}"
+          readinessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.ads.internalPort }}", "-connect-timeout=5s", "-rpc-timeout=5s"]
+          livenessProbe:
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            exec:
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.ads.internalPort }}", "-connect-timeout=5s", "-rpc-timeout=5s"]
+          resources:
+{{ toYaml .Values.ads.deployment.resources | indent 12}}
+
+        

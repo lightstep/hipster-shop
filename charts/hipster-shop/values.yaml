@@ -1,0 +1,234 @@
+config:
+  ads:
+    name: adservice
+    internalPort: 9555
+    externalPort: 9555
+  cart:
+    name: cartservice
+    internalPort: 7070
+    externalPort: 7070
+  checkout:
+    name: checkoutservice
+    internalPort: 5050
+    externalPort: 5050
+  currency:
+    name: currencyservice
+    internalPort: 7000
+    externalPort: 7000
+  email:
+    name: emailservice
+    internalPort: 8080
+    externalPort: 5000
+  frontend:
+    name: frontend
+    internalPort: 8080
+    externalPort: 80
+  payment:
+    name: paymentservice
+    internalPort: 50051
+    externalPort: 50051
+  catalog:
+    name: productcatalogservice
+    internalPort: 3550
+    externalPort: 3550
+  recommendation:
+    name: recommendationservice
+    internalPort: 8080
+    externalPort: 8080
+  redis:
+    name: redis-cart
+    internalPort: 6379
+    externalPort: 6379
+  shipping:
+    name: shippingservice
+    internalPort: 50051
+    externalPort: 50051
+  lightstep:
+    host: ingest.lightstep.com
+    port: 443
+    secretName: lightstep-access-token
+    secretKey: token
+    secretKeyValue: 
+
+ads:
+  deployment:
+    image:
+      repository: adservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 200m
+        memory: 180Mi
+      limits:
+        cpu: 300m
+        memory: 300Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+cart:
+  deployment:
+    image:
+      repository: cartservice
+      tag: latest
+      pullPolicy: Never
+    listen: "0.0.0.0"
+    resources:
+      requests:
+        cpu: 200m
+        memory: 64Mi
+      limits:
+        cpu: 300m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+checkout:
+  deployment:
+    image:
+      repository: checkoutservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+redis:
+  deployment:
+    image:
+      repository: redis
+      tag: alpine
+  service:
+    type: ClusterIP
+    name: redis
+    
+currency:
+  deployment:
+    image:
+      repository: currencyservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+email:
+  deployment:
+    image:
+      repository: emailservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+frontend:
+  deployment:
+    image:
+      repository: frontend
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  serviceIP:
+    type: ClusterIP
+    name: http
+  serviceLB:
+    type: LoadBalancer
+    name: http
+
+payment:
+  deployment:
+    image:
+      repository: paymentservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+recommendation:
+  deployment:
+    image:
+      repository: recommendationservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 220Mi
+      limits:
+        cpu: 200m
+        memory: 450Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+catalog:
+  deployment:
+    image: 
+      repository: catalogservice
+      tag: latest
+      pullPolicy: Never
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 200m
+      memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc
+
+shipping:
+  deployment:
+    image:
+      repository: shippingservice
+      tag: latest
+      pullPolicy: Never
+    resources:
+      requests:
+        cpu: 100m
+        memory: 64Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+  service:
+    type: ClusterIP
+    name: grpc

@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.config.email.name }}
+  labels:
+    app.kubernetes.io/name: "{{ .Values.config.email.name }}"  
+    helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    app.kubernetes.io/managed-by: "{{ .Release.Service  }}"
+    app.kubernetes.io/instance: "{{ .Release.Name }}"   
+spec:
+  type: {{ .Values.email.service.type }}
+  ports:
+  - port: {{ .Values.config.email.externalPort }}
+    targetPort: {{ .Values.config.email.internalPort }}
+    protocol: TCP
+    name: {{ .Values.email.service.name }}
+  selector:
+    app: {{ .Values.config.email.name }}
