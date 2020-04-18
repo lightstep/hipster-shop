@@ -17,6 +17,7 @@ spec:
       containers:
       - name: {{ .Values.config.email.name }}
         image: {{ .Values.email.deployment.image.repository }}:{{ .Values.email.deployment.image.tag }}
+        imagePullPolicy: {{ .Values.email.deployment.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.config.email.internalPort }}
         env:

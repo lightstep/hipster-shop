@@ -17,6 +17,7 @@ spec:
       containers:
       - name: {{ .Values.config.currency.name }}
         image: {{ .Values.currency.deployment.image.repository }}:{{ .Values.currency.deployment.image.tag }}
+        imagePullPolicy: {{ .Values.currency.deployment.image.pullPolicy }}
         ports:
         - name: grpc
           containerPort: {{ .Values.config.currency.internalPort }}

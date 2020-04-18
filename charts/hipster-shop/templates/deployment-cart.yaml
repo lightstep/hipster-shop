@@ -24,7 +24,7 @@ spec:
           - name: PORT
             value: "{{ .Values.config.cart.internalPort }}"
           - name: REDIS_ADDR
-            value: "{{ .Values.config.redis.name }}:{{ .Values.config.redis.port }}"
+            value: "{{ .Values.config.redis.name }}:{{ .Values.config.redis.externalPort }}"
           - name: LISTEN_ADDR
             value: "{{ .Values.cart.deployment.listen }}"
           - name: LIGHTSTEP_HOST
@@ -45,12 +45,12 @@ spec:
           readinessProbe:
             initialDelaySeconds: 15
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.cart.internalPort }}", "-connect-timeout=5s", "-rpc-timeout=5s"]
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.cart.internalPort }}", "-rpc-timeout=5s"]
           livenessProbe:
             initialDelaySeconds: 15
             periodSeconds: 10
             exec:
-              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.cart.internalPort }}", "-connect-timeout=5s", "-rpc-timeout=5s"]
+              command: ["/bin/grpc_health_probe", "-addr=:{{ .Values.config.cart.internalPort }}", "-rpc-timeout=5s"]
           resources:
 {{ toYaml .Values.cart.deployment.resources | indent 12}}
 
