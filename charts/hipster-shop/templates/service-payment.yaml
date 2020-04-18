@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.payment.service.type }}
-  ports:
-  - port: {{ .Values.config.payment.externalPort }}
-    targetPort: {{ .Values.config.payment.internalPort }}
-    protocol: TCP
-    name: {{ .Values.payment.service.name }}
   selector:
     app: {{ .Values.config.payment.name }}
+  ports:
+  - name: {{ .Values.payment.service.name }}
+    port: {{ .Values.config.payment.externalPort }}
+    targetPort: {{ .Values.config.payment.internalPort }}
+    
+  

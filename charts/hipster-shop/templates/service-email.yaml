@@ -9,10 +9,10 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.email.service.type }}
-  ports:
-  - port: {{ .Values.config.email.externalPort }}
-    targetPort: {{ .Values.config.email.internalPort }}
-    protocol: TCP
-    name: {{ .Values.email.service.name }}
   selector:
     app: {{ .Values.config.email.name }}
+  ports:
+  - name: {{ .Values.email.service.name }}
+    port: {{ .Values.config.email.externalPort }}
+    targetPort: {{ .Values.config.email.internalPort }}
+    

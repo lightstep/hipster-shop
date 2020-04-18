@@ -21,9 +21,9 @@ spec:
         - containerPort: {{ .Values.config.email.internalPort }}
         env:
         - name: PORT
-          value: {{ .Values.config.email.internalPort }}
+          value: "{{ .Values.config.email.internalPort }}"
         - name: ENABLE_PROFILER
-          value: "{{ .Values.email.deployment.enableProfiler }}"
+          value: "0"
         - name: DD_TRACE_AGENT_URL
           value: "https://{{.Values.config.lightstep.host}}:{{.Values.config.lightstep.port}}"
         - name: SECRET_ACCESS_TOKEN

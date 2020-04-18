@@ -202,7 +202,7 @@ recommendation:
 catalog:
   deployment:
     image: 
-      repository: catalogservice
+      repository: productcatalogservice
       tag: latest
       pullPolicy: Never
   resources:

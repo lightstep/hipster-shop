@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.config.frontend.name }}
+  name: {{ .Values.config.frontend.name }}-external
   labels:
     app.kubernetes.io/name: "{{ .Values.config.frontend.name }}"  
     helm.sh/chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.frontend.serviceLB.type }}
-  ports:
-  - port: {{ .Values.config.frontend.externalPort }}
-    targetPort: {{ .Values.config.frontend.internalPort }}
-    protocol: TCP
-    name: {{ .Values.frontend.serviceLB.name }}
   selector:
     app: {{ .Values.config.frontend.name }}
+  ports:
+  - name: {{ .Values.frontend.serviceLB.name }}
+    port: {{ .Values.config.frontend.externalPort }}
+    targetPort: {{ .Values.config.frontend.internalPort }}
+    
+  

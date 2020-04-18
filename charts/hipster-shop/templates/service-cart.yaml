@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.cart.service.type }}
-  ports:
-  - port: {{ .Values.config.cart.externalPort }}
-    targetPort: {{ .Values.config.cart.internalPort }}
-    protocol: TCP
-    name: {{ .Values.cart.service.name }}
   selector:
     app: {{ .Values.config.cart.name }}
+  ports:
+  - name: {{ .Values.cart.service.name }}
+    port: {{ .Values.config.cart.externalPort }}
+    targetPort: {{ .Values.config.cart.internalPort }}
+    
+  

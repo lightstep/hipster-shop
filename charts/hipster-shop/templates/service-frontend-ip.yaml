@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.frontend.serviceIP.type }}
-  ports:
-  - port: {{ .Values.config.frontend.externalPort }}
-    targetPort: {{ .Values.config.frontend.internalPort }}
-    protocol: TCP
-    name: {{ .Values.frontend.serviceIP.name }}
   selector:
     app: {{ .Values.config.frontend.name }}
+  ports:
+  - name: {{ .Values.frontend.serviceIP.name }}
+    port: {{ .Values.config.frontend.externalPort }}
+    targetPort: {{ .Values.config.frontend.internalPort }}
+    
+  

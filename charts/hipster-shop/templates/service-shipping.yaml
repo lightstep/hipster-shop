@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.shipping.service.type }}
-  ports:
-  - port: {{ .Values.config.shipping.externalPort }}
-    targetPort: {{ .Values.config.shipping.internalPort }}
-    protocol: TCP
-    name: {{ .Values.shipping.service.name }}
   selector:
     app: {{ .Values.config.shipping.name }}
+  ports:
+  - name: {{ .Values.shipping.service.name }}
+    port: {{ .Values.config.shipping.externalPort }}
+    targetPort: {{ .Values.config.shipping.internalPort }}
+    
+  

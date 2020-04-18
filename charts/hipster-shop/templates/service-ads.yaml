@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.ads.service.type }}
-  ports:
-  - port: {{ .Values.config.ads.externalPort }}
-    targetPort: {{ .Values.config.ads.internalPort }}
-    protocol: TCP
-    name: {{ .Values.ads.service.name }}
   selector:
     app: {{ .Values.config.ads.name }}
+  ports:
+  - name: {{ .Values.ads.service.name }}
+    port: {{ .Values.config.ads.externalPort }}
+    targetPort: {{ .Values.config.ads.internalPort }}
+    
+  

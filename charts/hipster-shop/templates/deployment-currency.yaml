@@ -22,7 +22,7 @@ spec:
           containerPort: {{ .Values.config.currency.internalPort }}
         env:
         - name: PORT
-          value: {{ .Values.config.currency.internalPort }}
+          value: "{{ .Values.config.currency.internalPort }}"
         - name: DD_TRACE_AGENT_URL
           value: "https://{{.Values.config.lightstep.host}}:{{.Values.config.lightstep.port}}"
         - name: SECRET_ACCESS_TOKEN

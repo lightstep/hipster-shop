@@ -9,10 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.checkout.service.type }}
-  ports:
-  - port: {{ .Values.config.checkout.externalPort }}
-    targetPort: {{ .Values.config.checkout.internalPort }}
-    protocol: TCP
-    name: {{ .Values.checkout.service.name }}
   selector:
     app: {{ .Values.config.checkout.name }}
+  ports:
+  - name: {{ .Values.checkout.service.name }}
+    port: {{ .Values.config.checkout.externalPort }}
+    targetPort: {{ .Values.config.checkout.internalPort }}
+    
+  

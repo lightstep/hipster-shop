@@ -9,9 +9,11 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.recommendation.service.type }}
-  ports:
-  - port: {{ .Values.config.recommendation.externalPort }}
-    targetPort: {{ .Values.config.recommendation.internalPort }}
-    name: {{ .Values.recommendation.service.name }}
   selector:
     app: {{ .Values.config.recommendation.name }}
+  ports:
+  - name: {{ .Values.recommendation.service.name }}
+    port: {{ .Values.config.recommendation.externalPort }}
+    targetPort: {{ .Values.config.recommendation.internalPort }}
+    
+  

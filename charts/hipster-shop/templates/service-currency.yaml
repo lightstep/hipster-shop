@@ -9,11 +9,10 @@ metadata:
     app.kubernetes.io/instance: "{{ .Release.Name }}"   
 spec:
   type: {{ .Values.currency.service.type }}
-  metadata:
-    name: {{ .Values.config.currency.name }}
+  selector:
+    app: {{ .Values.config.currency.name }}
   ports:
   - name: {{ .Values.currency.service.name }}
     port: {{ .Values.config.currency.internalPort }}
     targetPort: {{ .Values.config.currency.externalPort }}
-  selector:
-    app: {{ .Values.config.currency.name }}
+  
