@@ -273,6 +273,10 @@ If you've deployed the application with `kubectl apply -f [...]`, you can
 run `kubectl delete -f [...]` with the same argument to clean up the deployed
 resources.
 
+## Helm
+
+Helm is WIP, but you can deploy the given Helm chart via `helm install`. To ensure reporting to Lightstep, pass `config.lightstep.secretKeyValue`.
+
 ## Conferences Featuring Hipster Shop
 
 - [Google Cloud Next'18 London – Keynote](https://youtu.be/nIq2pkNcfEI?t=3071)
