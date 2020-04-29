@@ -111,7 +111,7 @@ func main() {
 }
 
 func initLightstepTracing(log logrus.FieldLogger) {
-	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
+	lsAccessToken := os.Getenv("LIGHTSTEP_ACCESS_TOKEN")
 	lsComponentName := "checkoutservice"
 
 	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
@@ -122,7 +122,7 @@ func initLightstepTracing(log logrus.FieldLogger) {
 	port, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
 	if err != nil {
 		log.Warningf("could not parse port: %v", err)
-		port = 0
+		port = 443
 	}
 
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
@@ -132,11 +132,14 @@ func initLightstepTracing(log logrus.FieldLogger) {
 			Plaintext: true,
 		},
 		AccessToken: lsAccessToken,
+		// BEGIN
+		// Override for GCP demo
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: lsComponentName,
 			lightstep.HostnameKey:      "checkoutservice-0",
 			"service.version":          "5.3.1",
 		},
+		// END
 		Propagators: propagators,
 	})
 	opentracing.SetGlobalTracer(lightStepTracer)

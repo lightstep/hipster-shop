@@ -48,13 +48,17 @@ spec:
           value: "productcatalogservice:3550"
         - name: ENABLE_PROFILER
           value: "0"
-        - name: DD_TRACE_AGENT_URL
-          value: "http://satellite:8181"
-        - name: SECRET_ACCESS_TOKEN
+        - name: LIGHTSTEP_HOST
+          value: "lightstep-satellite"
+        - name: LIGHTSTEP_PORT
+          value: "8181"
+        - name: LIGHTSTEP_PLAINTEXT
+          value: "true"
+        - name: LIGHTSTEP_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
-              name: lightstep-access-token
-              key: token
+              name: lightstep-credentials
+              key: accessToken
         resources:
           requests:
             cpu: 100m

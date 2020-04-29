@@ -26,21 +26,26 @@ require('@google-cloud/trace-agent').start();
 require('@google-cloud/debug-agent').start({
   serviceContext: {
     service: 'currencyservice',
-    version: 'VERSION'
+    version: VERSION
   }
 });
 
 const tracer = require('ls-trace').init({
-  experimental: {
-    b3: true
-  },
-  tags : {
-    'service.version' : VERSION,
-    hostname : 'currencyservice-0',
-    platform : require('os').platform(),
-    "lightstep.service_name": "currencyservice",
-    "lightstep.access_token": process.env.SECRET_ACCESS_TOKEN
-  }
+    experimental: {
+      b3: true
+    },
+    tags: {
+      service: {
+        version: VERSION
+      },
+      platform : require('os').platform(),
+      lightstep: {
+        service_name: 'currencyservice',
+        access_token: process.env.LIGHTSTEP_ACCESS_TOKEN
+      }
+    },
+    port: process.env.LIGHTSTEP_PORT,
+    hostname: process.env.LIGHTSTEP_HOST,
 })
 
 const opentracing = require('opentracing');

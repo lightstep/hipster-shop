@@ -34,14 +34,16 @@ spec:
             - name: PORT
               value: "50051"
             - name: LIGHTSTEP_HOST
-              value: "satellite"
+              value: "lightstep-satellite"
             - name: LIGHTSTEP_PORT
               value: "8181"
-            - name: SECRET_ACCESS_TOKEN
+            - name: LIGHTSTEP_PLAINTEXT
+              value: "true"
+            - name: LIGHTSTEP_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: lightstep-access-token
-                  key: token
+                  name: lightstep-credentials
+                  key: accessToken
           readinessProbe:
             periodSeconds: 5
             exec:
@@ -49,9 +51,6 @@ spec:
           livenessProbe:
             exec:
               command: ["/bin/grpc_health_probe", "-addr=:50051"]
-          #        env:
-          #          - name: JAEGER_SERVICE_ADDR
-          #            value: "jaeger-collector:14268"
           resources:
             requests:
               cpu: 100m

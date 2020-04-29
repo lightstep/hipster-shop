@@ -38,19 +38,20 @@ spec:
           value: "7070"
         - name: LISTEN_ADDR
           value: "0.0.0.0"
-        - name: SECRET_ACCESS_TOKEN
+          # Lightstep config
+        - name: LIGHTSTEP_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
-              name: lightstep-access-token
-              key: token
-        - name: DD_TRACE_AGENT_URL
-          value: http://satellite:8181
-        - name: DD_TRACE_AGENT_PORT
-          value: "8181"
-        - name: DD_SERVICE_NAME
-          value: cartservice
+              name: lightstep-credentials
+              key: accessToken
         - name: LIGHTSTEP_HOST
-          value: "satellite:8181"
+          value: "lightstep-satellite"
+        - name: LIGHTSTEP_PORT
+          value: "8181"
+        - name: LIGHTSTEP_PLAINTEXT
+          value: "true"
+        # - name: DD_TRACE_AGENT_URL
+        #   value: http://lightstep-satellite:8181
         resources:
           requests:
             cpu: 200m

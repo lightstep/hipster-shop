@@ -36,7 +36,10 @@ namespace cartservice
         const string CART_SERVICE_ADDRESS = "LISTEN_ADDR";
         const string REDIS_ADDRESS = "REDIS_ADDR";
         const string CART_SERVICE_PORT = "PORT";
-        const string ACCESS_TOKEN_ENV_VARIABLE = "SECRET_ACCESS_TOKEN";
+        const string LIGHTSTEP_ACCESS_TOKEN = "LIGHTSTEP_ACCESS_TOKEN";
+        const string LIGHTSTEP_HOST = "LIGHTSTEP_HOST";
+        const string LIGHTSTEP_PORT = "LIGHTSTEP_PORT";
+        const string LIGHTSTEP_PLAINTEXT = "LIGHTSTEP_PLAINTEXT";
 
         [Verb("start", HelpText = "Starts the server listening on provided port")]
         class ServerOptions
@@ -145,20 +148,31 @@ namespace cartservice
                             }
 
                             // Setup LightStep Tracer
-                            Console.WriteLine($"Reading LightStep Access Token {ACCESS_TOKEN_ENV_VARIABLE} environment variable");
-                            string accessToken = Environment.GetEnvironmentVariable(ACCESS_TOKEN_ENV_VARIABLE);
+                            Console.WriteLine($"Reading Lightstep Access Token {LIGHTSTEP_ACCESS_TOKEN} environment variable");
+                            string serviceName = "cartservice";
+                            string accessToken = Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN);
+                            string lsHost = Environment.GetEnvironmentVariable(LIGHTSTEP_HOST);
+                            int lsPort = Int32.Parse(Environment.GetEnvironmentVariable(LIGHTSTEP_PORT));
+                            bool plaintext = (Environment.GetEnvironmentVariable(LIGHTSTEP_PLAINTEXT) == "true");
 
-                            Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.service_name", "cartservice");
+                            Datadog.Trace.Tracer.Instance.Settings.AgentUri = new Uri("http://" + lsHost + ":" + Environment.GetEnvironmentVariable(LIGHTSTEP_PORT));
+                            Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.service_name", serviceName);
                             Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.access_token", accessToken);
 
-                            var satelliteOptions = new SatelliteOptions(Environment.GetEnvironmentVariable("LIGHTSTEP_HOST"));
+                            Console.WriteLine(Datadog.Trace.Tracer.Instance.Settings);
+
+                            var satelliteOptions = new SatelliteOptions(lsHost, lsPort, plaintext);
+
+                            // BEGIN 
+                            // Used for GCP Demo
                             var overrideTags = new Dictionary<string, object>
                             {
-                              { LightStepConstants.ComponentNameKey, "cartservice" },
+                              { LightStepConstants.ComponentNameKey, serviceName },
                               {"service.version", RedisCartStore.updateUserProfileValue ? RedisCartStore.UnhealthyVersion : RedisCartStore.HealthyVersion},
                               {"cartservice.identity", "f738e221f8"},
-                              {"lightstep.hostname", "cartservice-0"},
+                              {"lightstep.hostname", serviceName + "-0"},
                             };
+                            // END
 
                             var tracerOptions = new Options(accessToken).
                                                     WithSatellite(satelliteOptions).

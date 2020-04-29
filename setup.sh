@@ -12,9 +12,9 @@ kube_node_check () {
 }
 
 # Lightstep access token
-set_ls_access_token () {
-  echo Setting up an lightstep-access-token secret in Kubernetes
-  kubectl create secret generic lightstep-access-token --from-literal=token="$LIGHTSTEP_ACCESS_TOKEN" || echo "Secret already present, not updated."
+set_ls_credentials () {
+  echo Setting up an lightstep-credentials secret in Kubernetes
+  kubectl create secret generic lightstep-credentials --from-literal=accessToken="$LIGHTSTEP_ACCESS_TOKEN" --from-literal=satelliteKey="$LIGHTSTEP_SATELLITE_KEY" || echo "Secret already present, not updated."
   echo
 }
 
@@ -82,7 +82,7 @@ docker_for_desktop_steps () {
  if [[ $REPLY =~ ^[Yy]$ ]]
  then
   kube_node_check #TODO better error handling
-  set_ls_access_token
+  set_ls_credentials
   run_skaffold
   wait_for_store
   success_message
@@ -101,7 +101,7 @@ minikube_steps () {
   echo Starting Minikube
   minikube start --cpus=4 --memory 4096
   kube_node_check #TODO better error handling
-  set_ls_access_token
+  set_ls_credentials
   run_skaffold
   wait_for_store
   success_message
@@ -109,16 +109,16 @@ minikube_steps () {
 }
 
 check_lightstep_access_token () {
-  local KUBESECRET
-  KUBESECRET=$(kubectl get secret lightstep-access-token -o go-template --template "{{.data.token}}" 2>/dev/null | base64 --decode) || ''
-  if [ ! -z "$KUBESECRET" ]
-  then
-    echo Lightstep access token already defined as a Kubernetes secret. Proceeding!
-    return
-  fi
   if [ -z "$LIGHTSTEP_ACCESS_TOKEN" ]
   then
     echo Please set the LIGHTSTEP_ACCESS_TOKEN environment variable to get
+    echo started. Check out the README if you need help.
+    echo
+    exit
+  fi
+  if [ -z "$LIGHTSTEP_SATELLITE_KEY" ]
+  then
+    echo Please set the LIGHTSTEP_SATELLITE_KEY environment variable to get
     echo started. Check out the README if you need help.
     echo
     exit

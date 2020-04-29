@@ -17,11 +17,15 @@ import os
 from ddtrace import tracer
 from ddtrace.propagation.b3 import B3HTTPPropagator
 
-tracer.configure(http_propagator=B3HTTPPropagator)
+tracer.configure(
+    http_propagator=B3HTTPPropagator,
+    hostname=os.environ['LIGHTSTEP_HOST'],
+    port=os.environ['LIGHTSTEP_PORT']
+)
 tracer.set_tags(
     {
         "lightstep.service_name": "recommendationservice",
-        "lightstep.access_token": os.getenv("SECRET_ACCESS_TOKEN"),
+        "lightstep.access_token": os.getenv("LIGHTSTEP_ACCESS_TOKEN"),
     }
 )
 

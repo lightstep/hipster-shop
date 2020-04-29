@@ -151,7 +151,7 @@ func main() {
 }
 
 func initLightstepTracing(log logrus.FieldLogger) {
-	lsAccessToken := os.Getenv("SECRET_ACCESS_TOKEN")
+	lsAccessToken := os.Getenv("LIGHTSTEP_ACCESS_TOKEN")
 	lsComponentName := "frontend"
 
 	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{

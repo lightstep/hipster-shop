@@ -219,7 +219,7 @@ func initLighstepTracing() {
 			Port: port,
 			Plaintext: true,
 		},
-		AccessToken: os.Getenv("SECRET_ACCESS_TOKEN"),
+		AccessToken: os.Getenv("LIGHTSTEP_ACCESS_TOKEN"),
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: "shippingservice",
 			lightstep.HostnameKey: "shippingservice-0",
