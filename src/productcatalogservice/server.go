@@ -177,7 +177,7 @@ func initLightstepTracing() {
 		Collector: lightstep.Endpoint{
 			Host: os.Getenv("LIGHTSTEP_HOST"),
 			Port: port,
-			Plaintext: true,
+			Plaintext: os.Getenv("LIGHTSTEP_PLAINTEXT") == "true",
 		},
 		AccessToken: os.Getenv("LIGHTSTEP_ACCESS_TOKEN"),
 		Tags: map[string]interface{}{

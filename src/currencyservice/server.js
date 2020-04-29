@@ -30,6 +30,8 @@ require('@google-cloud/debug-agent').start({
   }
 });
 
+let scheme = process.env.LIGHTSTEP_PLAINTEXT == "true" ? 'http' : 'https';
+
 const tracer = require('ls-trace').init({
     experimental: {
       b3: true
@@ -44,8 +46,8 @@ const tracer = require('ls-trace').init({
         access_token: process.env.LIGHTSTEP_ACCESS_TOKEN
       }
     },
-    port: process.env.LIGHTSTEP_PORT,
-    hostname: process.env.LIGHTSTEP_HOST,
+    url: scheme + '://' + process.env.LIGHTSTEP_HOST,
+    port: process.env.LIGHTSTEP_PORT
 })
 
 const opentracing = require('opentracing');

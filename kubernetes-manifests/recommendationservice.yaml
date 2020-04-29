@@ -49,11 +49,11 @@ spec:
         - name: ENABLE_PROFILER
           value: "0"
         - name: LIGHTSTEP_HOST
-          value: "lightstep-satellite"
+          value: "ingest.lightstep.com"
         - name: LIGHTSTEP_PORT
-          value: "8181"
-        - name: LIGHTSTEP_PLAINTEXT
-          value: "true"
+          value: "443"
+        - name: LIGHTSTEP_PLAINTEXT 
+          value: "false"
         - name: LIGHTSTEP_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:

@@ -27,7 +27,6 @@ using LightStep;
 using Microsoft.Extensions.Configuration;
 using OpenTracing.Contrib.Grpc.Interceptors;
 using OpenTracing.Util;
-using Datadog.Trace;
 
 namespace cartservice
 {
@@ -154,12 +153,6 @@ namespace cartservice
                             string lsHost = Environment.GetEnvironmentVariable(LIGHTSTEP_HOST);
                             int lsPort = Int32.Parse(Environment.GetEnvironmentVariable(LIGHTSTEP_PORT));
                             bool plaintext = (Environment.GetEnvironmentVariable(LIGHTSTEP_PLAINTEXT) == "true");
-
-                            Datadog.Trace.Tracer.Instance.Settings.AgentUri = new Uri("http://" + lsHost + ":" + Environment.GetEnvironmentVariable(LIGHTSTEP_PORT));
-                            Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.service_name", serviceName);
-                            Datadog.Trace.Tracer.Instance.Settings.GlobalTags.Add("lightstep.access_token", accessToken);
-
-                            Console.WriteLine(Datadog.Trace.Tracer.Instance.Settings);
 
                             var satelliteOptions = new SatelliteOptions(lsHost, lsPort, plaintext);
 

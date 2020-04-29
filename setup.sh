@@ -14,7 +14,7 @@ kube_node_check () {
 # Lightstep access token
 set_ls_credentials () {
   echo Setting up an lightstep-credentials secret in Kubernetes
-  kubectl create secret generic lightstep-credentials --from-literal=accessToken="$LIGHTSTEP_ACCESS_TOKEN" --from-literal=satelliteKey="$LIGHTSTEP_SATELLITE_KEY" || echo "Secret already present, not updated."
+  kubectl create secret generic lightstep-credentials --from-literal=accessToken="$LIGHTSTEP_ACCESS_TOKEN" || echo "Secret already present, not updated."
   echo
 }
 
@@ -31,23 +31,27 @@ run_skaffold () {
 success_message () {
   echo
   echo Lightstep mock application is running, happy hacking!
-  echo Go to http://localhost/ to visit the application.
-  echo Visit https://app.lightstep.com to see the trace data.
+  echo Go to http://localhost to visit the application.
+  echo Visit https://app.lightstep.com to see the telemetry data.
 }
 
 # Wait for store
 wait_for_store () {
-  echo -n "Waiting for store to be ready.."
-  while true; do
-    echo -n "."
-    curl -s -q http://localhost > /dev/null
-    rc=$?
-    if [ $rc == 0 ]; then
-      echo "done!"
-      return
-    fi
-    sleep 1
+  echo -n "Waiting for store to be ready"
+  until $(curl --output /dev/null --silent --head --fail http://localhost); do
+    printf '.'
+    sleep 5
   done
+  # while true; do
+  #   echo -n "."
+  #   curl -s -q http://localhost > /dev/null
+  #   rc=$?
+  #   if [ $rc == 0 ]; then
+  #     echo "done!"
+  #     return
+  #   fi
+  #   sleep 1
+  # done
 }
 
 # Called if the user is deploying to GKE. Ensures the necessary environment
@@ -108,17 +112,10 @@ minikube_steps () {
  fi
 }
 
-check_lightstep_access_token () {
+check_env_variables () {
   if [ -z "$LIGHTSTEP_ACCESS_TOKEN" ]
   then
     echo Please set the LIGHTSTEP_ACCESS_TOKEN environment variable to get
-    echo started. Check out the README if you need help.
-    echo
-    exit
-  fi
-  if [ -z "$LIGHTSTEP_SATELLITE_KEY" ]
-  then
-    echo Please set the LIGHTSTEP_SATELLITE_KEY environment variable to get
     echo started. Check out the README if you need help.
     echo
     exit
@@ -129,7 +126,7 @@ check_lightstep_access_token () {
 echo 
 echo Welcome to the Lightstep Mock Application Setup!
 echo
-check_lightstep_access_token
+check_env_variables
 echo Help answer a couple questions about your environment and we\'ll get you up and running.
 echo
 # What Kubernetes cluster is being used?

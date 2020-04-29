@@ -45,13 +45,13 @@ spec:
               name: lightstep-credentials
               key: accessToken
         - name: LIGHTSTEP_HOST
-          value: "lightstep-satellite"
+          value: "ingest.lightstep.com"
         - name: LIGHTSTEP_PORT
-          value: "8181"
+          value: "443"
         - name: LIGHTSTEP_PLAINTEXT
+          value: "false"
+        - name: HIPSTER_SICK # Used for GCP demo
           value: "true"
-        # - name: DD_TRACE_AGENT_URL
-        #   value: http://lightstep-satellite:8181
         resources:
           requests:
             cpu: 200m

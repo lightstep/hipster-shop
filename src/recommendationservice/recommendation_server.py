@@ -20,7 +20,8 @@ from ddtrace.propagation.b3 import B3HTTPPropagator
 tracer.configure(
     http_propagator=B3HTTPPropagator,
     hostname=os.environ['LIGHTSTEP_HOST'],
-    port=os.environ['LIGHTSTEP_PORT']
+    port=os.environ['LIGHTSTEP_PORT'],
+    https=os.environ['LIGHTSTEP_PLAINTEXT'] is not "true"
 )
 tracer.set_tags(
     {
