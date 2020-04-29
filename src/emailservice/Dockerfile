@@ -23,8 +23,8 @@ WORKDIR /email_server
 # get packages
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-# check out the tip of ben-hackery, but bust the Docker cache.
 RUN pip install ls-trace
+RUN pip install opentracing
 
 # Add the application
 COPY . .

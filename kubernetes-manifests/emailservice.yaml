@@ -47,6 +47,8 @@ spec:
             secretKeyRef:
               name: lightstep-credentials
               key: accessToken
+        - name: LS_METRICS_ENABLED
+          value: "False"
         readinessProbe:
           periodSeconds: 5
           exec:

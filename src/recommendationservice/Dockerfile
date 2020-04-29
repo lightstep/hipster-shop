@@ -14,7 +14,6 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
 WORKDIR /recommendationservice
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-# check out the tip of ben-hackery, but bust the Docker cache.
 RUN pip install ls-trace
 RUN pip install opentracing
 

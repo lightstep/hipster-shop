@@ -59,6 +59,8 @@ spec:
             secretKeyRef:
               name: lightstep-credentials
               key: accessToken
+        - name: LS_METRICS_ENABLED
+          value: "False"
         resources:
           requests:
             cpu: 100m

@@ -51,7 +51,7 @@ spec:
         - name: LIGHTSTEP_PLAINTEXT
           value: "false"
         - name: HIPSTER_SICK # Used for GCP demo
-          value: "true"
+          value: "false"
         resources:
           requests:
             cpu: 200m
