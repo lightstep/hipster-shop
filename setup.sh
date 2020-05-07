@@ -46,16 +46,6 @@ wait_for_store () {
     printf '.'
     sleep 5
   done
-  # while true; do
-  #   echo -n "."
-  #   curl -s -q http://localhost > /dev/null
-  #   rc=$?
-  #   if [ $rc == 0 ]; then
-  #     echo "done!"
-  #     return
-  #   fi
-  #   sleep 1
-  # done
 }
 
 # Called if the user is deploying to GKE. Ensures the necessary environment
@@ -74,6 +64,7 @@ gke_steps () {
     exit
   fi
 
+  set_ls_credentials
   make run
 }
 
