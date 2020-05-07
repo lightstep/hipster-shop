@@ -1,5 +1,9 @@
 #!/bin/bash
+
+# The script is set to fail on unbound variables, so take care when checking if they have
+# been set. See: https://unix.stackexchange.com/questions/463034/bash-throws-error-line-8-1-unbound-variable
 set -euo pipefail
+
 IFS=$'\n\t'
 
 # Check for Kubernetes Nodes
@@ -61,7 +65,7 @@ gke_steps () {
   echo Great!
   echo
 
-  if [ -z "$GCP_PROJECT_ID" ]  
+  if [ -z "${GCP_PROJECT_ID-}" ]  
   then
     echo Please set the GCP_PROJECT_ID environment variable first
     echo so we know where to deploy the cluster! See the README
@@ -112,8 +116,8 @@ minikube_steps () {
  fi
 }
 
-check_env_variables () {
-  if [ -z "$LIGHTSTEP_ACCESS_TOKEN" ]
+check_env_variables () {  
+  if [ -z "${LIGHTSTEP_ACCESS_TOKEN-}" ]
   then
     echo Please set the LIGHTSTEP_ACCESS_TOKEN environment variable to get
     echo started. Check out the README if you need help.
