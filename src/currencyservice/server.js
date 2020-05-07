@@ -53,6 +53,15 @@ const tracer = require('ls-trace').init({
 const opentracing = require('opentracing');
 opentracing.initGlobalTracer(tracer);
 
+const Rollbar = require("rollbar");
+const rollbar = new Rollbar({
+  accessToken: '3d60886383cc45b38771eac7e1b6870a',
+  captureUncaught: true,
+  captureUnhandledRejections: true
+});
+
+rollbar.log("Rollbar initialized");
+
 const path = require('path');
 const grpc = require('grpc');
 const pino = require('pino');
@@ -137,16 +146,21 @@ function convert (call, callback) {
   try {
     _getCurrencyData(span, (data) => {
       const request = call.request;
+      const from = request.from;
+
+      span.setTag('currency_code.from', from.currency_code);
+      span.setTag('currency_code.to', request.to_code);
+
+      // Generate a random error for demonstration purposes
+      if (Math.random() < 0.05) {
+        data = null;
+      }
 
       // Convert: from_currency --> EUR
-      const from = request.from;
       const euros = _carry({
         units: from.units / data[from.currency_code],
         nanos: from.nanos / data[from.currency_code]
       });
-
-      span.setTag('currency_code.from', from.currency_code);
-      span.setTag('currency_code.to', request.to_code);
 
       euros.nanos = Math.round(euros.nanos);
 
@@ -167,6 +181,7 @@ function convert (call, callback) {
     });
   } catch (err) {
     logger.error(`conversion request failed: ${err}`);
+    rollbar.error('Conversion request failed', err);
     span.setTag('error', true);
     span.log({ 
       event: `conversion request failed: ${err}`,
