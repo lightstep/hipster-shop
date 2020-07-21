@@ -35,7 +35,7 @@ spec:
         - name: PORT
           value: "3550"
         - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
+          value: "ingest.staging.lightstep.com"
         - name: LIGHTSTEP_PORT
           value: "443"
         - name: LIGHTSTEP_PLAINTEXT

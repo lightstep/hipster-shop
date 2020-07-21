@@ -37,7 +37,7 @@ spec:
           value: "7000"
         # Lightstep config
         - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
+          value: "ingest.staging.lightstep.com"
         - name: LIGHTSTEP_PORT
           value: "443"
         - name: LIGHTSTEP_PLAINTEXT

@@ -49,7 +49,7 @@ spec:
         - name: ENABLE_PROFILER
           value: "0"
         - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
+          value: "ingest.staging.lightstep.com"
         - name: LIGHTSTEP_PORT
           value: "443"
         - name: LIGHTSTEP_PLAINTEXT 
