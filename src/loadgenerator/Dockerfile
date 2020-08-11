@@ -1,21 +1,26 @@
-FROM python:3.7-slim as base
+FROM python:3.7.0-slim as builder
 
-FROM base as builder
+RUN apt-get update \ 
+    && apt-get install g++ -y \
+    && apt-get clean
 
-RUN apt-get -qq update \
-    && apt-get install -y --no-install-recommends \
-        g++
+COPY requirements.txt /app/requirements.txt
 
-COPY requirements.txt .
+WORKDIR /app
+RUN pip install --user -r requirements.txt
+COPY . /app
 
-RUN pip install --install-option="--prefix=/install" -r requirements.txt
+# app image
+FROM python:3.7.0-slim as app
+COPY --from=builder /root/.local /root/.local
+COPY --from=builder /app/locustfile.py /app/locustfile.py
+COPY --from=builder /app/loadgen.sh /app/loadgen.sh
 
-FROM base
-COPY --from=builder /install /usr/local
+WORKDIR /app
 
-COPY . .
+RUN apt-get -qq update \ 
+    && apt-get install -y --no-install-recommends curl
+
 RUN chmod +x ./loadgen.sh
-RUN apt-get -qq update \
-    && apt-get install -y --no-install-recommends \
-        curl
+
 ENTRYPOINT ./loadgen.sh
