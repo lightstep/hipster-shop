@@ -12,72 +12,72 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: adservice
-spec:
-  selector:
-    matchLabels:
-      app: adservice
-  template:
-    metadata:
-      labels:
-        app: adservice
-    spec:
-      terminationGracePeriodSeconds: 5
-      containers:
-      - name: server
-        image: adservice
-        ports:
-        - containerPort: 9555
-        env:
-        - name: PORT
-          value: "9555"
-        # - name: LIGHTSTEP_SERVICE_NAME
-        #   value: "adservice-test"
-        - name: LIGHTSTEP_ACCESS_TOKEN
-          valueFrom:
-            secretKeyRef:
-              name: lightstep-credentials
-              key: accessToken
-        - name: LIGHTSTEP_COLLECTOR_HOST
-          value: "satellite"
-        - name: LIGHTSTEP_COLLECTOR_PORT
-          value: "8181"
-        - name: LIGHTSTEP_COLLECTOR_PROTOCOL
-          value: "http"
-        - name: JAEGER_SERVICE_ADDR
-          value: "lightstep-satellite:8181"
-        resources:
-          requests:
-            cpu: 200m
-            memory: 180Mi
-          limits:
-            cpu: 300m
-            memory: 300Mi
-        readinessProbe:
-          initialDelaySeconds: 20
-          periodSeconds: 15
-          timeoutSeconds: 5
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout=5s", "-rpc-timeout=5s"]
-        livenessProbe:
-          initialDelaySeconds: 20
-          periodSeconds: 15
-          timeoutSeconds: 5
-          exec:
-            command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout=5s", "-rpc-timeout=5s"]
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: adservice
-spec:
-  type: ClusterIP
-  selector:
-    app: adservice
-  ports:
-  - name: grpc
-    port: 9555
-    targetPort: 9555
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: adservice
+# spec:
+#   selector:
+#     matchLabels:
+#       app: adservice
+#   template:
+#     metadata:
+#       labels:
+#         app: adservice
+#     spec:
+#       terminationGracePeriodSeconds: 5
+#       containers:
+#       - name: server
+#         image: adservice
+#         ports:
+#         - containerPort: 9555
+#         env:
+#         - name: PORT
+#           value: "9555"
+#         # - name: LIGHTSTEP_SERVICE_NAME
+#         #   value: "adservice-test"
+#         - name: LIGHTSTEP_ACCESS_TOKEN
+#           valueFrom:
+#             secretKeyRef:
+#               name: lightstep-credentials
+#               key: accessToken
+#         - name: LIGHTSTEP_COLLECTOR_HOST
+#           value: "satellite"
+#         - name: LIGHTSTEP_COLLECTOR_PORT
+#           value: "8181"
+#         - name: LIGHTSTEP_COLLECTOR_PROTOCOL
+#           value: "http"
+#         - name: JAEGER_SERVICE_ADDR
+#           value: "lightstep-satellite:8181"
+#         resources:
+#           requests:
+#             cpu: 200m
+#             memory: 180Mi
+#           limits:
+#             cpu: 300m
+#             memory: 300Mi
+#         readinessProbe:
+#           initialDelaySeconds: 20
+#           periodSeconds: 15
+#           timeoutSeconds: 5
+#           exec:
+#             command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout=5s", "-rpc-timeout=5s"]
+#         livenessProbe:
+#           initialDelaySeconds: 20
+#           periodSeconds: 15
+#           timeoutSeconds: 5
+#           exec:
+#             command: ["/bin/grpc_health_probe", "-addr=:9555", "-connect-timeout=5s", "-rpc-timeout=5s"]
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: adservice
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: adservice
+#   ports:
+#   - name: grpc
+#     port: 9555
+#     targetPort: 9555

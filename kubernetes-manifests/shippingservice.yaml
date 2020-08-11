@@ -30,15 +30,12 @@ spec:
           image: shippingservice
           ports:
             - containerPort: 50051
+          envFrom:
+          - configMapRef:
+              name: lightstep-configmap
           env:
             - name: PORT
               value: "50051"
-            - name: LIGHTSTEP_HOST
-              value: "ingest.lightstep.com"
-            - name: LIGHTSTEP_PORT
-              value: "443"
-            - name: LIGHTSTEP_PLAINTEXT
-              value: "false"
             - name: LIGHTSTEP_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:

@@ -50,6 +50,9 @@ spec:
               httpHeaders:
               - name: "Cookie"
                 value: "shop_session-id=x-liveness-probe"
+          envFrom:
+          - configMapRef:
+              name: lightstep-configmap
           env:
           - name: PORT
             value: "8080"
@@ -67,12 +70,6 @@ spec:
             value: "checkoutservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
-          - name: LIGHTSTEP_HOST
-            value: "ingest.lightstep.com"
-          - name: LIGHTSTEP_PORT
-            value: "443"
-          - name: LIGHTSTEP_PLAINTEXT
-            value: "false"
           - name: LIGHTSTEP_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:

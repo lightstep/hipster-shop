@@ -41,6 +41,9 @@ spec:
           timeoutSeconds: 5
           exec:
             command: ["/bin/grpc_health_probe", "-addr=:8080", "-connect-timeout=5s", "-rpc-timeout=5s"]
+        envFrom:
+        - configMapRef:
+            name: lightstep-configmap
         env:
         - name: PORT
           value: "8080"
@@ -48,12 +51,6 @@ spec:
           value: "productcatalogservice:3550"
         - name: ENABLE_PROFILER
           value: "0"
-        - name: LIGHTSTEP_HOST
-          value: "ingest.lightstep.com"
-        - name: LIGHTSTEP_PORT
-          value: "443"
-        - name: LIGHTSTEP_PLAINTEXT 
-          value: "false"
         - name: LIGHTSTEP_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
