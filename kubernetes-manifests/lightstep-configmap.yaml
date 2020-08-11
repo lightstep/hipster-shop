@@ -1,0 +1,8 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: lightstep-configmap
+data:
+  LIGHTSTEP_HOST: "ingest.lightstep.com"
+  LIGHTSTEP_PORT: "443"
+  LIGHTSTEP_PLAINTEXT: "false"
