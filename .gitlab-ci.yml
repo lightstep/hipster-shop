@@ -1,0 +1,25 @@
+# via: https://gist.github.com/tvvignesh/e82bc33469320aa198c348336b4890fb
+
+services:
+    - docker:dind
+
+stages:
+    - deploy
+
+variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ''
+    DOCKER_HOST: tcp://docker:2375
+    GCP_ZONE: us-central1-a
+    GCP_K8S_CLUSTER: your-cluster-name
+    GCP_PROJECT_ID: gcp-project-id
+
+deploy:
+    image:
+        name: gcr.io/k8s-skaffold/skaffold:latest
+    stage: deploy
+    script:
+        - export
+        - ./deploy-ci.sh
+    only:
+        - master
