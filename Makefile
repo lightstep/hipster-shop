@@ -4,3 +4,6 @@ run:
 
 setup: 
 	@./setup.sh
+
+cleanup:
+	skaffold delete
