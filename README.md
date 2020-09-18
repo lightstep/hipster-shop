@@ -158,7 +158,7 @@ You will build, upload and deploy the container images to a Kubernetes cluster o
     gcloud auth configure-docker -q
     ```
 
-1. In the root of this repository, run `make setup`.<br>
+1. In the root of this repository, run `$ LIGHTSTEP_ACCESS_TOKEN=[your token] make setup`.<br>
     When asked `What kind of Kubernetes cluster are you using?`, choose `1) Google Kubernetes Engine (GKE)`.
 
 1.  Find the external IP address of your application:<br>
@@ -188,7 +188,7 @@ here](https://docs.docker.com/docker-for-mac/kubernetes/).
    > 💡If not connected, run `kubectl config use-context docker-desktop` to connect Kubernetes to Docker.
 
 1. Navigate the root directory of the Hipster Shop repo clone and run:
-    `make setup`
+    `$ LIGHTSTEP_ACCESS_TOKEN=[your token] make setup`
     When asked `What kind of Kubernetes cluster are you using?`, choose `2) Docker for Desktop` or `3) Minikube` and follow the configuration instructions.
 
 6. Run `kubectl get pods` to verify the Pods are ready and running.
@@ -272,6 +272,8 @@ If you've deployed the application with `skaffold run` command, you can run
 If you've deployed the application with `kubectl apply -f [...]`, you can
 run `kubectl delete -f [...]` with the same argument to clean up the deployed
 resources.
+
+If you've deployed the application with `make setup`, then you can clean up the deployed resources with `make clean`
 
 ## Conferences Featuring Hipster Shop
 
