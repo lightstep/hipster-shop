@@ -16,56 +16,58 @@ apiVersion: skaffold/v1beta2
 kind: Config
 build:
   artifacts:
-  # image tags are relative; to specify an image repo (e.g. GCR), you
-  # must provide a "default repo" using one of the methods described 
-  # here:
-  # https://skaffold.dev/docs/concepts/#image-repository-handling
-  - image: emailservice
-    context: src/emailservice
-  - image: productcatalogservice
-    context: src/productcatalogservice
-  - image: recommendationservice
-    context: src/recommendationservice
-  - image: shippingservice
-    context: src/shippingservice
-  - image: checkoutservice
-    context: src/checkoutservice
-  - image: paymentservice
-    context: src/paymentservice
-  - image: currencyservice
-    context: src/currencyservice
-  - image: cartservice
-    context: src/cartservice
-  - image: frontend
-    context: src/frontend
-  - image: loadgenerator
-    context: src/loadgenerator
-  - image: adservice
-    context: src/adservice
+    # image tags are relative; to specify an image repo (e.g. GCR), you
+    # must provide a "default repo" using one of the methods described
+    # here:
+    # https://skaffold.dev/docs/concepts/#image-repository-handling
+    - image: adservice
+      context: src/adservice
+    - image: emailservice
+      context: src/emailservice
+    - image: productcatalogservice
+      context: src/productcatalogservice
+    - image: recommendationservice
+      context: src/recommendationservice
+    - image: shippingservice
+      context: src/shippingservice
+    - image: checkoutservice
+      context: src/checkoutservice
+    - image: paymentservice
+      context: src/paymentservice
+    - image: currencyservice
+      context: src/currencyservice
+    - image: cartservice
+      context: src/cartservice
+    - image: frontend
+      context: src/frontend
+    - image: loadgenerator
+      context: src/loadgenerator
   tagPolicy:
     gitCommit: {}
 deploy:
   kubectl:
     manifests:
-    - ./kubernetes-manifests/**.yaml
+      - ./kubernetes-manifests/**.yaml
+    # Uncomment below to run lightstep satellite with prometheus
+    # - ./kubernetes-manifests/satellite/**.yaml
 profiles:
-# "travis-ci" profile is used to build the images without
-# pushing them.
-- name: travis-ci
-  build:
-    local:
-      push: false
-# "gcb" profile allows building and pushing the images
-# on Google Container Builder without requiring docker
-# installed on the developer machine. However, note that
-# since GCB does not cache the builds, each build will
-# start from scratch and therefore take a long time.
-#
-# This is not used by default. To use it, run:
-#     skaffold run -p gcb
-- name: gcb
-  build:
-    googleCloudBuild:
-      diskSizeGb: 300
-      machineType: N1_HIGHCPU_32
-      timeout: 4000s
+  # "travis-ci" profile is used to build the images without
+  # pushing them.
+  - name: travis-ci
+    build:
+      local:
+        push: false
+  # "gcb" profile allows building and pushing the images
+  # on Google Container Builder without requiring docker
+  # installed on the developer machine. However, note that
+  # since GCB does not cache the builds, each build will
+  # start from scratch and therefore take a long time.
+  #
+  # This is not used by default. To use it, run:
+  #     skaffold run -p gcb
+  - name: gcb
+    build:
+      googleCloudBuild:
+        diskSizeGb: 300
+        machineType: N1_HIGHCPU_32
+        timeout: 4000s

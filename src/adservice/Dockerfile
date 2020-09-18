@@ -13,8 +13,6 @@ RUN ./gradlew installDist
 
 FROM openjdk:8-slim
 
-RUN apt-get -y update && apt-get install -qqy wget
-
 # Download Stackdriver Profiler Java agent
 RUN apt-get -y update && apt-get install -qqy \
     wget \
@@ -27,9 +25,6 @@ RUN mkdir -p /opt/cprof && \
 RUN GRPC_HEALTH_PROBE_VERSION=v0.2.1 && \
     wget -qO/bin/grpc_health_probe https://github.com/grpc-ecosystem/grpc-health-probe/releases/download/${GRPC_HEALTH_PROBE_VERSION}/grpc_health_probe-linux-amd64 && \
     chmod +x /bin/grpc_health_probe
-
-ENV OTA_EXPORTER_JAR=/app/lightstep-opentelemetry-auto-exporter-0.2.0.jar
-ENV LIGHTSTEP_SERVICE_NAME=adservice
 
 WORKDIR /app
 COPY --from=builder /app .
