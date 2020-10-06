@@ -1,0 +1,48 @@
+name: Deploy to GCP Kubernetes Cluster
+on:
+  pull_request:
+    paths:
+      - .github/**
+      - src/**
+      - kubernetes-mainifests/**
+      - skaffold.yaml
+
+env:
+  GCP_ZONE: us-central1-c
+  GCP_PROJECT_ID: lightstep-partnerships-demo
+  DEFAULT_IMAGE_REPO: gcr.io/${{ secrets.GCP_PROJECT_ID }}
+  GCP_K8S_CLUSTER: cluster-1
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+#      - uses: actions/setup-python@v2
+
+      - uses: azure/setup-kubectl@v1
+        id: install
+
+      - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - name: Get gcloud cluster credentials
+        run: |
+          gcloud config set compute/zone ${{ env.GCP_ZONE }}
+          gcloud container clusters get-credentials ${{ env.GCP_K8S_CLUSTER }}
+
+      - name: Get k8s Context
+        run: |
+          kubectl config get-contexts
+          kubectl create secret generic lightstep-credentials --from-literal=accessToken=${{ secrets.LIGHTSTEP_ACCESS_TOKEN }} || echo "Secret already present, not updated."
+      
+      - name: Run Skaffold pipeline
+        uses: hiberbee/github-action-skaffold@latest
+        with:
+          command: run
+          default-repo: ${{ env.DEFAULT_IMAGE_REPO }}
