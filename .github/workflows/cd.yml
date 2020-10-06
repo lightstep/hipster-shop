@@ -41,6 +41,20 @@ jobs:
           kubectl config get-contexts
           kubectl create secret generic lightstep-credentials --from-literal=accessToken=${{ secrets.LIGHTSTEP_ACCESS_TOKEN }} || echo "Secret already present, not updated."
       
+      - name: Setup Docker Cache
+        env:
+          DOCKER_PASSWORD: ${{ secrets.GCP_SA_JSON }}
+        run: |
+          docker login -u _json_key -p $DOCKER_PASSWORD https://gcr.io
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/emailservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/productcatalogservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/recommendationservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/shippingservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/checkoutservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/currencyservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/paymentservice -a
+          docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/frontend -a
+
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@latest
         with:
