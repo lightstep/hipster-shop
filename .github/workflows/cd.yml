@@ -45,7 +45,7 @@ jobs:
         env:
           DOCKER_PASSWORD: ${{ secrets.GCP_SA_JSON }}
         run: |
-          docker login -u _json_key -p $DOCKER_PASSWORD https://gcr.io
+          gcloud auth configure-docker gcr.io
           docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/emailservice -a
           docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/productcatalogservice -a
           docker pull gcr.io/${{ secrets.GCP_PROJECT_ID }}/recommendationservice -a
