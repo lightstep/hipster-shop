@@ -9,9 +9,10 @@ on:
 
 env:
   GCP_ZONE: us-central1-c
+  GCP_REGION: us-central1
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   DEFAULT_IMAGE_REPO: gcr.io/${{ secrets.GCP_PROJECT_ID }}
-  GCP_K8S_CLUSTER: hipster-shop-cluster
+  GCP_K8S_CLUSTER: gke-hipster-shop
 
 jobs:
   pipeline:
@@ -31,7 +32,7 @@ jobs:
 
       - name: Get gcloud cluster credentials
         run: |
-          gcloud config set compute/zone ${{ env.GCP_ZONE }}
+          gcloud config set compute/region ${{ env.GCP_REGION }}
           gcloud container clusters get-credentials ${{ env.GCP_K8S_CLUSTER }}
           gcloud auth configure-docker
 

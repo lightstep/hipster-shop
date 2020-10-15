@@ -10,34 +10,43 @@ variable "project" {}
 
 # to load credentials, run:
 # `gcloud auth application-default login`
-provider "google" {
-  project     = var.project
-  region      = var.region
-}
+#provider "google" {
+#  project     = var.project
+#  region      = var.region
+#}
 
-resource "google_container_cluster" "primary" {
-  name     = "hipster-shop-cluster"
-  location = var.zone
+module "gke" {
+  source                     = "terraform-google-modules/kubernetes-engine/google"
+  project_id                 = var.project
+  name                       = "gke-hipster-shop"
+  region                     = "us-central1"
+  zones                      = ["us-central1-c"]
+  network                    = "default"
+  subnetwork                 = ""
+  ip_range_pods              = ""
+  ip_range_services          = ""
 
-  # We can't create a cluster without a node pool defined, but we want to only use
-  # separately managed node pools. So we create the smallest possible default
-  # node pool and immediately delete it.
-  remove_default_node_pool = true
-  initial_node_count       = 1
-}
+  horizontal_pod_autoscaling = true
+  grant_registry_access      = true
+  create_service_account     = true
 
-resource "google_container_node_pool" "primary_preemptible_nodes" {
-  name       = "my-node-pool"
-  location   = var.zone
-  cluster    = google_container_cluster.primary.name
-  node_count = 4
+  node_pools = [
+    {
+      name               = "default-node-pool"
+      min_count          = 1
+      max_count          = 4
+      auto_repair        = false
+      auto_upgrade       = true
+      preemptible        = true
+      initial_node_count = 4
+    },
+  ]
 
-  node_config {
-    preemptible  = true
+  node_pools_oauth_scopes = {
+    all = []
 
-    oauth_scopes = [
-      "https://www.googleapis.com/auth/logging.write",
-      "https://www.googleapis.com/auth/monitoring",
+    default-node-pool = [
+      "https://www.googleapis.com/auth/cloud-platform",
     ]
   }
 }
