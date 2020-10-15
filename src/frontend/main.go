@@ -166,15 +166,16 @@ func initLightstepTracing(log logrus.FieldLogger) {
 	}
 
 	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector:   lightstep.Endpoint{
-			Host: os.Getenv("LIGHTSTEP_HOST"),
-			Port: port,
+		Collector: lightstep.Endpoint{
+			Host:      os.Getenv("LIGHTSTEP_HOST"),
+			Port:      port,
 			Plaintext: os.Getenv("LIGHTSTEP_PLAINTEXT") == "true",
 		},
 		AccessToken: lsAccessToken,
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: lsComponentName,
-			lightstep.HostnameKey: "frontend-0",
+			lightstep.HostnameKey:      "frontend-0",
+			"service.sha":              os.Getenv("SERVICE_SHA"),
 		},
 		Propagators: propagators,
 	})

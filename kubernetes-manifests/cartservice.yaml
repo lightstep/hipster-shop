@@ -51,10 +51,10 @@ spec:
           value: "false"
         resources:
           requests:
-            cpu: 200m
+            cpu: 150m
             memory: 64Mi
           limits:
-            cpu: 300m
+            cpu: 200m
             memory: 128Mi
         readinessProbe:
           initialDelaySeconds: 15

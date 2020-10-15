@@ -38,6 +38,9 @@ build:
     context: src/cartservice
   - image: frontend
     context: src/frontend
+    docker:
+      buildArgs:
+        SERVICE_SHA: "{{.GITHUB_SHA}}"
   - image: loadgenerator
     context: src/loadgenerator
   - image: adservice

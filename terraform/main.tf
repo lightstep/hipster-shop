@@ -8,12 +8,8 @@ variable "zone" {
 
 variable "project" {}
 
-# to load credentials, run:
+# to load credentials before running `terraform apply`, run:
 # `gcloud auth application-default login`
-#provider "google" {
-#  project     = var.project
-#  region      = var.region
-#}
 
 module "gke" {
   source                     = "terraform-google-modules/kubernetes-engine/google"
@@ -33,12 +29,12 @@ module "gke" {
   node_pools = [
     {
       name               = "default-node-pool"
-      min_count          = 1
-      max_count          = 4
+      min_count          = 6
+      max_count          = 6
       auto_repair        = false
       auto_upgrade       = true
       preemptible        = true
-      initial_node_count = 4
+      initial_node_count = 6
     },
   ]
 

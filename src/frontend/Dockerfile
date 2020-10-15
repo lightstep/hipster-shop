@@ -12,6 +12,9 @@ RUN dep ensure --vendor-only -v
 COPY . .
 RUN go install .
 
+ARG SERVICE_SHA
+ENV SERVICE_SHA ${SERVICE_SHA}
+
 FROM alpine as release
 RUN apk add --no-cache ca-certificates \
     busybox-extras net-tools bind-tools

@@ -1,14 +1,7 @@
-name: Deploy to GCP Kubernetes Cluster
-on:
-  pull_request:
-    paths:
-      - .github/**
-      - src/**
-      - kubernetes-mainifests/**
-      - skaffold.yaml
+name: Deploy to GKE
+on: pull_request
 
 env:
-  GCP_ZONE: us-central1-c
   GCP_REGION: us-central1
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   DEFAULT_IMAGE_REPO: gcr.io/${{ secrets.GCP_PROJECT_ID }}

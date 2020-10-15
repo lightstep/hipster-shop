@@ -11,3 +11,4 @@ pkg/
 .kubernetes-manifests-*/
 .terraform
 *.tfstate
+*.tfstate.backup
