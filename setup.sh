@@ -17,8 +17,9 @@ kube_node_check () {
 
 # Lightstep access token
 set_ls_credentials () {
+  echo
   echo Setting up an lightstep-credentials secret in Kubernetes
-  kubectl create secret generic lightstep-credentials --from-literal=accessToken="$LIGHTSTEP_ACCESS_TOKEN" || echo "Secret already present, not updated."
+  kubectl create secret generic lightstep-credentials --from-literal=accessToken="$LIGHTSTEP_ACCESS_TOKEN" || echo "Secret already present, not updated. If you've changed your access token please run 'make clean' before running 'make setup' again"
   echo
 }
 
