@@ -43,6 +43,6 @@ jobs:
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@latest
         with:
-          # no-prune and cache-artificts due to docker-in-docker running out of disk space
-          command: run --no-prune=false --cache-artifacts=false
+          command: run
+          profile: gcb
           default-repo: ${{ env.DEFAULT_IMAGE_REPO }}
