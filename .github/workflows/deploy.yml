@@ -34,9 +34,33 @@ jobs:
           kubectl config get-contexts
           kubectl create secret generic lightstep-credentials --from-literal=accessToken=${{ secrets.LIGHTSTEP_ACCESS_TOKEN }} || echo "Secret already present, not updated."
 
-      - name: Run Skaffold pipeline
+      - uses: chrnorm/deployment-action@releases/v1
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: ${{ secrets.GITHUB_PAT }}
+          environment: production
+          ref: ${{ github.ref }}
+
+      - name: Run Skaffold
         uses: hiberbee/github-action-skaffold@latest
         with:
           command: run
           profile: gcb
           default-repo: ${{ env.DEFAULT_IMAGE_REPO }}
+
+      - name: Update deployment status (success)
+        if: success()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ secrets.GITHUB_PAT }}
+          state: "success"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Update deployment status (failure)
+        if: failure()
+        uses: chrnorm/deployment-status@releases/v1
+        with:
+          token: ${{ secrets.GITHUB_PAT }}
+          state: "failure"
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
