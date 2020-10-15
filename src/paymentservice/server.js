@@ -25,6 +25,7 @@ const tracer = require('ls-trace').init({
         version: VERSION
       },
       platform : require('os').platform(),
+      sha: process.env.SERVICE_SHA,
       lightstep: {
         service_name: 'paymentservice',
         access_token: process.env.LIGHTSTEP_ACCESS_TOKEN

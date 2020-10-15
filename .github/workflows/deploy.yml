@@ -1,5 +1,8 @@
 name: Deploy to GKE
-on: pull_request
+on:
+  push:
+    branches:
+      - master
 
 env:
   GCP_REGION: us-central1

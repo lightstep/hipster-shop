@@ -40,6 +40,7 @@ const tracer = require('ls-trace').init({
       service: {
         version: VERSION
       },
+      sha: process.env.SERVICE_SHA,
       platform : require('os').platform(),
       lightstep: {
         service_name: 'currencyservice',

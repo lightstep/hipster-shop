@@ -175,7 +175,7 @@ func initLightstepTracing(log logrus.FieldLogger) {
 		Tags: map[string]interface{}{
 			lightstep.ComponentNameKey: lsComponentName,
 			lightstep.HostnameKey:      "frontend-0",
-			"service.sha":              os.Getenv("SERVICE_SHA"),
+			"sha":                      os.Getenv("SERVICE_SHA"),
 		},
 		Propagators: propagators,
 	})
