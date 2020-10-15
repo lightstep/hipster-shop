@@ -9,9 +9,9 @@ on:
 
 env:
   GCP_ZONE: us-central1-c
-  GCP_PROJECT_ID: lightstep-partnerships-demo
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   DEFAULT_IMAGE_REPO: gcr.io/${{ secrets.GCP_PROJECT_ID }}
-  GCP_K8S_CLUSTER: cluster-1
+  GCP_K8S_CLUSTER: hipster-shop-cluster
 
 jobs:
   pipeline:
@@ -19,8 +19,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
-
-#      - uses: actions/setup-python@v2
 
       - uses: azure/setup-kubectl@v1
         id: install
@@ -35,6 +33,7 @@ jobs:
         run: |
           gcloud config set compute/zone ${{ env.GCP_ZONE }}
           gcloud container clusters get-credentials ${{ env.GCP_K8S_CLUSTER }}
+          gcloud auth configure-docker
 
       - name: Get k8s Context
         run: |
@@ -44,5 +43,6 @@ jobs:
       - name: Run Skaffold pipeline
         uses: hiberbee/github-action-skaffold@latest
         with:
-          command: run
+          # no-prune and cache-artificts due to docker-in-docker running out of disk space
+          command: run --no-prune=false --cache-artifacts=false
           default-repo: ${{ env.DEFAULT_IMAGE_REPO }}
