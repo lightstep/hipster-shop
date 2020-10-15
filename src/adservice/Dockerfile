@@ -13,6 +13,9 @@ RUN ./gradlew installDist
 
 FROM openjdk:8-slim
 
+ARG SERVICE_SHA
+ENV SERVICE_SHA ${SERVICE_SHA}
+
 # Download Stackdriver Profiler Java agent
 RUN apt-get -y update && apt-get install -qqy \
     wget \

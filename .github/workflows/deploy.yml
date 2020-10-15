@@ -1,8 +1,9 @@
 name: Deploy to GKE
-on:
-  push:
-    branches:
-      - master
+on: pull_request
+#on:
+#  push:
+#    branches:
+#      - master
 
 env:
   GCP_REGION: us-central1
@@ -41,7 +42,7 @@ jobs:
         name: Create GitHub deployment
         id: deployment
         with:
-          token: ${{ secrets.GITHUB_PAT }}
+          token: ${{ secrets.GIT_PAT }}
           environment: production
           ref: ${{ github.ref }}
 
@@ -56,7 +57,7 @@ jobs:
         if: success()
         uses: chrnorm/deployment-status@releases/v1
         with:
-          token: ${{ secrets.GITHUB_PAT }}
+          token: ${{ secrets.GIT_PAT }}
           state: "success"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
 
