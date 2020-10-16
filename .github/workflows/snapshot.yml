@@ -9,10 +9,6 @@ jobs:
     if: github.event.deployment_status.state == 'success'
 
     steps:
-      - name: 🛎️ Checkout
-        if: success()
-        uses: actions/checkout@v2
-
       - name: 📸 Take Lightstep Snapshot 
         id: lightstep-snapshot
         uses: lightstep/lightstep-action-snapshot@master
