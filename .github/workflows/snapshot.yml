@@ -1,0 +1,24 @@
+name: Lightstep Snapshot
+
+on: deployment_status
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    name: Attach Snapshot to Repository
+    if: github.event.deployment_status.state == 'success'
+
+    steps:
+      - name: 🛎️ Checkout
+        if: success()
+        uses: actions/checkout@v2
+
+      - name: 📸 Take Lightstep Snapshot 
+        id: lightstep-snapshot
+        uses: lightstep/lightstep-action-snapshot@master
+        with:
+          lightstep_api_key: ${{ secrets.LIGHTSTEP_API_TOKEN }}
+          lightstep_organization: LightStep
+          lightstep_project: Robin-Hipster-Shop
+          lightstep_snapshot_query: 'service IN ("frontend")'
+#          lightstep_snapshot_query: '"service.version" IN ("${{ github.event.deployment.sha }}")'

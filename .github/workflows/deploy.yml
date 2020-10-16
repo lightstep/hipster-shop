@@ -65,6 +65,6 @@ jobs:
         if: failure()
         uses: chrnorm/deployment-status@releases/v1
         with:
-          token: ${{ secrets.GITHUB_PAT }}
+          token: ${{ secrets.GIT_PAT }}
           state: "failure"
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
