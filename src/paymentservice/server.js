@@ -12,35 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const VERSION = require('./package.json').version;
-
-let scheme = process.env.LIGHTSTEP_PLAINTEXT == "true" ? 'http' : 'https';
-
-const tracer = require('ls-trace').init({
-    experimental: {
-      b3: true
-    },
-    tags: {
-      service: {
-        version: VERSION
-      },
-      platform : require('os').platform(),
-      lightstep: {
-        service_name: 'paymentservice',
-        access_token: process.env.LIGHTSTEP_ACCESS_TOKEN
-      }
-    },
-    url: scheme + '://' + process.env.LIGHTSTEP_HOST,
-    port: process.env.LIGHTSTEP_PORT
-})
-
-const opentracing = require('opentracing');
-opentracing.initGlobalTracer(tracer);
-
 const path = require('path');
 const grpc = require('grpc');
 const pino = require('pino');
 const protoLoader = require('@grpc/proto-loader');
+const { opentelemetry } = require('lightstep-opentelemetry-launcher-node');
 
 const charge = require('./charge');
 
@@ -50,6 +26,8 @@ const logger = pino({
   changeLevelName: 'severity',
   useLevelLabels: true
 });
+
+const tracer = opentelemetry.trace.getTracer('paymentservice');
 
 class HipsterShopServer {
   constructor(protoRoot, port = HipsterShopServer.PORT) {
@@ -70,25 +48,22 @@ class HipsterShopServer {
    * @param {*} callback  fn(err, ChargeResponse)
    */
   static ChargeServiceHandler(call, callback) {
-    const parentSpan = tracer.scope().active();
-    const span = tracer.startSpan('ChargeServiceHandler', { childOf: parentSpan });
-    try {
-      logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
-      const response = charge(call.request);
-      callback(null, response);
-      span.finish();
-    } catch (err) {
-      console.warn(err);
-      span.setTag('error', true);
-      span.log({
-        event: `conversion request failed: ${err}`,
-        'error.object': err,
-        message: err.message,
-        stack: err.stack
-      });
-      callback(err);
-      span.finish();
-    }
+    tracer.withSpan(tracer.getCurrentSpan(), () => {
+      try {
+        logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
+        const response = charge(call.request);
+        callback(null, response);
+      } catch (err) {
+        console.warn(err);
+        span.setAttributes('error', true);
+        span.addEvent(`conversion request failed: ${err}`, {
+          'error.object': err,
+          message: err.message,
+          stack: err.stack
+        });
+        callback(err);
+      }
+    });
   }
 
   static CheckHandler(call, callback) {
