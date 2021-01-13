@@ -18,19 +18,10 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strconv"
 	"time"
 
-	"cloud.google.com/go/profiler"
-	"contrib.go.opencensus.io/exporter/stackdriver"
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
-	"github.com/lightstep/lightstep-tracer-go"
-	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
-	"go.opencensus.io/exporter/jaeger"
-	"go.opencensus.io/plugin/ocgrpc"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -38,6 +29,8 @@ import (
 	"google.golang.org/grpc/status"
 
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/shippingservice/genproto"
+	"github.com/lightstep/otel-launcher-go/launcher"
+	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
@@ -62,9 +55,8 @@ func init() {
 }
 
 func main() {
-	initTracing()
-	go initProfiling("shippingservice", "1.0.0")
-	tracer := opentracing.GlobalTracer()
+	otel := initLightstepTracing(log)
+	defer otel.Shutdown()
 
 	port := defaultPort
 	if value, ok := os.LookupEnv("PORT"); ok {
@@ -77,11 +69,8 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	srv := grpc.NewServer(
-		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
-		grpc.UnaryInterceptor(
-			otgrpc.OpenTracingServerInterceptor(tracer)),
-		grpc.StreamInterceptor(
-			otgrpc.OpenTracingStreamServerInterceptor(tracer)),
+		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
+		grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
 	)
 	svc := &server{}
 	pb.RegisterShippingServiceServer(srv, svc)
@@ -146,114 +135,17 @@ func (s *server) ShipOrder(ctx context.Context, in *pb.ShipOrderRequest) (*pb.Sh
 	}, nil
 }
 
-func initJaegerTracing() {
-	svcAddr := os.Getenv("JAEGER_SERVICE_ADDR")
-	if svcAddr == "" {
-		log.Info("jaeger initialization disabled.")
-		return
-	}
 
-	// Register the Jaeger exporter to be able to retrieve
-	// the collected spans.
-	exporter, err := jaeger.NewExporter(jaeger.Options{
-		Endpoint: fmt.Sprintf("http://%s", svcAddr),
-		Process: jaeger.Process{
-			ServiceName: "shippingservice",
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	trace.RegisterExporter(exporter)
-	log.Info("jaeger initialization completed.")
+
+func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
+	launcher := launcher.ConfigureOpentelemetry(
+		launcher.WithLogLevel("debug"),
+		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
+			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
+		launcher.WithPropagators([]string{"b3", "cc"}),
+		launcher.WithLogger(log),
+	)
+	log.Info("Initialized Lightstep OpenTelemetry launcher")
+	return launcher
 }
 
-func initStats(exporter *stackdriver.Exporter) {
-	view.SetReportingPeriod(60 * time.Second)
-	view.RegisterExporter(exporter)
-	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
-		log.Warn("Error registering default server views")
-	} else {
-		log.Info("Registered default server views")
-	}
-}
-
-func initStackdriverTracing() {
-	// TODO(ahmetb) this method is duplicated in other microservices using Go
-	// since they are not sharing packages.
-	for i := 1; i <= 3; i++ {
-		exporter, err := stackdriver.NewExporter(stackdriver.Options{})
-		if err != nil {
-			log.Warnf("failed to initialize Stackdriver exporter: %+v", err)
-		} else {
-			trace.RegisterExporter(exporter)
-			trace.ApplyConfig(trace.Config{DefaultSampler: trace.AlwaysSample()})
-			log.Info("registered Stackdriver tracing")
-
-			// Register the views to collect server stats.
-			initStats(exporter)
-			return
-		}
-		d := time.Second * 10 * time.Duration(i)
-		log.Infof("sleeping %v to retry initializing Stackdriver exporter", d)
-		time.Sleep(d)
-	}
-	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
-}
-
-func initLighstepTracing() {
-	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
-		opentracing.HTTPHeaders: lightstep.B3Propagator,
-		opentracing.TextMap:     lightstep.B3Propagator,
-	}
-
-	port, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
-	if err != nil {
-		log.Warningf("could not parse port: %v", err)
-		port = 0
-	}
-
-	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector: lightstep.Endpoint{
-			Host: os.Getenv("LIGHTSTEP_HOST"),
-			Port: port,
-			Plaintext: os.Getenv("LIGHTSTEP_PLAINTEXT") == "true",
-		},
-		AccessToken: os.Getenv("LIGHTSTEP_ACCESS_TOKEN"),
-		Tags: map[string]interface{}{
-			lightstep.ComponentNameKey: "shippingservice",
-			lightstep.HostnameKey: "shippingservice-0",
-		},
-		Propagators: propagators,
-	})
-	opentracing.SetGlobalTracer(lightStepTracer)
-	log.Info("Initalized lightstep tracing")
-}
-
-func initTracing() {
-	initJaegerTracing()
-	go initStackdriverTracing()
-	initLighstepTracing()
-}
-
-func initProfiling(service, version string) {
-	// TODO(ahmetb) this method is duplicated in other microservices using Go
-	// since they are not sharing packages.
-	for i := 1; i <= 3; i++ {
-		if err := profiler.Start(profiler.Config{
-			Service:        service,
-			ServiceVersion: version,
-			// ProjectID must be set if not running on GCP.
-			// ProjectID: "my-project",
-		}); err != nil {
-			log.Warnf("failed to start profiler: %+v", err)
-		} else {
-			log.Info("started Stackdriver profiler")
-			return
-		}
-		d := time.Second * 10 * time.Duration(i)
-		log.Infof("sleeping %v to retry initializing Stackdriver profiler", d)
-		time.Sleep(d)
-	}
-	log.Warn("could not initialize Stackdriver profiler after retrying, giving up")
-}

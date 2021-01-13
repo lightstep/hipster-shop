@@ -25,7 +25,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/lightstep/otel-launcher-go/launcher"
 	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
-	httpotel "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"google.golang.org/grpc"
 )
 
@@ -113,6 +113,7 @@ func main() {
 	mustConnGRPC(ctx, &svc.adSvcConn, svc.adSvcAddr)
 
 	r := mux.NewRouter()
+	r.Use(otelmux.Middleware("frontend"))
 	r.HandleFunc("/", svc.homeHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc("/product/{id}", svc.productHandler).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc("/cart", svc.viewCartHandler).Methods(http.MethodGet, http.MethodHead)
@@ -129,9 +130,8 @@ func main() {
 	handler = &logHandler{log: log, next: handler} // add logging
 	handler = ensureSessionID(handler)             // add session ID
 
-	wrappedHandler := httpotel.NewHandler(handler, "/hello")
 	log.Infof("starting server on " + addr + ":" + srvPort)
-	log.Fatal(http.ListenAndServe(addr+":"+srvPort, wrappedHandler))
+	log.Fatal(http.ListenAndServe(addr+":"+srvPort, handler))
 }
 
 func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
