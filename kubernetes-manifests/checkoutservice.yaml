@@ -58,7 +58,7 @@ spec:
             value: "cartservice:7070"
           # Lightstep config
           - name: LS_SERVICE_NAME
-            value: currencyservice
+            value: checkoutservice
           - name: LS_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
