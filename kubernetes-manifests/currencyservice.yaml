@@ -39,7 +39,11 @@ spec:
         - name: PORT
           value: "7000"
         # Lightstep config
-        - name: LIGHTSTEP_ACCESS_TOKEN
+        # - name: OTEL_LOG_LEVEL
+        #  value: DEBUG
+        - name: LS_SERVICE_NAME
+          value: currencyservice
+        - name: LS_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
               name: lightstep-credentials

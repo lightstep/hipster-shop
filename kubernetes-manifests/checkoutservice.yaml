@@ -57,7 +57,9 @@ spec:
           - name: CART_SERVICE_ADDR
             value: "cartservice:7070"
           # Lightstep config
-          - name: LIGHTSTEP_ACCESS_TOKEN
+          - name: LS_SERVICE_NAME
+            value: checkoutservice
+          - name: LS_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
                 name: lightstep-credentials

@@ -36,7 +36,9 @@ spec:
           env:
             - name: PORT
               value: "50051"
-            - name: LIGHTSTEP_ACCESS_TOKEN
+            - name: LS_SERVICE_NAME
+              value: shippingservice
+            - name: LS_ACCESS_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: lightstep-credentials

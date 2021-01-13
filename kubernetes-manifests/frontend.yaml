@@ -70,7 +70,9 @@ spec:
             value: "checkoutservice:5050"
           - name: AD_SERVICE_ADDR
             value: "adservice:9555"
-          - name: LIGHTSTEP_ACCESS_TOKEN
+          - name: LS_SERVICE_NAME
+            value: frontend
+          - name: LS_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
                 name: lightstep-credentials

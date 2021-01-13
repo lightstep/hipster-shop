@@ -19,28 +19,18 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strconv"
 	"time"
 
-	"cloud.google.com/go/profiler"
-	"contrib.go.opencensus.io/exporter/stackdriver"
+	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
+	"github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
 	"github.com/google/uuid"
-	"github.com/lightstep/lightstep-tracer-go"
-	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
-	"go.opencensus.io/exporter/jaeger"
-	"go.opencensus.io/plugin/ocgrpc"
-	"go.opencensus.io/stats/view"
-	"go.opencensus.io/trace"
+	"github.com/lightstep/otel-launcher-go/launcher"
+	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-
-	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
-	money "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
-
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -74,9 +64,9 @@ type checkoutService struct {
 }
 
 func main() {
-	initTracing()
-	go initProfiling("checkoutservice", "1.0.0")
-	tracer := opentracing.GlobalTracer()
+	otel := initLightstepTracing(log)
+	defer otel.Shutdown()
+
 	port := listenPort
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
@@ -96,12 +86,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	srv := grpc.NewServer(
-		grpc.StatsHandler(&ocgrpc.ServerHandler{}),
-		grpc.UnaryInterceptor(
-			otgrpc.OpenTracingServerInterceptor(tracer)),
-		grpc.StreamInterceptor(
-			otgrpc.OpenTracingStreamServerInterceptor(tracer)),
+		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
+    	grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
 	)
 	pb.RegisterCheckoutServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
@@ -110,123 +98,17 @@ func main() {
 	log.Fatal(err)
 }
 
-func initLightstepTracing(log logrus.FieldLogger) {
-	lsAccessToken := os.Getenv("LIGHTSTEP_ACCESS_TOKEN")
-	lsComponentName := "checkoutservice"
-
-	propagators := map[opentracing.BuiltinFormat]lightstep.Propagator{
-		opentracing.HTTPHeaders: lightstep.B3Propagator,
-		opentracing.TextMap:     lightstep.B3Propagator,
-	}
-
-	port, err := strconv.Atoi(os.Getenv("LIGHTSTEP_PORT"))
-	if err != nil {
-		log.Warningf("could not parse port: %v", err)
-		port = 443
-	}
-
-	lightStepTracer := lightstep.NewTracer(lightstep.Options{
-		Collector: lightstep.Endpoint{
-			Host: os.Getenv("LIGHTSTEP_HOST"),
-			Port: port,
-			Plaintext: os.Getenv("LIGHTSTEP_PLAINTEXT") == "true",
-		},
-		AccessToken: lsAccessToken,
-		// BEGIN
-		// Override for GCP demo
-		Tags: map[string]interface{}{
-			lightstep.ComponentNameKey: lsComponentName,
-			lightstep.HostnameKey:      "checkoutservice-0",
-			"service.version":          "5.3.1",
-		},
-		// END
-		Propagators: propagators,
-	})
-	opentracing.SetGlobalTracer(lightStepTracer)
-
-	log.Info("Initalized lightstep exporter")
-}
-
-func initJaegerTracing() {
-	svcAddr := os.Getenv("JAEGER_SERVICE_ADDR")
-	if svcAddr == "" {
-		log.Info("jaeger initialization disabled.")
-		return
-	}
-
-	// Register the Jaeger exporter to be able to retrieve
-	// the collected spans.
-	exporter, err := jaeger.NewExporter(jaeger.Options{
-		Endpoint: fmt.Sprintf("http://%s", svcAddr),
-		Process: jaeger.Process{
-			ServiceName: "checkoutservice",
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	trace.RegisterExporter(exporter)
-	log.Info("jaeger initialization completed.")
-}
-
-func initStats(exporter *stackdriver.Exporter) {
-	view.SetReportingPeriod(60 * time.Second)
-	view.RegisterExporter(exporter)
-	if err := view.Register(ocgrpc.DefaultServerViews...); err != nil {
-		log.Warn("Error registering default server views")
-	} else {
-		log.Info("Registered default server views")
-	}
-}
-
-func initStackdriverTracing() {
-	// TODO(ahmetb) this method is duplicated in other microservices using Go
-	// since they are not sharing packages.
-	for i := 1; i <= 3; i++ {
-		exporter, err := stackdriver.NewExporter(stackdriver.Options{})
-		if err != nil {
-			log.Infof("failed to initialize stackdriver exporter: %+v", err)
-		} else {
-			trace.RegisterExporter(exporter)
-			log.Info("registered Stackdriver tracing")
-
-			// Register the views to collect server stats.
-			initStats(exporter)
-			return
-		}
-		d := time.Second * 10 * time.Duration(i)
-		log.Infof("sleeping %v to retry initializing Stackdriver exporter", d)
-		time.Sleep(d)
-	}
-	log.Warn("could not initialize Stackdriver exporter after retrying, giving up")
-}
-
-func initTracing() {
-	initJaegerTracing()
-	go initStackdriverTracing()
-	initLightstepTracing(log)
-}
-
-func initProfiling(service, version string) {
-	// TODO(ahmetb) this method is duplicated in other microservices using Go
-	// since they are not sharing packages.
-	for i := 1; i <= 3; i++ {
-		if err := profiler.Start(profiler.Config{
-			Service:        service,
-			ServiceVersion: version,
-			// ProjectID must be set if not running on GCP.
-			// ProjectID: "my-project",
-		}); err != nil {
-			log.Warnf("failed to start profiler: %+v", err)
-		} else {
-			log.Info("started Stackdriver profiler")
-			return
-		}
-		d := time.Second * 10 * time.Duration(i)
-		log.Infof("sleeping %v to retry initializing Stackdriver profiler", d)
-		time.Sleep(d)
-	}
-	log.Warn("could not initialize Stackdriver profiler after retrying, giving up")
+func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
+	launcher := launcher.ConfigureOpentelemetry(
+		launcher.WithServiceVersion("5.3.1"),
+		launcher.WithLogLevel("debug"),
+		launcher.WithPropagators([]string{"b3", "cc"}),
+		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
+			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
+		launcher.WithLogger(log),
+	)
+	log.Info("Initialized Lightstep OpenTelemetry launcher")
+	return launcher
 }
 
 func mustMapEnv(target *string, envKey string) {
@@ -461,14 +343,10 @@ func (cs *checkoutService) shipOrder(ctx context.Context, address *pb.Address, i
 // TODO: Dial and create client once, reuse.
 
 func getConnection(ctx context.Context, target string) (conn *grpc.ClientConn, err error) {
-	tracer := opentracing.GlobalTracer()
 	return grpc.DialContext(ctx,
 		target,
 		grpc.WithInsecure(),
-		grpc.WithUnaryInterceptor(
-			otgrpc.OpenTracingClientInterceptor(tracer)),
-		grpc.WithStreamInterceptor(
-			otgrpc.OpenTracingStreamClientInterceptor(tracer)),
-		grpc.WithStatsHandler(&ocgrpc.ClientHandler{}),
+		grpc.WithUnaryInterceptor(grpcotel.UnaryClientInterceptor()),
+		grpc.WithStreamInterceptor(grpcotel.StreamClientInterceptor()),
 	)
 }
