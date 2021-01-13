@@ -1,0 +1,15 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: emailservice
+  description: emailservice
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: emailservice
+  tags:
+    - python
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend

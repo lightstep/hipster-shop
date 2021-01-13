@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: recommendationservice
+  description: recommendationservice
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    pagerduty.com/service-slug: lightstep-integration/PAGV89W
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: recommendationservice
+  tags:
+    - python
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend

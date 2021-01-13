@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: apis
+  description: Hipster Shop apis
+spec:
+  targets:
+    - ./apis/currencyservice.yaml

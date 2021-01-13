@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: frontend
+  description: frontend
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    pagerduty.com/service-slug: lightstep-integration/PA0B3RR
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: frontend
+  tags:
+    - golang
+    - opentelemetry
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend
+  consumesApis:
+    - currencyservice-api

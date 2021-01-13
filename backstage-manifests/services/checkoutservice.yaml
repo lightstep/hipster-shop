@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: checkoutservice
+  description: checkoutservice
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: checkoutservice
+  tags:
+    - go
+    - opentelemetry
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend

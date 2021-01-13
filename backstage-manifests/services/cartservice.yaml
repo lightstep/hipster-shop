@@ -1,0 +1,16 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: cartservice
+  description: cartservice
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    pagerduty.com/service-slug: lightstep-integration/PESG8LJ
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: cartservice
+  tags:
+    - csharp
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend

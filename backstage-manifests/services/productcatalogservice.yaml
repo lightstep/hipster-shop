@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: productcatalogservice
+  description: productcatalogservice
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    pagerduty.com/service-slug: lightstep-integration/P2F6N3S
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: productcatalogservice
+  tags:
+    - go
+    - opentelemetry
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend

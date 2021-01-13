@@ -1,0 +1,42 @@
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: hipster-corp
+  description: The hipster-corp organization
+spec:
+  type: organization
+  profile:
+    displayName: Hipster Corp
+    email: info@hipstercorp.zzz
+    picture: https://example.com/logo.jpeg
+  children: [infrastructure, frontend, backend]
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: infrastructure
+  description: The infra team
+spec:
+  type: department
+  parent: hipster-corp
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: frontend
+  description: The frontend team
+spec:
+  type: department
+  parent: hipster-corp
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: backend
+  description: The backend team
+spec:
+  type: department
+  parent: hipster-corp
+  children: []

@@ -1,0 +1,19 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: currencyservice
+  description: currencyservice
+  annotations:
+    github.com/project-slug: lightstep/hipster-shop
+    pagerduty.com/service-slug: lightstep-integration/PI249B9
+    lightstep.com/project-slug: LightStep/Robin-Hipster-Shop
+    opentelemetry.io/service-name: currencyservice
+  tags:
+    - nodejs
+    - opentelemetry
+spec:
+  type: service
+  lifecycle: production
+  owner: team:backend
+  providesApis:
+    - currencyservice-api

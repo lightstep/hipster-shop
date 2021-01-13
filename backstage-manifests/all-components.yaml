@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: services
+  description: Hipster Shop services
+spec:
+  targets:
+    - ./services/adservice.yaml
+    - ./services/cartservice.yaml
+    - ./services/checkoutservice.yaml
+    - ./services/currencyservice.yaml
+    - ./services/emailservice.yaml
+    - ./services/frontend.yaml
+    - ./services/paymentservice.yaml
+    - ./services/productcatalogservice.yaml
+    - ./services/recommendationservice.yaml
+    - ./services/shippingservice.yaml
