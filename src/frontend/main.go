@@ -20,12 +20,13 @@ import (
 	"net/http"
 	"os"
 	"time"
+
 	"github.com/gorilla/mux"
+	"github.com/lightstep/otel-launcher-go/launcher"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
-	"github.com/lightstep/otel-launcher-go/launcher"
-	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 )
 
@@ -139,7 +140,6 @@ func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
 		launcher.WithLogLevel("debug"),
 		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
 			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
-		launcher.WithPropagators([]string{"b3", "cc"}),
 		launcher.WithLogger(log),
 	)
 	log.Info("Initialized Lightstep OpenTelemetry launcher")

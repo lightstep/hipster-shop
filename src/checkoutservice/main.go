@@ -24,8 +24,8 @@ import (
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
 	"github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
 	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"github.com/lightstep/otel-launcher-go/launcher"
+	"github.com/sirupsen/logrus"
 	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -89,7 +89,7 @@ func main() {
 
 	srv := grpc.NewServer(
 		grpc.UnaryInterceptor(grpcotel.UnaryServerInterceptor()),
-    	grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
+		grpc.StreamInterceptor(grpcotel.StreamServerInterceptor()),
 	)
 	pb.RegisterCheckoutServiceServer(srv, svc)
 	healthpb.RegisterHealthServer(srv, svc)
@@ -102,7 +102,6 @@ func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
 	launcher := launcher.ConfigureOpentelemetry(
 		launcher.WithServiceVersion("5.3.1"),
 		launcher.WithLogLevel("debug"),
-		launcher.WithPropagators([]string{"b3", "cc"}),
 		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
 			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
 		launcher.WithLogger(log),
