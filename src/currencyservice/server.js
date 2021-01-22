@@ -70,7 +70,9 @@ function main () {
      * Uses public data from European Central Bank
      */
     function _getCurrencyData (parentSpan, callback) {
+      const span = tracer.startSpan('_getCurrencyData', { parent : parentSpan });
       const data = require('./data/currency_conversion.json');
+      span.end();
       callback(data);
     }
 
@@ -91,6 +93,7 @@ function main () {
     function getSupportedCurrencies (call, callback) {
       const parentSpan = tracer.getCurrentSpan();
       const span = tracer.startSpan('getSupportedCurrencies', { parent : parentSpan });
+      span.setAttribute('vendor.error_id', '17343337');
       logger.info('Getting supported currencies...');
       _getCurrencyData(span, (data) => {
         callback(null, {currency_codes: Object.keys(data)});

@@ -19,7 +19,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/golang/protobuf/jsonpb"
 	"io/ioutil"
 	"net"
 	"os"
@@ -29,11 +28,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/golang/protobuf/jsonpb"
+
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/productcatalogservice/genproto"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 
-	"github.com/sirupsen/logrus"
 	"github.com/lightstep/otel-launcher-go/launcher"
+	"github.com/sirupsen/logrus"
 	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -131,9 +132,6 @@ func run(port string) string {
 func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
 	launcher := launcher.ConfigureOpentelemetry(
 		launcher.WithLogLevel("debug"),
-		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
-			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
-		launcher.WithPropagators([]string{"b3", "cc"}),
 		launcher.WithLogger(log),
 	)
 	log.Info("Initialized Lightstep OpenTelemetry launcher")

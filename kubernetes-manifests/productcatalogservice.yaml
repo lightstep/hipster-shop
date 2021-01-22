@@ -35,6 +35,10 @@ spec:
         - configMapRef:
             name: lightstep-configmap
         env:
+        - name: OTEL_EXPORTER_OTLP_SPAN_ENDPOINT
+          value: otel-collector:55680
+        - name: OTEL_EXPORTER_OTLP_SPAN_INSECURE
+          value: 'true'
         - name: PORT
           value: "3550"
         - name: LS_SERVICE_VERSION
