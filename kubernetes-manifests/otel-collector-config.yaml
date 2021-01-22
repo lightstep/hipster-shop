@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector
+  labels:
+    app: opentelemetry
+    component: otel-collector
+data:
+  otel-collector-config: |
+    extensions:
+        health_check:
+
+    receivers:
+        otlp:
+          protocols:
+              grpc:
+      
+    exporters:
+        logging:
+            loglevel: debug
+
+        # configuring otlp to public satellites
+        otlp:
+          endpoint: ingest.lightstep.com:443
+          headers: 
+            "lightstep-access-token": "<ACCESS TOKEN>"
+
+    processors:
+        batch:
+      
+    service:
+        extensions: [health_check]
+        pipelines:
+          traces:
+            receivers: [otlp]
+            exporters: [logging, otlp]
+            processors: [batch]
+          metrics:
+            receivers: [otlp]
+            exporters: [logging, otlp]
