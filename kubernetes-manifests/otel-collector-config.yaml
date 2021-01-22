@@ -23,7 +23,7 @@ data:
         otlp:
           endpoint: ingest.lightstep.com:443
           headers: 
-            "lightstep-access-token": "<ACCESS TOKEN>"
+            "lightstep-access-token": "${LS_ACCESS_TOKEN}"
 
     processors:
         batch:

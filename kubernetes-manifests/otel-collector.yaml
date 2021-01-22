@@ -1,4 +1,4 @@
-
+# based on: https://github.com/Hashfyre/otel-k8s
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -39,6 +39,13 @@ spec:
         - containerPort: 13133 # Default endpoint for health_check
         - containerPort: 55680 # Default endpoint for OpenTelemetry receiver.
 
+        env:
+        - name: LS_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: lightstep-credentials
+              key: accessToken
+
         volumeMounts:
         - name: otel-collector-config-vol
           mountPath: /conf
@@ -58,3 +65,16 @@ spec:
             items:
               - key: otel-collector-config
                 path: otel-collector-config.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+spec:
+  type: ClusterIP
+  selector:
+    app: opentelemetry
+  ports:
+    - name: grpc
+      port: 55680
+      targetPort: 55680

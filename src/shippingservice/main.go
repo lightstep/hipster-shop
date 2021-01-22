@@ -138,8 +138,6 @@ func (s *server) ShipOrder(ctx context.Context, in *pb.ShipOrderRequest) (*pb.Sh
 func initLightstepTracing(log logrus.FieldLogger) launcher.Launcher {
 	launcher := launcher.ConfigureOpentelemetry(
 		launcher.WithLogLevel("debug"),
-		launcher.WithSpanExporterEndpoint(fmt.Sprintf("%s:%s",
-			os.Getenv("LIGHTSTEP_HOST"), os.Getenv("LIGHTSTEP_PORT"))),
 		launcher.WithLogger(log),
 	)
 	log.Info("Initialized Lightstep OpenTelemetry launcher")
