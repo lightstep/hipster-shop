@@ -1,4 +1,4 @@
-FROM python:2.7-slim
+FROM python:3.7-slim
 RUN apt-get update -qqy && \
 	apt-get -qqy install wget g++ git && \
 	rm -rf /var/lib/apt/lists/*
@@ -14,8 +14,7 @@ RUN GRPC_HEALTH_PROBE_VERSION=v0.2.0 && \
 WORKDIR /recommendationservice
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN pip install ls-trace
-RUN pip install opentracing
+RUN pip install opentelemetry-launcher
 
 # add files into working directory
 COPY . .
@@ -24,4 +23,4 @@ COPY . .
 ENV PORT "8080"
 EXPOSE 8080
 
-ENTRYPOINT ["ls-trace-run", "python", "/recommendationservice/recommendation_server.py"]
+ENTRYPOINT ["opentelemetry-instrument", "python", "/recommendationservice/recommendation_server.py"]
