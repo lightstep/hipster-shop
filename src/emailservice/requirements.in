@@ -1,7 +1,10 @@
-google-api-core==1.6.0
-grpcio-health-checking==1.12.1
-grpcio==1.16.1
-jinja2==2.10
-opencensus[stackdriver]==0.1.10
+opentelemetry-launcher==0.17b0
 python-json-logger==0.1.9
-google-cloud-profiler==1.0.8
+grpcio-health-checking==1.13.0
+grpcio~=1.27
+
+# generated from: opentelemetry-bootstrap -a requirements
+opentelemetry-instrumentation-flask>=0.8b0
+opentelemetry-instrumentation-grpc>=0.8b0
+opentelemetry-instrumentation-jinja2>=0.8b0
+opentelemetry-instrumentation-sqlite3>=0.11b0
