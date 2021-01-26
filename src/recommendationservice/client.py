@@ -14,18 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ddtrace import tracer
-from ddtrace.propagation.b3 import B3HTTPPropagator
-tracer.configure(http_propagator=B3HTTPPropagator)
-
 import sys
 import grpc
 import demo_pb2
 import demo_pb2_grpc
-
-from opencensus.trace.tracer import Tracer
-from opencensus.trace.exporters import stackdriver_exporter
-from opencensus.trace.ext.grpc import client_interceptor
 
 from logger import getJSONLogger
 logger = getJSONLogger('recommendationservice-server')
@@ -36,13 +28,6 @@ if __name__ == "__main__":
         port = sys.argv[1]
     else:
         port = "8080"
-
-    try:
-        exporter = stackdriver_exporter.StackdriverExporter()
-        tracer = Tracer(exporter=exporter)
-        tracer_interceptor = client_interceptor.OpenCensusClientInterceptor(tracer, host_port='localhost:'+port)
-    except:
-        tracer_interceptor = client_interceptor.OpenCensusClientInterceptor()
 
     # set up server stub
     channel = grpc.insecure_channel('localhost:'+port)

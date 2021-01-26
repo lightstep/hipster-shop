@@ -20,17 +20,16 @@ const { lightstep } = require('lightstep-opentelemetry-launcher-node');
 const VERSION = require('./package.json').version;
 
 const sdk = lightstep.configureOpenTelemetry({
-  serviceVersion: VERSION
+  serviceVersion: VERSION,
+  logLevel: 'debug'
 });
 
 const path = require('path');
 sdk.start().then(() => {
   const HipsterShopServer = require('./server');
-
   const PORT = process.env['PORT'];
   const PROTO_PATH = path.join(__dirname, '/proto/');
-  
-  const server = new HipsterShopServer(PROTO_PATH, PORT);
+  const server = new HipsterShopServer(PROTO_PATH, PORT, sdk);
   
   server.listen();
 });

@@ -23,11 +23,10 @@ WORKDIR /email_server
 # get packages
 COPY requirements.txt .
 RUN pip install -r requirements.txt
-RUN pip install ls-trace
-RUN pip install opentracing
+RUN pip install opentelemetry-launcher
 
 # Add the application
 COPY . .
 
 EXPOSE 8080
-ENTRYPOINT [ "ls-trace-run", "python", "email_server.py" ]
+ENTRYPOINT [ "opentelemetry-instrument", "python", "email_server.py" ]

@@ -70,13 +70,8 @@ Find **Protocol Buffers Descriptions** at the [`./pb` directory](./pb).
 - **[gRPC](https://grpc.io):** Microservices use a high volume of gRPC calls to
   communicate to each other.
 - **[Istio](https://istio.io):** Application works on Istio service mesh.
-- **[OpenCensus](https://opencensus.io/) Tracing:** Most services are
-  instrumented using OpenCensus trace interceptors for gRPC/HTTP.
-- **[Stackdriver APM](https://cloud.google.com/stackdriver/):** Many services
-  are instrumented with **Profiling**, **Tracing** and **Debugging**. In
-  addition to these, using Istio enables features like Request/Response
-  **Metrics** and **Context Graph** out of the box. When it is running out of
-  Google Cloud, this code path remains inactive.
+- **[OpenTelemetry](https://opentelemetry.lightstep.com/) Tracing:** Most services are
+  instrumented using OpenTelemetry trace interceptors for gRPC/HTTP.
 - **[Skaffold](https://skaffold.dev):** Application
   is deployed to Kubernetes with a single command using Skaffold.
 - **Synthetic Load Generation:** The application demo comes with a background

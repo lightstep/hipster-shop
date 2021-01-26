@@ -14,21 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-from ddtrace import tracer
-from ddtrace.propagation.b3 import B3HTTPPropagator
-
-tracer.configure(
-    http_propagator=B3HTTPPropagator,
-    hostname=os.environ['LIGHTSTEP_HOST'],
-    port=os.environ['LIGHTSTEP_PORT'],
-    https=os.environ['LIGHTSTEP_PLAINTEXT'] is not "true"
-)
-tracer.set_tags(
-    {
-        "lightstep.service_name": "emailservice",
-        "lightstep.access_token": os.getenv("LIGHTSTEP_ACCESS_TOKEN"),
-    }
-)
 
 from concurrent import futures
 import argparse
@@ -36,28 +21,12 @@ import sys
 import time
 import grpc
 from jinja2 import Environment, FileSystemLoader, select_autoescape, TemplateError
-from google.api_core.exceptions import GoogleAPICallError
 
 import demo_pb2
 import demo_pb2_grpc
 from grpc_health.v1 import health_pb2
 from grpc_health.v1 import health_pb2_grpc
 
-from opencensus.trace.exporters import stackdriver_exporter
-from opencensus.trace.ext.grpc import server_interceptor
-from opencensus.trace.samplers import always_on
-
-# import googleclouddebugger
-import googlecloudprofiler
-
-try:
-    sampler = always_on.AlwaysOnSampler()
-    exporter = stackdriver_exporter.StackdriverExporter(
-        project_id=os.environ.get('GCP_PROJECT_ID'),
-        transport=AsyncTransport)
-    tracer_interceptor = server_interceptor.OpenCensusServerInterceptor(sampler, exporter)
-except:
-    tracer_interceptor = server_interceptor.OpenCensusServerInterceptor()
 
 # try:
 #     googleclouddebugger.enable(
@@ -121,7 +90,7 @@ class EmailService(BaseEmailService):
 
     try:
       EmailService.send_email(self.client, email, confirmation)
-    except GoogleAPICallError as err:
+    except err:
       context.set_details("An error occurred when sending the email.")
       print(err.message)
       context.set_code(grpc.StatusCode.INTERNAL)
@@ -140,8 +109,7 @@ class HealthCheck():
       status=health_pb2.HealthCheckResponse.SERVING)
 
 def start(dummy_mode):
-  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),
-                       interceptors=(tracer_interceptor,))
+  server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
   service = None
   if dummy_mode:
     service = DummyEmailService()
@@ -161,41 +129,7 @@ def start(dummy_mode):
   except KeyboardInterrupt:
     server.stop(0)
 
-def initStackdriverProfiling():
-  project_id = None
-  try:
-    project_id = os.environ["GCP_PROJECT_ID"]
-  except KeyError:
-    # Environment variable not set
-    pass
-
-  for retry in range(1,4):
-    try:
-      if project_id:
-        googlecloudprofiler.start(service='email_server', service_version='1.0.0', verbose=0, project_id=project_id)
-      else:
-        googlecloudprofiler.start(service='email_server', service_version='1.0.0', verbose=0)
-      logger.info("Successfully started Stackdriver Profiler.")
-      return
-    except (BaseException) as exc:
-      logger.info("Unable to start Stackdriver Profiler Python agent. " + str(exc))
-      if (retry < 4):
-        logger.info("Sleeping %d to retry initializing Stackdriver Profiler"%(retry*10))
-        time.sleep (1)
-      else:
-        logger.warning("Could not initialize Stackdriver Profiler after retrying, giving up")
-  return
-
 if __name__ == '__main__':
   logger.info('starting the email service in dummy mode.')
-  try:
-    enable_profiler = os.environ["ENABLE_PROFILER"]
-    if enable_profiler != "1":
-      raise KeyError()
-    else:
-      initStackdriverProfiling()
-  except KeyError:
-      logger.info("Skipping Stackdriver Profiler Python agent initialization. Set environment variable ENABLE_PROFILER=1 to enable.")
-
 
   start(dummy_mode = True)

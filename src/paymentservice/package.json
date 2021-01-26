@@ -13,9 +13,10 @@
   "dependencies": {
     "@grpc/proto-loader": "^0.1.0",
     "@opentelemetry/plugin-grpc": "^0.14.0",
+    "@opentelemetry/metrics": "^0.14.0",
     "grpc": "^1.24.4",
     "pino": "^5.6.2",
-    "lightstep-opentelemetry-launcher-node": "^0.13.0",
+    "lightstep-opentelemetry-launcher-node": "v0.13.1",
     "simple-card-validator": "^1.1.0",
     "uuid": "^3.2.1"
   },

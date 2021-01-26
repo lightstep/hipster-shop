@@ -14,34 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import os
-from ddtrace import tracer
-from ddtrace.propagation.b3 import B3HTTPPropagator
-
-tracer.configure(
-    http_propagator=B3HTTPPropagator,
-    hostname=os.environ['LIGHTSTEP_HOST'],
-    port=os.environ['LIGHTSTEP_PORT'],
-    https=os.environ['LIGHTSTEP_PLAINTEXT'] is not "true"
-)
-tracer.set_tags(
-    {
-        "lightstep.service_name": "recommendationservice",
-        "lightstep.access_token": os.getenv("LIGHTSTEP_ACCESS_TOKEN"),
-    }
-)
 
 import random
 import time
 import traceback
 from concurrent import futures
 
-import googleclouddebugger
-import googlecloudprofiler
 import grpc
-from opencensus.trace.exporters import print_exporter
-from opencensus.trace.exporters import stackdriver_exporter
-from opencensus.trace.ext.grpc import server_interceptor
-from opencensus.trace.samplers import always_on
 
 import demo_pb2
 import demo_pb2_grpc
@@ -50,31 +29,6 @@ from grpc_health.v1 import health_pb2_grpc
 
 from logger import getJSONLogger
 logger = getJSONLogger('recommendationservice-server')
-
-def initStackdriverProfiling():
-  project_id = None
-  try:
-    project_id = os.environ["GCP_PROJECT_ID"]
-  except KeyError:
-    # Environment variable not set
-    pass
-
-  for retry in xrange(1,4):
-    try:
-      if project_id:
-        googlecloudprofiler.start(service='recommendation_server', service_version='1.0.0', verbose=0, project_id=project_id)
-      else:
-        googlecloudprofiler.start(service='recommendation_server', service_version='1.0.0', verbose=0)
-      logger.info("Successfully started Stackdriver Profiler.")
-      return
-    except (BaseException) as exc:
-      logger.info("Unable to start Stackdriver Profiler Python agent. " + str(exc))
-      if (retry < 4):
-        logger.info("Sleeping %d seconds to retry Stackdriver Profiler agent initialization"%(retry*10))
-        time.sleep (1)
-      else:
-        logger.warning("Could not initialize Stackdriver Profiler after retrying, giving up")
-  return
 
 class RecommendationService(demo_pb2_grpc.RecommendationServiceServicer):
     def ListRecommendations(self, request, context):
@@ -103,34 +57,6 @@ class RecommendationService(demo_pb2_grpc.RecommendationServiceServicer):
 if __name__ == "__main__":
     logger.info("initializing recommendationservice")
 
-    try:
-      enable_profiler = os.environ["ENABLE_PROFILER"]
-      if enable_profiler != "1":
-        raise KeyError()
-      else:
-        initStackdriverProfiling()
-    except KeyError:
-      logger.info("Skipping Stackdriver Profiler Python agent initialization. Set environment variable ENABLE_PROFILER=1 to enable.")
-
-    try:
-        sampler = always_on.AlwaysOnSampler()
-        exporter = stackdriver_exporter.StackdriverExporter(
-            project_id=os.environ.get('GCP_PROJECT_ID'),
-            transport=AsyncTransport)
-        tracer_interceptor = server_interceptor.OpenCensusServerInterceptor(sampler, exporter)
-    except:
-        tracer_interceptor = server_interceptor.OpenCensusServerInterceptor()
-
-    try:
-        googleclouddebugger.enable(
-            module='recommendationserver',
-            version='1.0.0'
-        )
-    except Exception, err:
-        logger.error("could not enable debugger")
-        logger.error(traceback.print_exc())
-        pass
-
     port = os.environ.get('PORT', "8080")
     catalog_addr = os.environ.get('PRODUCT_CATALOG_SERVICE_ADDR', '')
     if catalog_addr == "":
@@ -140,8 +66,7 @@ if __name__ == "__main__":
     product_catalog_stub = demo_pb2_grpc.ProductCatalogServiceStub(channel)
 
     # create gRPC server
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10),
-                      interceptors=(tracer_interceptor,))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # add class to gRPC server
     service = RecommendationService()
