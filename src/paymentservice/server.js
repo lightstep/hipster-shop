@@ -33,12 +33,7 @@ const tracer = opentelemetry.trace.getTracer('paymentservice');
 class HipsterShopServer {
   constructor(protoRoot, port = HipsterShopServer.PORT, sdk) {
     this.port = port;
-
-    this.meter = new MeterProvider({
-      exporter: sdk._meterProvider._config.exporter,
-      interval: 1000,
-    }).getMeter('paymentservice-meter');
-
+    this.meter = sdk._meterProvider.getMeter('paymentservice@0.12.1')
     this.paymentRecorder = this.meter.createValueRecorder('charge', { description: 'paymentservice transaction amount' })
 
     this.packages = {
@@ -59,7 +54,9 @@ class HipsterShopServer {
     tracer.withSpan(tracer.getCurrentSpan(), () => {
       try {
         logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
-        this.paymentRecorder.record(call.request.amount.units, {})
+        const labels = {};
+        const units = parseFloat(call.request.amount.units);
+        this.paymentRecorder.bind(labels).record(units);
         const response = charge(call.request);
         callback(null, response);
       } catch (err) {

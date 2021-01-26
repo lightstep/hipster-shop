@@ -20,7 +20,8 @@ const { lightstep } = require('lightstep-opentelemetry-launcher-node');
 const VERSION = require('./package.json').version;
 
 const sdk = lightstep.configureOpenTelemetry({
-  serviceVersion: VERSION
+  serviceVersion: VERSION,
+  logLevel: 'debug'
 });
 
 const path = require('path');
