@@ -11,6 +11,13 @@ data:
         health_check:
 
     receivers:
+        redis:
+          endpoint: "${REDIS_ADDR}"
+          service_name: "redis"
+          collection_interval: 10s
+        k8s_cluster:
+          auth_type: serviceAccount
+          node_conditions_to_report: [Ready, MemoryPressure]
         otlp:
           protocols:
               grpc:
@@ -36,5 +43,5 @@ data:
             exporters: [logging, otlp]
             processors: [batch]
           metrics:
-            receivers: [otlp]
+            receivers: [otlp, redis, k8s_cluster]
             exporters: [logging, otlp]
