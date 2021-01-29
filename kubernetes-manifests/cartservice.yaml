@@ -41,8 +41,10 @@ spec:
           value: "7070"
         - name: LISTEN_ADDR
           value: "0.0.0.0"
-          # Lightstep config
-        - name: LIGHTSTEP_ACCESS_TOKEN
+        # Lightstep config
+        - name: LS_SERVICE_NAME
+          value: cartservice
+        - name: LS_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
               name: lightstep-credentials

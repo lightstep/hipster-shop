@@ -13,16 +13,11 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using cartservice.interfaces;
-using Google.Protobuf;
 using Grpc.Core;
-using Hipstershop;
-using OpenTracing.Util;
 using StackExchange.Redis;
+using Google.Protobuf;
 
 namespace cartservice.cartstore
 {
@@ -40,23 +35,6 @@ namespace cartservice.cartstore
 
         private readonly ConfigurationOptions redisConnectionOptions;
 
-        private const string updateUserProfileTag = "update_user_profile";
-        // If updateUserProfileValue is true, then this service
-        // will experience a performance regression.
-        // if updateUserProfileValue is false, then this service
-        // will be fast.
-        //
-        // The demo flow should be the following
-        // - Start with false, leave for N minutes (30?), let it bake.
-        // - Flip to true, leave for M minutes (5?), then find the regression,
-        // using LightStep.
-        // - Rollback to false, things recover.
-        public static bool updateUserProfileValue = (Environment.GetEnvironmentVariable("HIPSTER_SICK") == "true");
-        private const int updateUserProfileDelayMillis = 3000;
-
-        public const string HealthyVersion = "1.0.1";
-        public const string UnhealthyVersion = "1.0.2";
-
         public RedisCartStore(string redisAddress)
         {
             // Serialize empty cart into byte array.
@@ -73,197 +51,160 @@ namespace cartservice.cartstore
             redisConnectionOptions.KeepAlive = 180;
         }
 
-        public void updateUserProfile()
-        {
-            var scope = GlobalTracer.Instance.ScopeManager.Active;
-            var span = scope.Span;
-            span.SetTag(updateUserProfileTag, updateUserProfileValue);
-
-            if (!updateUserProfileValue)
-            {
-                return;
-            }
-            using (GlobalTracer.Instance.BuildSpan("UpdateUserProfile").StartActive())
-            {
-                Thread.Sleep(updateUserProfileDelayMillis);
-            }
-        }
-
         public Task InitializeAsync()
         {
-            using (GlobalTracer.Instance.BuildSpan("InitializeAsync").StartActive())
-            {
-                EnsureRedisConnected();
-                return Task.CompletedTask;
-            }
+            EnsureRedisConnected();
+            return Task.CompletedTask;
         }
 
         private void EnsureRedisConnected()
         {
-            using (GlobalTracer.Instance.BuildSpan("EnsureRedisConnected").StartActive())
+            if (isRedisConnectionOpened)
+            {
+                return;
+            }
+
+            // Connection is closed or failed - open a new one but only at the first thread
+            lock (locker)
             {
                 if (isRedisConnectionOpened)
                 {
                     return;
                 }
 
-                // Connection is closed or failed - open a new one but only at the first thread
-                lock (locker)
+                Console.WriteLine("Connecting to Redis: " + connectionString);
+                redis = ConnectionMultiplexer.Connect(redisConnectionOptions);
+
+                if (redis == null || !redis.IsConnected)
                 {
-                    if (isRedisConnectionOpened)
-                    {
-                        return;
-                    }
+                    Console.WriteLine("Wasn't able to connect to redis");
 
-                    Console.WriteLine("Connecting to Redis: " + connectionString);
-                    redis = ConnectionMultiplexer.Connect(redisConnectionOptions);
-
-                    if (redis == null || !redis.IsConnected)
-                    {
-                        Console.WriteLine("Wasn't able to connect to redis");
-
-                        // We weren't able to connect to redis despite 5 retries with exponential backoff
-                        throw new ApplicationException("Wasn't able to connect to redis");
-                    }
-
-                    Console.WriteLine("Successfully connected to Redis");
-                    var cache = redis.GetDatabase();
-
-                    Console.WriteLine("Performing small test");
-                    cache.StringSet("cart", "OK");
-                    object res = cache.StringGet("cart");
-                    Console.WriteLine($"Small test result: {res}");
-
-                    redis.InternalError += (o, e) => { Console.WriteLine(e.Exception); };
-                    redis.ConnectionRestored += (o, e) =>
-                    {
-                        isRedisConnectionOpened = true;
-                        Console.WriteLine("Connection to redis was retored successfully");
-                    };
-                    redis.ConnectionFailed += (o, e) =>
-                    {
-                        Console.WriteLine("Connection failed. Disposing the object");
-                        isRedisConnectionOpened = false;
-                    };
-
-                    isRedisConnectionOpened = true;
+                    // We weren't able to connect to redis despite 5 retries with exponential backoff
+                    throw new ApplicationException("Wasn't able to connect to redis");
                 }
+
+                Console.WriteLine("Successfully connected to Redis");
+                var cache = redis.GetDatabase();
+
+                Console.WriteLine("Performing small test");
+                cache.StringSet("cart", "OK" );
+                object res = cache.StringGet("cart");
+                Console.WriteLine($"Small test result: {res}");
+
+                redis.InternalError += (o, e) => { Console.WriteLine(e.Exception); };
+                redis.ConnectionRestored += (o, e) =>
+                {
+                    isRedisConnectionOpened = true;
+                    Console.WriteLine("Connection to redis was retored successfully");
+                };
+                redis.ConnectionFailed += (o, e) =>
+                {
+                    Console.WriteLine("Connection failed. Disposing the object");
+                    isRedisConnectionOpened = false;
+                };
+
+                isRedisConnectionOpened = true;
             }
         }
 
         public async Task AddItemAsync(string userId, string productId, int quantity)
         {
-            using (GlobalTracer.Instance.BuildSpan("AddItemAsync").StartActive())
+            Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
+
+            try
             {
-                Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
+                EnsureRedisConnected();
 
-                try
+                var db = redis.GetDatabase();
+
+                // Access the cart from the cache
+                var value = await db.HashGetAsync(userId, CART_FIELD_NAME);
+
+                Hipstershop.Cart cart;
+                if (value.IsNull)
                 {
-                    EnsureRedisConnected();
-
-                    var db = redis.GetDatabase();
-
-                    // Access the cart from the cache
-                    var value = await db.HashGetAsync(userId, CART_FIELD_NAME);
-
-                    Hipstershop.Cart cart;
-                    if (value.IsNull)
+                    cart = new Hipstershop.Cart();
+                    cart.UserId = userId;
+                    cart.Items.Add(new Hipstershop.CartItem { ProductId = productId, Quantity = quantity });
+                }
+                else
+                {
+                    cart = Hipstershop.Cart.Parser.ParseFrom(value);
+                    var existingItem = cart.Items.SingleOrDefault(i => i.ProductId == productId);
+                    if (existingItem == null)
                     {
-                        cart = new Hipstershop.Cart();
-                        cart.UserId = userId;
                         cart.Items.Add(new Hipstershop.CartItem { ProductId = productId, Quantity = quantity });
                     }
                     else
                     {
-                        cart = Hipstershop.Cart.Parser.ParseFrom(value);
-                        var existingItem = cart.Items.SingleOrDefault(i => i.ProductId == productId);
-                        if (existingItem == null)
-                        {
-                            cart.Items.Add(new Hipstershop.CartItem { ProductId = productId, Quantity = quantity });
-                        }
-                        else
-                        {
-                            existingItem.Quantity += quantity;
-                        }
+                        existingItem.Quantity += quantity;
                     }
+                }
 
-                    await db.HashSetAsync(userId, new[] { new HashEntry(CART_FIELD_NAME, cart.ToByteArray()) });
-                }
-                catch (Exception ex)
-                {
-                    throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
-                }
-                updateUserProfile();
+                await db.HashSetAsync(userId, new[]{ new HashEntry(CART_FIELD_NAME, cart.ToByteArray()) });
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
             }
         }
 
         public async Task EmptyCartAsync(string userId)
         {
-            using (GlobalTracer.Instance.BuildSpan("EmptyCartAsync").StartActive())
+            Console.WriteLine($"EmptyCartAsync called with userId={userId}");
+
+            try
             {
-                Console.WriteLine($"EmptyCartAsync called with userId={userId}");
+                EnsureRedisConnected();
+                var db = redis.GetDatabase();
 
-                try
-                {
-                    EnsureRedisConnected();
-                    var db = redis.GetDatabase();
-
-                    // Update the cache with empty cart for given user
-                    await db.HashSetAsync(userId, new[] { new HashEntry(CART_FIELD_NAME, emptyCartBytes) });
-                }
-                catch (Exception ex)
-                {
-                    throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
-                }
-                updateUserProfile();
+                // Update the cache with empty cart for given user
+                await db.HashSetAsync(userId, new[] { new HashEntry(CART_FIELD_NAME, emptyCartBytes) });
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
             }
         }
 
         public async Task<Hipstershop.Cart> GetCartAsync(string userId)
         {
-            using (GlobalTracer.Instance.BuildSpan("GetCartAsync").StartActive())
+            Console.WriteLine($"GetCartAsync called with userId={userId}");
+
+            try
             {
-                Console.WriteLine($"GetCartAsync called with userId={userId}");
+                EnsureRedisConnected();
 
-                try
+                var db = redis.GetDatabase();
+
+                // Access the cart from the cache
+                var value = await db.HashGetAsync(userId, CART_FIELD_NAME);
+
+                if (!value.IsNull)
                 {
-                    EnsureRedisConnected();
-
-                    var db = redis.GetDatabase();
-
-                    // Access the cart from the cache
-                    var value = await db.HashGetAsync(userId, CART_FIELD_NAME);
-
-                    if (!value.IsNull)
-                    {
-                        return Hipstershop.Cart.Parser.ParseFrom(value);
-                    }
-
-                    updateUserProfile();
-                    // We decided to return empty cart in cases when user wasn't in the cache before
-                    return new Hipstershop.Cart();
+                    return Hipstershop.Cart.Parser.ParseFrom(value);
                 }
-                catch (Exception ex)
-                {
-                    throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
-                }
+
+                // We decided to return empty cart in cases when user wasn't in the cache before
+                return new Hipstershop.Cart();
+            }
+            catch (Exception ex)
+            {
+                throw new RpcException(new Status(StatusCode.FailedPrecondition, $"Can't access cart storage. {ex}"));
             }
         }
 
         public bool Ping()
         {
-            using (GlobalTracer.Instance.BuildSpan("Ping").StartActive())
+            try
             {
-                try
-                {
-                    var cache = redis.GetDatabase();
-                    var res = cache.Ping();
-                    return res != TimeSpan.Zero;
-                }
-                catch (Exception)
-                {
-                    return false;
-                }
+                var cache = redis.GetDatabase();
+                var res = cache.Ping();
+                return res != TimeSpan.Zero;
+            }
+            catch (Exception)
+            {
+                return false;
             }
         }
     }
