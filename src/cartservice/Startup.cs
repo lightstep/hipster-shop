@@ -38,23 +38,22 @@ namespace cartservice
             string lsHost = Environment.GetEnvironmentVariable(LIGHTSTEP_HOST);
             int lsPort = Int32.Parse(Environment.GetEnvironmentVariable(LIGHTSTEP_PORT));
             string serviceName = Environment.GetEnvironmentVariable("LS_SERVICE_NAME");
-
+            string accessToken = Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN);
             services.AddOpenTelemetryTracing((builder) => builder
-                .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService("cartservice"))
+                .AddSource("cartservice")
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
                 .AddGrpcClientInstrumentation()
                 .AddConsoleExporter()
                 .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
-                /*.AddOtlpExporter(opt => {
+                .AddOtlpExporter(opt => {
                     opt.Endpoint = $"{lsHost}:{lsPort}";
                     opt.Headers = new Metadata
                     {
-                        { "lightstep-access-token", Environment.GetEnvironmentVariable(LIGHTSTEP_ACCESS_TOKEN)}
+                        { "lightstep-access-token", accessToken }
                     };
-                    opt.ChannelOptions = new List<ChannelOption>();
                     opt.Credentials = new SslCredentials();
-            })*/);
+            }));
 
             string redisAddress = Configuration["REDIS_ADDR"];
             ICartStore cartStore = null;
