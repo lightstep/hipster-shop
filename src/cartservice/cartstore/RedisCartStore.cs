@@ -34,7 +34,7 @@ namespace cartservice.cartstore
         private readonly string connectionString;
 
         private readonly ConfigurationOptions redisConnectionOptions;
-
+        public ConnectionMultiplexer Connection { get; }
         public RedisCartStore(string redisAddress)
         {
             // Serialize empty cart into byte array.
@@ -49,6 +49,8 @@ namespace cartservice.cartstore
             redisConnectionOptions.ReconnectRetryPolicy = new ExponentialRetry(100);
 
             redisConnectionOptions.KeepAlive = 180;
+            EnsureRedisConnected();
+            Connection = redis;
         }
 
         public Task InitializeAsync()

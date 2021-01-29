@@ -16,6 +16,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Linq;
+using StackExchange.Redis;
 
 namespace cartservice.cartstore
 {
@@ -24,7 +25,7 @@ namespace cartservice.cartstore
         // Maps between user and their cart
         private ConcurrentDictionary<string, Hipstershop.Cart> userCartItems = new ConcurrentDictionary<string, Hipstershop.Cart>();
         private readonly Hipstershop.Cart emptyCart = new Hipstershop.Cart();
-
+        public ConnectionMultiplexer Connection { get; }
         public Task InitializeAsync()
         {
             Console.WriteLine("Local Cart Store was initialized");
