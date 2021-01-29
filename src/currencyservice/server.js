@@ -18,7 +18,9 @@ const VERSION = require('./package.json').version;
 const PORT = process.env.PORT;
 
 const sdk = lightstep.configureOpenTelemetry({
-  serviceVersion: VERSION
+  serviceVersion: VERSION,
+  spanEndpoint: `https://${process.env.LIGHTSTEP_HOST}/traces/otlp/v0.6`,
+  metricEndpoint: `https://${process.env.LIGHTSTEP_HOST}/metrics/otlp/v0.6`
 });
 
 /**

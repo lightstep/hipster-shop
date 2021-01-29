@@ -42,8 +42,6 @@ spec:
                 secretKeyRef:
                   name: lightstep-credentials
                   key: accessToken
-            - name: OTEL_EXPORTER_OTLP_SPAN_ENDPOINT
-              value: "ingest.lightstep.com"
             - name: OTEL_LOG_LEVEL
               value: "error"
           resources:

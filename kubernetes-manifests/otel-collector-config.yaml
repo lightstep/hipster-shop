@@ -28,7 +28,7 @@ data:
 
         # configuring otlp to public satellites
         otlp:
-          endpoint: ingest.lightstep.com:443
+          endpoint: "${LIGHTSTEP_HOST}:${LIGHTSTEP_PORT}"
           headers: 
             "lightstep-access-token": "${LS_ACCESS_TOKEN}"
 

@@ -39,7 +39,9 @@ spec:
         ports:
         - containerPort: 13133 # Default endpoint for health_check
         - containerPort: 55680 # Default endpoint for OpenTelemetry receiver.
-
+        envFrom:
+        - configMapRef:
+            name: lightstep-configmap
         env:
         - name: REDIS_ADDR
           value: "redis-cart:6379"
