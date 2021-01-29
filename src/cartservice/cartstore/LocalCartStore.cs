@@ -16,9 +16,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Linq;
-using cartservice.interfaces;
-using Hipstershop;
-using OpenTracing.Util;
+using StackExchange.Redis;
 
 namespace cartservice.cartstore
 {
@@ -27,80 +25,66 @@ namespace cartservice.cartstore
         // Maps between user and their cart
         private ConcurrentDictionary<string, Hipstershop.Cart> userCartItems = new ConcurrentDictionary<string, Hipstershop.Cart>();
         private readonly Hipstershop.Cart emptyCart = new Hipstershop.Cart();
-
+        public ConnectionMultiplexer Connection { get; }
         public Task InitializeAsync()
         {
-            using (GlobalTracer.Instance.BuildSpan("InitializeAsync").StartActive())
-            {
-                Console.WriteLine("Local Cart Store was initialized");
-                return Task.CompletedTask;
-            }
+            Console.WriteLine("Local Cart Store was initialized");
+
+            return Task.CompletedTask;
         }
 
         public Task AddItemAsync(string userId, string productId, int quantity)
         {
-            using (GlobalTracer.Instance.BuildSpan("AddItemAsync").StartActive())
-            {
-                Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
-                var newCart = new Hipstershop.Cart
-                    {
-                        UserId = userId,
-                        Items = { new Hipstershop.CartItem { ProductId = productId, Quantity = quantity } }
-                    };
-                userCartItems.AddOrUpdate(userId, newCart,
-                (k, exVal) =>
+            Console.WriteLine($"AddItemAsync called with userId={userId}, productId={productId}, quantity={quantity}");
+            var newCart = new Hipstershop.Cart
                 {
-                    // If the item exists, we update its quantity
-                    var existingItem = exVal.Items.SingleOrDefault(item => item.ProductId == productId);
-                    if (existingItem != null)
-                    {
-                        existingItem.Quantity += quantity;
-                    }
-                    else
-                    {
-                        exVal.Items.Add(new Hipstershop.CartItem { ProductId = productId, Quantity = quantity });
-                    }
+                    UserId = userId,
+                    Items = { new Hipstershop.CartItem { ProductId = productId, Quantity = quantity } }
+                };
+            userCartItems.AddOrUpdate(userId, newCart,
+            (k, exVal) =>
+            {
+                // If the item exists, we update its quantity
+                var existingItem = exVal.Items.SingleOrDefault(item => item.ProductId == productId);
+                if (existingItem != null)
+                {
+                    existingItem.Quantity += quantity;
+                }
+                else
+                {
+                    exVal.Items.Add(new Hipstershop.CartItem { ProductId = productId, Quantity = quantity });
+                }
 
-                    return exVal;
-                });
+                return exVal;
+            });
 
-                return Task.CompletedTask;
-            }
+            return Task.CompletedTask;
         }
 
         public Task EmptyCartAsync(string userId)
         {
-            using (GlobalTracer.Instance.BuildSpan("EmptyCartAsync").StartActive())
-            {
-                Console.WriteLine($"EmptyCartAsync called with userId={userId}");
-                userCartItems[userId] = new Hipstershop.Cart();
+            Console.WriteLine($"EmptyCartAsync called with userId={userId}");
+            userCartItems[userId] = new Hipstershop.Cart();
 
-                return Task.CompletedTask;
-            }
+            return Task.CompletedTask;
         }
 
         public Task<Hipstershop.Cart> GetCartAsync(string userId)
         {
-            using (GlobalTracer.Instance.BuildSpan("GetCartAsync").StartActive())
+            Console.WriteLine($"GetCartAsync called with userId={userId}");
+            Hipstershop.Cart cart = null;
+            if (!userCartItems.TryGetValue(userId, out cart))
             {
-                Console.WriteLine($"GetCartAsync called with userId={userId}");
-                Hipstershop.Cart cart = null;
-                if (!userCartItems.TryGetValue(userId, out cart))
-                {
-                    Console.WriteLine($"No carts for user {userId}");
-                    return Task.FromResult(emptyCart);
-                }
-
-                return Task.FromResult(cart);
+                Console.WriteLine($"No carts for user {userId}");
+                return Task.FromResult(emptyCart);
             }
+
+            return Task.FromResult(cart);
         }
 
         public bool Ping()
         {
-            using (GlobalTracer.Instance.BuildSpan("Ping").StartActive())
-            {
-                return true;
-            }
+            return true;
         }
     }
 }
