@@ -17,7 +17,6 @@ const grpc = require('grpc');
 const pino = require('pino');
 const protoLoader = require('@grpc/proto-loader');
 const { opentelemetry } = require('lightstep-opentelemetry-launcher-node');
-const { MeterProvider } = require('@opentelemetry/metrics');
 
 const charge = require('./charge');
 
@@ -33,8 +32,6 @@ const tracer = opentelemetry.trace.getTracer('paymentservice');
 class HipsterShopServer {
   constructor(protoRoot, port = HipsterShopServer.PORT, sdk) {
     this.port = port;
-    this.meter = sdk._meterProvider.getMeter('paymentservice@0.12.1')
-    this.paymentRecorder = this.meter.createValueRecorder('charge', { description: 'paymentservice transaction amount' })
 
     this.packages = {
       hipsterShop: this.loadProto(path.join(protoRoot, 'demo.proto')),
@@ -54,9 +51,6 @@ class HipsterShopServer {
     tracer.withSpan(tracer.getCurrentSpan(), () => {
       try {
         logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
-        const labels = {};
-        const units = parseFloat(call.request.amount.units);
-        this.paymentRecorder.bind(labels).record(units);
         const response = charge(call.request);
         callback(null, response);
       } catch (err) {
