@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const { opentelemetry } = require('lightstep-opentelemetry-launcher-node');
 const path = require('path');
 const grpc = require('grpc');
 const pino = require('pino');
@@ -27,10 +26,8 @@ const logger = pino({
   useLevelLabels: true
 });
 
-const tracer = opentelemetry.trace.getTracer('paymentservice');
-
 class HipsterShopServer {
-  constructor(protoRoot, port = HipsterShopServer.PORT, sdk) {
+  constructor(protoRoot, port = HipsterShopServer.PORT) {
     this.port = port;
 
     this.packages = {

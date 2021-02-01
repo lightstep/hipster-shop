@@ -16,29 +16,12 @@
 
 'use strict';
 
-const { lightstep } = require('lightstep-opentelemetry-launcher-node');
-const VERSION = require('./package.json').version;
-
-const sdk = lightstep.configureOpenTelemetry({
-  serviceVersion: VERSION,
-  logLevel: 'debug',
-  spanEndpoint: `https://${process.env.LIGHTSTEP_HOST}/traces/otlp/v0.6`,
-  metricEndpoint: `https://${process.env.LIGHTSTEP_HOST}/metrics/otlp/v0.6`,
-  plugins: {
-      grpc: {
-        enabled: true,
-        // You may use a package name or absolute path to the file.
-        path: '@opentelemetry/plugin-grpc',
-      },
-    },
-});
+require('./tracer')(process.env.LS_SERVICE_NAME);
 
 const path = require('path');
-sdk.start().then(() => {
-  const HipsterShopServer = require('./server');
-  const PORT = process.env['PORT'];
-  const PROTO_PATH = path.join(__dirname, '/proto/');
-  const server = new HipsterShopServer(PROTO_PATH, PORT, sdk);
-  
-  server.listen();
-});
+const HipsterShopServer = require('./server');
+const PORT = process.env['PORT'];
+const PROTO_PATH = path.join(__dirname, '/proto/');
+const server = new HipsterShopServer(PROTO_PATH, PORT);
+
+server.listen();
