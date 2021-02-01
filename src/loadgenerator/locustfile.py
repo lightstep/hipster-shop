@@ -73,6 +73,24 @@ def checkout(l):
         },
     )
 
+def badCheckout(l):
+    addToCart(l)
+    l.client.post(
+        "/cart/checkout",
+        {
+            "email": "amex@example.com",
+            "street_address": "1600 Amphitheatre Parkway",
+            "zip_code": "94043",
+            "city": "Mountain View",
+            "state": "CA",
+            "country": "United States",
+            "credit_card_number": "347572753801901",
+            "credit_card_expiration_month": "1",
+            "credit_card_expiration_year": "2026",
+            "credit_card_cvv": "528",
+        },
+    )
+
 
 class UserBehavior(TaskSet):
     def on_start(self):
@@ -85,6 +103,7 @@ class UserBehavior(TaskSet):
         addToCart: 2,
         viewCart: 3,
         checkout: 1,
+        badCheckout: 1,
     }
 
 

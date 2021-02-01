@@ -23,7 +23,14 @@ const sdk = lightstep.configureOpenTelemetry({
   serviceVersion: VERSION,
   logLevel: 'debug',
   spanEndpoint: `https://${process.env.LIGHTSTEP_HOST}/traces/otlp/v0.6`,
-  metricEndpoint: `https://${process.env.LIGHTSTEP_HOST}/metrics/otlp/v0.6`
+  metricEndpoint: `https://${process.env.LIGHTSTEP_HOST}/metrics/otlp/v0.6`,
+  plugins: {
+      grpc: {
+        enabled: true,
+        // You may use a package name or absolute path to the file.
+        path: '@opentelemetry/plugin-grpc',
+      },
+    },
 });
 
 const path = require('path');

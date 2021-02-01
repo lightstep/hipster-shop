@@ -12,11 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+const { opentelemetry } = require('lightstep-opentelemetry-launcher-node');
 const path = require('path');
 const grpc = require('grpc');
 const pino = require('pino');
 const protoLoader = require('@grpc/proto-loader');
-const { opentelemetry } = require('lightstep-opentelemetry-launcher-node');
 
 const charge = require('./charge');
 
@@ -48,22 +48,14 @@ class HipsterShopServer {
    * @param {*} callback  fn(err, ChargeResponse)
    */
   static ChargeServiceHandler(call, callback) {
-    tracer.withSpan(tracer.getCurrentSpan(), () => {
-      try {
-        logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
-        const response = charge(call.request);
-        callback(null, response);
-      } catch (err) {
-        console.warn(err);
-        span.setAttributes('error', true);
-        span.addEvent(`conversion request failed: ${err}`, {
-          'error.object': err,
-          message: err.message,
-          stack: err.stack
-        });
-        callback(err);
-      }
-    });
+    try {
+      logger.info(`PaymentService#Charge invoked with request ${JSON.stringify(call.request)}`);
+      const response = charge(call.request);
+      callback(null, response);
+    } catch (err) {
+      console.warn(err);
+      callback(err);
+    }
   }
 
   static CheckHandler(call, callback) {
