@@ -30,13 +30,19 @@ import (
 
 	pb "github.com/GoogleCloudPlatform/microservices-demo/src/frontend/genproto"
 	"github.com/GoogleCloudPlatform/microservices-demo/src/frontend/money"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/label"
+	"go.opentelemetry.io/otel/metric"
 )
 
 var (
 	templates = template.Must(template.New("").
-		Funcs(template.FuncMap{
+			Funcs(template.FuncMap{
 			"renderMoney": renderMoney,
 		}).ParseGlob("templates/*.html"))
+	meter           = otel.Meter("frontend")
+	checkoutCounter = metric.Must(meter).NewInt64Counter("frontend.checkout.count")
 )
 
 func (fe *frontendServer) homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -286,6 +292,7 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 				Country:       country},
 		})
 	if err != nil {
+		checkoutCounter.Add(r.Context(), 1, label.String("status", "error"))
 		renderHTTPError(log, r, w, errors.Wrap(err, "failed to complete the order"), http.StatusInternalServerError)
 		return
 	}
@@ -309,6 +316,7 @@ func (fe *frontendServer) placeOrderHandler(w http.ResponseWriter, r *http.Reque
 	}); err != nil {
 		log.Println(err)
 	}
+	checkoutCounter.Add(r.Context(), 1, label.String("status", "ok"))
 }
 
 func (fe *frontendServer) logoutHandler(w http.ResponseWriter, r *http.Request) {

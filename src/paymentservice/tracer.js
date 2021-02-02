@@ -14,7 +14,7 @@ module.exports = (serviceName) => {
 
   const exporter = new CollectorTraceExporter({
     serviceName: serviceName,
-    logger: new ConsoleLogger(LogLevel.DEBUG),
+    logger: new ConsoleLogger(LogLevel.ERROR),
     url: `https://${process.env.LIGHTSTEP_HOST}/traces/otlp/v0.6`,
     headers: {
       'Lightstep-Access-Token': process.env.LS_ACCESS_TOKEN
