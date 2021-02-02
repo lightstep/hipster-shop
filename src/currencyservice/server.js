@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-require('./tracer')(process.env.LS_SERVICE_NAME);
+const tracer = require('./tracer')(process.env.LS_SERVICE_NAME);
 const opentelemetry = require('@opentelemetry/api');
 const PORT = process.env.PORT;
 
@@ -31,7 +31,6 @@ function main () {
     changeLevelName: 'severity',
     useLevelLabels: true
   });
-  const tracer = opentelemetry.trace.getTracer('currencyservice');
   logger.info(`Starting gRPC server on port ${PORT}...`);
 
   const protoLoader = require('@grpc/proto-loader');
@@ -85,7 +84,7 @@ function main () {
    * Lists the supported currencies
    */
   function getSupportedCurrencies (call, callback) {
-    const parentSpan = tracer.getCurrentSpan();
+    const parentSpan = opentelemetry.getSpan(opentelemetry.context.active());
     const span = tracer.startSpan('getSupportedCurrencies', { parent : parentSpan });
     span.setAttribute('vendor.error_id', '17343337');
     logger.info('Getting supported currencies...');
@@ -100,7 +99,7 @@ function main () {
    */
   function convert (call, callback) {
     logger.info('received conversion request');
-    const span = tracer.getCurrentSpan();
+    const span = opentelemetry.getSpan(opentelemetry.context.active());
     try {
       _getCurrencyData(span, (data) => {
         const request = call.request;

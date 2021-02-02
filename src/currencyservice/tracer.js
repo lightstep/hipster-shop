@@ -26,5 +26,5 @@ module.exports = (serviceName) => {
   // Initialize the OpenTelemetry APIs to use the NodeTracerProvider bindings
   provider.register();
 
-  return opentelemetry.trace.getTracer('grpc-example');
+  return opentelemetry.trace.getTracer('currencyservice');
 };
