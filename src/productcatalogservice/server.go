@@ -43,6 +43,7 @@ import (
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/label"
 	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -195,6 +196,7 @@ func (p *productCatalog) ListProducts(context.Context, *pb.Empty) (*pb.ListProdu
 }
 
 func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
+	trace.SpanFromContext(ctx).SetAttributes(label.String("productId", req.Id))
 	ts := time.Now()
 	time.Sleep(extraLatency)
 	var found *pb.Product
@@ -204,6 +206,7 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 		}
 	}
 	if found == nil {
+		trace.SpanFromContext(ctx).SetAttributes(label.Bool("error", true))
 		return nil, status.Errorf(codes.NotFound, "no product with ID %s", req.Id)
 	}
 	elapsed := time.Since(ts)

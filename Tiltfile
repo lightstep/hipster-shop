@@ -7,7 +7,7 @@ k8s_yaml([
   'kubernetes-manifests/checkoutservice.yaml',
   'kubernetes-manifests/currencyservice.yaml',
   'kubernetes-manifests/emailservice.yaml',
-  'kubernetes-manifests/frontend.yaml',
+  'kubernetes-manifests/wsl2/frontend.yaml',
   'kubernetes-manifests/k8s-service-account.yaml',
   'kubernetes-manifests/lightstep-configmap.yaml',
   'kubernetes-manifests/loadgenerator.yaml',

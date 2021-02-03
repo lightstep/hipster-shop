@@ -29,6 +29,7 @@ products = [
     '3R92ZMYYKL'
 ]
 
+counter = 0
 
 def index(l):
     l.client.get("/")
@@ -56,54 +57,68 @@ def addToCart(l):
 
 
 def checkout(l):
+    global counter
+    route = "/cart/checkout"
+    visaCC = {
+                "email": "someone@example.com",
+                "street_address": "1600 Amphitheatre Parkway",
+                "zip_code": "94043",
+                "city": "Mountain View",
+                "state": "CA",
+                "country": "United States",
+                "credit_card_number": "4432-8015-6152-0454",
+                "credit_card_expiration_month": "1",
+                "credit_card_expiration_year": "2039",
+                "credit_card_cvv": "672",
+             }
+    mcCC = {
+                "email": "someone@example.com",
+                "street_address": "1600 Amphitheatre Parkway",
+                "zip_code": "94043",
+                "city": "Mountain View",
+                "state": "CA",
+                "country": "United States",
+                "credit_card_number": "5328897010174228",
+                "credit_card_expiration_month": "1",
+                "credit_card_expiration_year": "2039",
+                "credit_card_cvv": "123",
+        
+    }
+    badCC = {
+                "email": "amex@example.com",
+                "street_address": "1600 Amphitheatre Parkway",
+                "zip_code": "94043",
+                "city": "Mountain View",
+                "state": "CA",
+                "country": "United States",
+                "credit_card_number": "347572753801901",
+                "credit_card_expiration_month": "1",
+                "credit_card_expiration_year": "2026",
+                "credit_card_cvv": "528",
+             }
+    goodCards = [visaCC, mcCC, visaCC, mcCC, visaCC, mcCC, badCC, badCC]
+    goodWithBadCards = [visaCC, mcCC, badCC, badCC, badCC, badCC, badCC]
+    
     addToCart(l)
-    l.client.post(
-        "/cart/checkout",
-        {
-            "email": "someone@example.com",
-            "street_address": "1600 Amphitheatre Parkway",
-            "zip_code": "94043",
-            "city": "Mountain View",
-            "state": "CA",
-            "country": "United States",
-            "credit_card_number": "4432-8015-6152-0454",
-            "credit_card_expiration_month": "1",
-            "credit_card_expiration_year": "2039",
-            "credit_card_cvv": "672",
-        },
-    )
 
-def badCheckout(l):
-    addToCart(l)
-    l.client.post(
-        "/cart/checkout",
-        {
-            "email": "amex@example.com",
-            "street_address": "1600 Amphitheatre Parkway",
-            "zip_code": "94043",
-            "city": "Mountain View",
-            "state": "CA",
-            "country": "United States",
-            "credit_card_number": "347572753801901",
-            "credit_card_expiration_month": "1",
-            "credit_card_expiration_year": "2026",
-            "credit_card_cvv": "528",
-        },
-    )
-
+    if (counter <= 200):
+        l.client.post(route, random.choice(goodCards))
+    else:
+        l.client.post(route, random.choice(goodWithBadCards))
+    counter += 1
+    if counter >= 300:
+        counter = 0
 
 class UserBehavior(TaskSet):
     def on_start(self):
         index(self)
 
     tasks = {
-        index: 1,
-        setCurrency: 2,
+        index: 5,
         browseProduct: 5,
-        addToCart: 2,
-        viewCart: 3,
-        checkout: 10,
-        badCheckout: 1,
+        addToCart: 1,
+        viewCart: 1,
+        checkout: 2,
     }
 
 
