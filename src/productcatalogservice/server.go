@@ -39,6 +39,11 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/label"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/trace"
 )
 
 var (
@@ -49,7 +54,18 @@ var (
 
 	port = "3550"
 
-	reloadCatalog bool
+	reloadCatalog       bool
+	meter               = otel.Meter("productcatalogservice/metrics")
+	gpLock              = new(sync.RWMutex)
+	gpValue             = new(float64)
+	gpLabels            = new([]label.KeyValue)
+	getProductsObserver = metric.Must(meter).NewFloat64ValueObserver("catalog.getProducts.time", func(ctx context.Context, result metric.Float64ObserverResult) {
+		(*gpLock).RLock()
+		value := *gpValue
+		labels := *gpLabels
+		(*gpLock).RUnlock()
+		result.Observe(value, labels...)
+	})
 )
 
 func init() {
@@ -180,6 +196,8 @@ func (p *productCatalog) ListProducts(context.Context, *pb.Empty) (*pb.ListProdu
 }
 
 func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductRequest) (*pb.Product, error) {
+	trace.SpanFromContext(ctx).SetAttributes(label.String("productId", req.Id))
+	ts := time.Now()
 	time.Sleep(extraLatency)
 	var found *pb.Product
 	for i := 0; i < len(parseCatalog()); i++ {
@@ -188,8 +206,14 @@ func (p *productCatalog) GetProduct(ctx context.Context, req *pb.GetProductReque
 		}
 	}
 	if found == nil {
+		trace.SpanFromContext(ctx).SetAttributes(label.Bool("error", true))
 		return nil, status.Errorf(codes.NotFound, "no product with ID %s", req.Id)
 	}
+	elapsed := time.Since(ts)
+	(*gpLock).Lock()
+	*gpValue = elapsed.Seconds()
+	*gpLabels = []label.KeyValue{label.String("productId", found.Id)}
+	(*gpLock).Unlock()
 	return found, nil
 }
 

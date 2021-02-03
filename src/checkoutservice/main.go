@@ -27,6 +27,9 @@ import (
 	"github.com/lightstep/otel-launcher-go/launcher"
 	"github.com/sirupsen/logrus"
 	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/label"
+	"go.opentelemetry.io/otel/metric"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"
@@ -38,7 +41,11 @@ const (
 	usdCurrency = "USD"
 )
 
-var log *logrus.Logger
+var (
+	log        *logrus.Logger
+	meter      = otel.Meter("checkoutservice/metrics")
+	orderCount = metric.Must(meter).NewInt64Counter("checkoutservice.order")
+)
 
 func init() {
 	log = logrus.New()
@@ -130,15 +137,18 @@ func (cs *checkoutService) Watch(req *healthpb.HealthCheckRequest, ws healthpb.H
 }
 
 func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderRequest) (*pb.PlaceOrderResponse, error) {
+	// count orders
 	log.Infof("[PlaceOrder] user_id=%q user_currency=%q", req.UserId, req.UserCurrency)
 
 	orderID, err := uuid.NewUUID()
 	if err != nil {
+		orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, "failed to generate order uuid")
 	}
 
 	prep, err := cs.prepareOrderItemsAndShippingQuoteFromCart(ctx, req.UserId, req.UserCurrency, req.Address)
 	if err != nil {
+		orderCount.Add(ctx, 1, label.String("status", "internalError"))
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
@@ -152,12 +162,14 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 
 	txID, err := cs.chargeCard(ctx, &total, req.CreditCard)
 	if err != nil {
+		orderCount.Add(ctx, 1, label.String("status", "chargeError"))
 		return nil, status.Errorf(codes.Internal, "failed to charge card: %+v", err)
 	}
 	log.Infof("payment went through (transaction_id: %s)", txID)
 
 	shippingTrackingID, err := cs.shipOrder(ctx, req.Address, prep.cartItems)
 	if err != nil {
+		orderCount.Add(ctx, 1, label.String("status", "shippingError"))
 		return nil, status.Errorf(codes.Unavailable, "shipping error: %+v", err)
 	}
 
@@ -177,6 +189,7 @@ func (cs *checkoutService) PlaceOrder(ctx context.Context, req *pb.PlaceOrderReq
 		log.Infof("order confirmation email sent to %q", req.Email)
 	}
 	resp := &pb.PlaceOrderResponse{Order: orderResult}
+	orderCount.Add(ctx, 1, label.String("status", "ok"))
 	return resp, nil
 }
 
