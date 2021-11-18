@@ -31,9 +31,6 @@ Kubernetes Engine. It’s **easy to deploy with little to no configuration**.
 
 If you’re using this demo, please **★Star** this repository to show your interest!
 
- 👓**Note to Googlers:** Please fill out the form at [go/microservices-demo](http://go/microservices-demo) if you are using this application.
-
-
 | Home Page                                                                                                         | Checkout Page                                                                                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | [![Screenshot of store homepage](/docs/img/home-page.png)](./docs/img/hipster-shop-frontend-1.png) | [![Screenshot of checkout screen](./docs/img/checkout-page.png)](./docs/img/hipster-shop-frontend-2.png) |
