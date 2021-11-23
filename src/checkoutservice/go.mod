@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	cloud.google.com/go v0.72.0 // indirect
-	github.com/GoogleCloudPlatform/microservices-demo v0.1.4
+	github.com/lightstep/hipster-shop v0.1.5-debug
 	github.com/golang/protobuf v1.4.3
 	github.com/google/uuid v1.1.2
 	github.com/lightstep/otel-launcher-go v0.15.0

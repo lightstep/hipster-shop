@@ -3,7 +3,7 @@ module github.com/lightstep/hipster-shop/productcatalogservice
 go 1.14
 
 require (
-	github.com/GoogleCloudPlatform/microservices-demo v0.1.4
+	github.com/lightstep/hipster-shop v0.1.5-debug
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.4
 	github.com/lightstep/otel-launcher-go v0.15.0
