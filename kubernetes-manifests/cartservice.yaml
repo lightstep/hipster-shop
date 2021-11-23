@@ -26,6 +26,10 @@ spec:
         app: cartservice
     spec:
       terminationGracePeriodSeconds: 5
+      initContainers:
+        - name: init-wait-for-redis
+          image: alpine
+          command: ["/bin/sh", "-c", "for i in $(seq 1 300); do nc -zvw1 redis-cart 6379 && exit 0 || sleep 3; done; exit 1"]
       containers:
       - name: server
         image: cartservice
