@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 const tracer = require('./tracer')(process.env.LS_SERVICE_NAME);
-const opentelemetry = require('@opentelemetry/api');
+const api = require('@opentelemetry/api');
 const PORT = process.env.PORT;
 
 /**
@@ -62,10 +62,10 @@ function main () {
    * Helper function that gets currency data from a stored JSON file
    * Uses public data from European Central Bank
    */
-  function _getCurrencyData (parentSpan, callback) {
-    const span = tracer.startSpan('_getCurrencyData', { parent : parentSpan });
+  function _getCurrencyData (callback) {
+    const span = tracer.startSpan("_getCurrencyData")
     const data = require('./data/currency_conversion.json');
-    span.end();
+    span.end()
     callback(data);
   }
 
@@ -84,14 +84,16 @@ function main () {
    * Lists the supported currencies
    */
   function getSupportedCurrencies (call, callback) {
-    const parentSpan = opentelemetry.getSpan(opentelemetry.context.active());
-    const span = tracer.startSpan('getSupportedCurrencies', { parent : parentSpan });
+    const span = tracer.startSpan("getSupportedCurrencies")
     span.setAttribute('vendor.error_id', '17343337');
-    logger.info('Getting supported currencies...');
-    _getCurrencyData(span, (data) => {
-      callback(null, {currency_codes: Object.keys(data)});
+    try {
+      api.context.with(api.trace.setSpan(api.context.active(), span), () => _getCurrencyData((data) => {
+        callback(null, {currency_codes: Object.keys(data)});
+      }));
+    }
+    finally {
       span.end();
-    });
+    }
   }
 
   /**
@@ -99,45 +101,50 @@ function main () {
    */
   function convert (call, callback) {
     logger.info('received conversion request');
-    const span = opentelemetry.getSpan(opentelemetry.context.active());
+    const span = tracer.startSpan("convert");
     try {
-      _getCurrencyData(span, (data) => {
-        const request = call.request;
-        // Convert: from_currency --> EUR
-        const from = request.from;
-        const euros = _carry({
-          units: from.units / data[from.currency_code],
-          nanos: from.nanos / data[from.currency_code]
-        });
+      api.context.with(api.trace.setSpan(api.context.active(), span), () => {
+        try {
+          _getCurrencyData((data) => {
+            const request = call.request;
+            // Convert: from_currency --> EUR
+            const from = request.from;
+            const euros = _carry({
+              units: from.units / data[from.currency_code],
+              nanos: from.nanos / data[from.currency_code]
+            });
+            span.setAttribute('currency_code.from', from.currency_code)
+            span.setAttribute('currency_code.to', request.to_code)
 
-        span.setAttribute('currency_code.from', from.currency_code);
-        span.setAttribute('currency_code.to', request.to_code);
+            euros.nanos = Math.round(euros.nanos);
 
-        euros.nanos = Math.round(euros.nanos);
+            // Convert: EUR --> to_currency
+            const result = _carry({
+              units: euros.units * data[request.to_code],
+              nanos: euros.nanos * data[request.to_code]
+            });
 
-        // Convert: EUR --> to_currency
-        const result = _carry({
-          units: euros.units * data[request.to_code],
-          nanos: euros.nanos * data[request.to_code]
-        });
+            result.units = Math.floor(result.units);
+            result.nanos = Math.floor(result.nanos);
+            result.currency_code = request.to_code;
 
-        result.units = Math.floor(result.units);
-        result.nanos = Math.floor(result.nanos);
-        result.currency_code = request.to_code;
-
-        logger.info(`conversion request successful`);
-        span.addEvent('conversion request successful')
-        callback(null, result);
+            logger.info(`conversion request successful`);
+            span.addEvent('conversion request successful')
+            callback(null, result);
+          });
+        } catch (err) {
+          logger.error(`conversion request failed: ${err}`);
+          span.setAttribute('error', true);
+          span.addEvent(`conversion request failed: ${err}`, {
+            'error.object': err,
+            message: err.message,
+            stack: err.stack
+          });
+          callback(err.message);
+        }
       });
-    } catch (err) {
-      logger.error(`conversion request failed: ${err}`);
-      span.setAttribute('error', true);
-      span.addEvent(`conversion request failed: ${err}`, {
-        'error.object': err,
-        message: err.message,
-        stack: err.stack
-      });
-      callback(err.message);
+    } finally {
+      span.end();
     }
   }
 

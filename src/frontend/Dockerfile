@@ -1,6 +1,6 @@
 FROM golang:1.14-alpine as builder
 
-ENV PROJECT github.com/GoogleCloudPlatform/microservices-demo/src/frontend
+ENV PROJECT github.com/lightstep/hipster-shop/src/frontend
 WORKDIR /go/src/$PROJECT
 
 # restore dependencies

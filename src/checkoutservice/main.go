@@ -21,8 +21,8 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/genproto"
-	"github.com/GoogleCloudPlatform/microservices-demo/src/checkoutservice/money"
+	pb "github.com/lightstep/hipster-shop/src/checkoutservice/genproto"
+	"github.com/lightstep/hipster-shop/src/checkoutservice/money"
 	"github.com/google/uuid"
 	"github.com/lightstep/otel-launcher-go/launcher"
 	"github.com/sirupsen/logrus"

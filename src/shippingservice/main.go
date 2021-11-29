@@ -28,7 +28,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
 
-	pb "github.com/GoogleCloudPlatform/microservices-demo/src/shippingservice/genproto"
+	pb "github.com/lightstep/hipster-shop/src/shippingservice/genproto"
 	"github.com/lightstep/otel-launcher-go/launcher"
 	grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	healthpb "google.golang.org/grpc/health/grpc_health_v1"

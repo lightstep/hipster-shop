@@ -2,7 +2,7 @@
   "name": "paymentservice",
   "version": "0.0.4",
   "description": "Payment Microservice demo",
-  "repository": "https://github.com/GoogleCloudPlatform/microservices-demo",
+  "repository": "https://github.com/lightstep/hipster-shop",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

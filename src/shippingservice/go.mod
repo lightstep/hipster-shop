@@ -1,9 +1,8 @@
-module github.com/lightstep/hipster-shop/shippingservice
+module github.com/lightstep/hipster-shop/src/shippingservice
 
 go 1.14
 
 require (
-	github.com/GoogleCloudPlatform/microservices-demo v0.1.1
 	github.com/golang/protobuf v1.4.3
 	github.com/lightstep/otel-launcher-go v0.15.0
 	github.com/sirupsen/logrus v1.6.0
