@@ -12,6 +12,7 @@ This is a [Lightstep](https://lightstep.com) fork of https://github.com/GoogleCl
 - [GKE Installation](#gke-installation)
 - [Local Installation](#local-installation)
 - [(Optional) Deploying on a Istio-installed GKE cluster](#optional-deploying-on-a-istio-installed-gke-cluster)
+- [(Experimental) Deploying on an Istio-installed AWS EKS Cluster](#experimental-deploying-on-an-istio-installed-aws-eks-cluster)
 - [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep)
 - [Cleanup](#cleanup)
 - [Conferences featuring Hipster Shop](#conferences-featuring-hipster-shop)
