@@ -12,6 +12,7 @@ This is a [Lightstep](https://lightstep.com) fork of https://github.com/GoogleCl
 - [GKE Installation](#gke-installation)
 - [Local Installation](#local-installation)
 - [(Optional) Deploying on a Istio-installed GKE cluster](#optional-deploying-on-a-istio-installed-gke-cluster)
+- [(Experimental) Deploying on an Istio-installed AWS EKS Cluster](#experimental-deploying-on-an-istio-installed-aws-eks-cluster)
 - [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep)
 - [Cleanup](#cleanup)
 - [Conferences featuring Hipster Shop](#conferences-featuring-hipster-shop)
@@ -242,6 +243,46 @@ Now go to [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep) to
 
 7. In a browser, navigate to the app's IP address. You should see the home page where you can shop for donuts and coffee.
   ![Hipster Shop home page](/docs/img/home-page.png)
+
+## (Experimental) Deploying on an Istio-installed AWS EKS Cluster
+### Prerequisites
+* An EKS cluster with a managed node group in AWS
+* Istio installed on the cluster, including istio-ingressgateway, with istio enabled set to true
+* AWS cli installed, and `~/.aws/credentials` with an AWS account that has permissions to interact with the EKS cluster and ECR
+* ECR repos created for holding each of the hipster shop services
+* Skaffold installed (`brew install skaffold`)
+
+### Instructions
+1. Switch to the EKS cluster's kube context.
+```
+aws eks --region us-east-1 update-kubeconfig --name <cluster name>
+```
+2. Install the automatic sidecar injection (annotate the `default` namespace
+   with the label):
+```
+kubectl label namespace default istio-injection=enabled
+```
+3. Create a Lightstep access token k8s secret:
+```
+kubectl create secret generic lightstep-credentials --from-literal=accessToken=<access token>
+```
+4. Apply the istio manifests that come with hipster-shop, cd to the repository where you have hipster-shop cloned and run:
+```
+kubectl apply -f ./istio-manifests
+```
+5. Authenticate with ECR so that skaffold is able to push to the repositories (there must be one per service):
+```
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ecr repository root path>
+```
+Example repository root path: `<aws account id>.dkr.ecr.us-east-1.amazonaws.com/hipster-shop`, where a child path would be `<aws account id>.dkr.ecr.us-east-1.amazonaws.com/hipster-shop/currencyservice`
+6. Deploy with skaffold (this command takes long to run and may timeout, doesn't necessarily mean it didn't work, the deployments just take a while sometimes):
+```
+skaffold run --default-repo=<ecr repository root path>
+```
+7. Get the URL to navigate to your deployed hipster-shop.
+```
+kubectl -n istio-ingress get service istio-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+```
 
 ## See Telemetry Data in LightStep
 Browse and purchase a few items (a dummy credit card and service are configured to allow purchasing), then go to the LightStep app and open the [Explorer page](https://docs.lightstep.com/docs/query-span-data) for your project.
