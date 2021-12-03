@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Copyright 2018 Google LLC
+# Copyright 2021 Lightstep
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,115 +14,59 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from data import random_currency, random_card, random_product, random_quantity
+from locust import HttpUser, LoadTestShape, task, between
 import random
-from locust import HttpLocust, TaskSet
-
-products = [
-    '0PUK6V6EV0',
-    '1YMWWN1N4O',
-    '66VCHSJNUP',
-    '6E92ZMYYFZ',
-    'L9ECAV7KIM',
-    'LS4PSXUNUM',
-    'OLJCESPC7Z',
-    '3R92ZDDYKL',
-    '3R92ZMYYKL'
-]
-
-counter = 0
-
-def index(l):
-    l.client.get("/")
+import datetime
 
 
-def setCurrency(l):
-    currencies = ["EUR", "USD", "JPY", "CAD"]
-    l.client.post("/setCurrency", {"currency_code": random.choice(currencies)})
+class Hipster(HttpUser):
+    wait_time = between(1, 10)
 
-
-def browseProduct(l):
-    l.client.get("/product/" + random.choice(products))
-
-
-def viewCart(l):
-    l.client.get("/cart")
-
-
-def addToCart(l):
-    product = random.choice(products)
-    l.client.get("/product/" + product)
-    l.client.post(
-        "/cart", {"product_id": product, "quantity": random.choice([1, 2, 3, 4, 5, 10])}
-    )
-
-
-def checkout(l):
-    global counter
-    route = "/cart/checkout"
-    visaCC = {
-                "email": "someone@example.com",
-                "street_address": "1600 Amphitheatre Parkway",
-                "zip_code": "94043",
-                "city": "Mountain View",
-                "state": "CA",
-                "country": "United States",
-                "credit_card_number": "4432-8015-6152-0454",
-                "credit_card_expiration_month": "1",
-                "credit_card_expiration_year": "2039",
-                "credit_card_cvv": "672",
-             }
-    mcCC = {
-                "email": "someone@example.com",
-                "street_address": "1600 Amphitheatre Parkway",
-                "zip_code": "94043",
-                "city": "Mountain View",
-                "state": "CA",
-                "country": "United States",
-                "credit_card_number": "5328897010174228",
-                "credit_card_expiration_month": "1",
-                "credit_card_expiration_year": "2039",
-                "credit_card_cvv": "123",
-        
-    }
-    badCC = {
-                "email": "amex@example.com",
-                "street_address": "1600 Amphitheatre Parkway",
-                "zip_code": "94043",
-                "city": "Mountain View",
-                "state": "CA",
-                "country": "United States",
-                "credit_card_number": "347572753801901",
-                "credit_card_expiration_month": "1",
-                "credit_card_expiration_year": "2026",
-                "credit_card_cvv": "528",
-             }
-    goodCards = [visaCC, mcCC, visaCC, mcCC, visaCC, mcCC, badCC, badCC]
-    goodWithBadCards = [visaCC, mcCC, badCC, badCC, badCC, badCC, badCC]
-    
-    addToCart(l)
-
-    if (counter <= 200):
-        l.client.post(route, random.choice(goodCards))
-    else:
-        l.client.post(route, random.choice(goodWithBadCards))
-    counter += 1
-    if counter >= 300:
-        counter = 0
-
-class UserBehavior(TaskSet):
     def on_start(self):
-        index(self)
+        self.index()
+    
+    @task(50)
+    def index(self):
+        self.client.get('/')
 
-    tasks = {
-        index: 5,
-        browseProduct: 5,
-        addToCart: 1,
-        viewCart: 1,
-        checkout: 2,
-    }
+    @task(50)
+    def browse_product(self):
+        self.client.get("/product/" + random_product())
+
+    @task(10)
+    def add_to_cart(self):
+        product = random_product()
+        self.client.get("/product/" + product)
+        self.client.post(
+            "/cart", {"product_id": product, "quantity": random_quantity()}
+        )
+
+    @task(10)
+    def view_cart(self):
+        self.client.get("/cart")
+
+    @task(20)
+    def checkout(self):
+        self.add_to_cart()
+        self.client.post("/cart/checkout", random_card(bad=random.random() < 0.01))
+
+    @task(1)
+    def set_currency(self):
+        self.client.post("/setCurrency", {"currency_code": random_currency()})
 
 
-class WebsiteUser(HttpLocust):
-    task_set = UserBehavior
-    min_wait = 1000
-    max_wait = 10000
+class HourlyWave(LoadTestShape):
+    fast_low_end = 10
+    fast_high_end = 30
+
+    slow_low_end = 0
+    slow_high_end = 50
+
+    def tick(self):
+        now = datetime.datetime.now()
+        fast_factor = (now.minute / 60) ** 2
+        fast_total = self.fast_low_end + (self.fast_high_end - self.fast_low_end) * fast_factor
+        slow_factor = ((now.minute + (now.hour % 4) * 60) / 240) ** 3
+        slow_total = self.slow_low_end + (self.slow_high_end - self.slow_low_end) * slow_factor
+        return fast_total + slow_total, 1
