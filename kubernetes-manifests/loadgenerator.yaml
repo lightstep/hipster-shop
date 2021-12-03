@@ -35,11 +35,16 @@ spec:
         - -exc
         - |
           echo "Init container pinging frontend: ${FRONTEND_ADDR}..."
-          STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
-          if test $STATUSCODE -ne 200; then
-              echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
-              exit 1
-          fi
+          for i in $(seq 1 60); do
+            STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
+            if test $STATUSCODE -eq 200; then
+                exit 0
+            else
+                echo "Front end not yet ready - Status code: ${STATUSCODE}"
+                sleep 1
+            fi
+          done
+          exit 1
         name: frontend-check
         image: busybox:latest
         env:
