@@ -1,21 +1,26 @@
 This is a [Lightstep](https://lightstep.com) fork of https://github.com/GoogleCloudPlatform/microservices-demo
 
+> 🔎 Looking for the latest examples of using [OpenTelemetry](https://opentelemetry.io/) instrumentation with microservices? Check out **[opentelemetry-demo-webstore](https://github.com/open-telemetry/opentelemetry-demo-webstore)**, a new community-driven project.
+
 # Hipster Shop: Cloud-Native Observability Demo Application
 
-- [Service Architecture](#service-architecture)
-- [Features](#features)
-- [Installation Options](#installation-options)
-- [Prerequisites](#prerequisites)
-  - [GKE Installation Only](#gke-installation-only)
-  - [Local Installation Only](#local-installation-only)
-  - [All Installations](#all-installations)
-- [GKE Installation](#gke-installation)
-- [Local Installation](#local-installation)
-- [(Optional) Deploying on a Istio-installed GKE cluster](#optional-deploying-on-a-istio-installed-gke-cluster)
-- [(Experimental) Deploying on an Istio-installed AWS EKS Cluster](#experimental-deploying-on-an-istio-installed-aws-eks-cluster)
-- [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep)
-- [Cleanup](#cleanup)
-- [Conferences featuring Hipster Shop](#conferences-featuring-hipster-shop)
+- [Hipster Shop: Cloud-Native Observability Demo Application](#hipster-shop-cloud-native-observability-demo-application)
+  - [Service Architecture](#service-architecture)
+  - [Features](#features)
+  - [Installation Options](#installation-options)
+  - [Prerequisites](#prerequisites)
+    - [GKE Installation Only](#gke-installation-only)
+    - [Local Installation Only](#local-installation-only)
+    - [All Installations](#all-installations)
+  - [GKE Installation](#gke-installation)
+  - [Local Installation](#local-installation)
+    - [(Optional) Deploying on an Istio-installed GKE Cluster](#optional-deploying-on-an-istio-installed-gke-cluster)
+  - [(Experimental) Deploying on an Istio-installed AWS EKS Cluster](#experimental-deploying-on-an-istio-installed-aws-eks-cluster)
+    - [Prerequisites](#prerequisites-1)
+    - [Instructions](#instructions)
+  - [See Telemetry Data in LightStep](#see-telemetry-data-in-lightstep)
+  - [Cleanup](#cleanup)
+  - [Conferences Featuring Hipster Shop](#conferences-featuring-hipster-shop)
 
 
 The application is a web-based e-commerce app called **Hipster Shop** where users can browse items,
