@@ -14,17 +14,17 @@ flask==1.1.2
     # via opentelemetry-instrumentation-flask
 googleapis-common-protos==1.52.0
     # via opentelemetry-exporter-otlp
-grpcio-health-checking==1.13.0
-    # via -r requirements.in
 grpcio==1.35.0
     # via
     #   -r requirements.in
     #   grpcio-health-checking
     #   opentelemetry-exporter-otlp
     #   opentelemetry-instrumentation-grpc
+grpcio-health-checking==1.13.0
+    # via -r requirements.in
 itsdangerous==1.1.0
     # via flask
-jinja2==2.11.2
+jinja2==2.11.3
     # via
     #   flask
     #   opentelemetry-instrumentation-jinja2
@@ -48,6 +48,14 @@ opentelemetry-api==0.17b0
     #   opentelemetry-sdk
 opentelemetry-exporter-otlp==0.17b0
     # via opentelemetry-launcher
+opentelemetry-instrumentation==0.17b0
+    # via
+    #   opentelemetry-instrumentation-dbapi
+    #   opentelemetry-instrumentation-flask
+    #   opentelemetry-instrumentation-jinja2
+    #   opentelemetry-instrumentation-sqlite3
+    #   opentelemetry-instrumentation-wsgi
+    #   opentelemetry-launcher
 opentelemetry-instrumentation-dbapi==0.17b0
     # via opentelemetry-instrumentation-sqlite3
 opentelemetry-instrumentation-flask==0.17b0
@@ -62,14 +70,6 @@ opentelemetry-instrumentation-system-metrics==0.17b0
     # via opentelemetry-launcher
 opentelemetry-instrumentation-wsgi==0.17b0
     # via opentelemetry-instrumentation-flask
-opentelemetry-instrumentation==0.17b0
-    # via
-    #   opentelemetry-instrumentation-dbapi
-    #   opentelemetry-instrumentation-flask
-    #   opentelemetry-instrumentation-jinja2
-    #   opentelemetry-instrumentation-sqlite3
-    #   opentelemetry-instrumentation-wsgi
-    #   opentelemetry-launcher
 opentelemetry-launcher==0.17b0
     # via -r requirements.in
 opentelemetry-propagator-b3==0.17b0
